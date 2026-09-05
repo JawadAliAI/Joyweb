@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Theme tokens.
+ *
+ * Colours are stored as space-separated RGB channels so Tailwind can apply
+ * opacity modifiers (`bg-card/60`). The admin branding settings overwrite
+ * --color-primary and --color-secondary at runtime, so nothing downstream may
+ * hard-code a hex value.
+ */
+:root {
+  --color-bg: 24 27 33;              /* #181B21 */
+  --color-surface: 32 36 43;         /* #20242B */
+  --color-card: 44 49 56;            /* #2C3138 */
+  --color-elevated: 52 58 66;
+  --color-border: 58 64 72;          /* #3A4048 */
+
+  --color-primary: 24 184 135;       /* #18B887 */
+  --color-primary-foreground: 255 255 255;
+  --color-secondary: 240 185 11;     /* #F0B90B */
+  --color-danger: 233 75 103;        /* #E94B67 */
+  --color-warning: 240 185 11;       /* #F0B90B */
+
+  --color-fg: 255 255 255;           /* #FFFFFF */
+  --color-fg-muted: 146 153 165;     /* #9299A5 */
+  --color-fg-subtle: 110 117 128;
+
+  --radius-card: 14px;
+  --radius-control: 10px;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
+  --bottom-nav-height: 60px;
+
+  color-scheme: dark;
+}
+
+/*
+ * Optional light palette. The product ships dark (matching the reference
+ * design) but the tokens exist so a light theme is a class away rather than a
+ * rewrite.
+ */
+.theme-light {
+  --color-bg: 247 248 250;
+  --color-surface: 255 255 255;
+  --color-card: 255 255 255;
+  --color-elevated: 241 243 246;
+  --color-border: 223 227 233;
+  --color-fg: 18 21 26;
+  --color-fg-muted: 100 108 120;
+  --color-fg-subtle: 140 148 160;
+  color-scheme: light;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-bg text-fg font-sans antialiased;
+    /* Keep content clear of the fixed bottom navigation on mobile. */
+    overscroll-behavior-y: none;
+  }
+
+  /* Visible, consistent focus for keyboard users on every interactive element. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-bg;
+  }
+
+  /* Numeric readouts should not jitter as digits change. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-border;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer components {
+  /* Screen-reader-only text used for icon-only controls. */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* Every tappable control clears the 44px touch target minimum. */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

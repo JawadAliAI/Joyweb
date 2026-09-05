@@ -1,0 +1,28 @@
+# Secrets - never bake into an image
+.env
+.env.*
+!.env.example
+
+# Node / Next
+node_modules/
+.next/
+out/
+build/
+dist/
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+coverage/
+
+# VCS / editor / OS
+.git/
+.gitignore
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Docs
+*.md
+Dockerfile
+.dockerignore

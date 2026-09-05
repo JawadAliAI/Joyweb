@@ -1,0 +1,35 @@
+# Secrets - never bake into an image
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local databases / logs
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# VCS / editor / OS
+.git/
+.gitignore
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Docs not needed at runtime. `tests/` is deliberately KEPT: `make test` runs
+# `docker compose run --rm backend pytest -q` inside this image.
+*.md

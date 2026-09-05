@@ -1,0 +1,84 @@
+# CryptoDemo Exchange - DEMO / PAPER TRADING platform.
+#
+# Secrets have NO defaults on purpose: `${VAR:?message}` makes compose abort with
+# a readable error if the variable is missing, so an image can never start with a
+# guessable JWT secret or database password. Copy .env.example to .env first.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cryptodemo}
+      POSTGRES_USER: ${POSTGRES_USER:-cryptodemo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cryptodemo} -d ${POSTGRES_DB:-cryptodemo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_NAME: ${APP_NAME:-CryptoDemo Exchange}
+      DEMO_MODE: "true"
+      DEMO_LABEL: ${DEMO_LABEL:-DEMO / PAPER TRADING}
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-cryptodemo}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}@db:5432/${POSTGRES_DB:-cryptodemo}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env - generate one with openssl rand -hex 32}
+      JWT_ACCESS_TTL_MINUTES: ${JWT_ACCESS_TTL_MINUTES:-30}
+      JWT_REFRESH_TTL_DAYS: ${JWT_REFRESH_TTL_DAYS:-7}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
+      COOKIE_SAMESITE: ${COOKIE_SAMESITE:-lax}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      PASSWORD_RESET_TTL_MINUTES: ${PASSWORD_RESET_TTL_MINUTES:-60}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+      SEED_DEMO_EMAIL: ${SEED_DEMO_EMAIL:-demo@example.com}
+      SEED_DEMO_PASSWORD: ${SEED_DEMO_PASSWORD:-}
+      MARKET_DATA_PROVIDER: ${MARKET_DATA_PROVIDER:-binance}
+      MARKET_DATA_BASE_URL: ${MARKET_DATA_BASE_URL:-https://api.binance.com}
+      MARKET_DATA_API_KEY: ${MARKET_DATA_API_KEY:-}
+      MARKET_DATA_CACHE_SECONDS: ${MARKET_DATA_CACHE_SECONDS:-10}
+      SUPPORT_EMAIL: ${SUPPORT_EMAIL:-support@cryptodemo.example}
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api}
+        NEXT_PUBLIC_APP_NAME: ${APP_NAME:-CryptoDemo Exchange}
+        NEXT_PUBLIC_DEMO_LABEL: ${DEMO_LABEL:-DEMO / PAPER TRADING}
+        BACKEND_INTERNAL_URL: ${BACKEND_INTERNAL_URL:-http://backend:8000}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      # Relative by default so the browser talks to one origin and the HTTP-only
+      # auth cookies work without any cross-site cookie configuration.
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api}
+      # Server-side only: where next.config.mjs rewrites /api/* to. Inside the
+      # compose network that is the backend service, never localhost.
+      BACKEND_INTERNAL_URL: ${BACKEND_INTERNAL_URL:-http://backend:8000}
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+
+volumes:
+  db_data:

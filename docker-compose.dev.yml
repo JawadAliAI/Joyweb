@@ -1,0 +1,37 @@
+# Development overlay.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# Bind-mounts the source so edits are picked up without a rebuild: uvicorn runs
+# with --reload and the frontend runs `next dev`.
+
+services:
+  backend:
+    build:
+      context: ./backend
+    environment:
+      ENVIRONMENT: development
+      COOKIE_SECURE: "false"
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  frontend:
+    build:
+      context: ./frontend
+      target: deps
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api}
+      BACKEND_INTERNAL_URL: ${BACKEND_INTERNAL_URL:-http://backend:8000}
+      NEXT_PUBLIC_APP_NAME: ${APP_NAME:-CryptoDemo Exchange}
+      NEXT_PUBLIC_DEMO_LABEL: ${DEMO_LABEL:-DEMO / PAPER TRADING}
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      # Keep the image's node_modules; the host copy (if any) must not shadow it.
+      - /app/node_modules
+    command: sh -c "npm run dev -- --port 3000 --hostname 0.0.0.0"
