@@ -23,6 +23,16 @@ const config: Config = {
           muted: 'rgb(var(--color-primary) / 0.12)',
         },
         secondary: 'rgb(var(--color-secondary) / <alpha-value>)',
+        rail: {
+          DEFAULT: 'rgb(var(--color-rail) / <alpha-value>)',
+          fg: 'rgb(var(--color-rail-fg) / <alpha-value>)',
+          hover: 'rgb(var(--color-rail-hover) / <alpha-value>)',
+        },
+        shimmer: 'rgb(var(--color-shimmer) / <alpha-value>)',
+        tile: {
+          DEFAULT: 'rgb(var(--color-tile) / <alpha-value>)',
+          foreground: 'rgb(var(--color-tile-foreground) / <alpha-value>)',
+        },
         danger: 'rgb(var(--color-danger) / <alpha-value>)',
         warning: 'rgb(var(--color-warning) / <alpha-value>)',
         success: 'rgb(var(--color-primary) / <alpha-value>)',
@@ -33,6 +43,7 @@ const config: Config = {
       borderRadius: {
         card: 'var(--radius-card)',
         control: 'var(--radius-control)',
+        panel: 'var(--radius-panel)',
         pill: '999px',
       },
       fontFamily: {
@@ -48,7 +59,7 @@ const config: Config = {
         'safe-bottom': 'env(safe-area-inset-bottom)',
       },
       boxShadow: {
-        card: '0 1px 2px rgb(0 0 0 / 0.24)',
+        card: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
         raised: '0 8px 24px -8px rgb(0 0 0 / 0.5)',
       },
       keyframes: {

@@ -190,6 +190,13 @@ class FreezeResultOut(CamelModel):
     message: str
 
 
+class AssignAgentIn(CamelModel):
+    """Move a member into an agent's downline, or detach them with null."""
+
+    agent_id: str | None = Field(None, max_length=36)
+    reason: str = Field(..., min_length=1, max_length=2000)
+
+
 class BalanceAdjustIn(CamelModel):
     asset: str
     amount: Decimal = Field(..., gt=0)
@@ -617,8 +624,15 @@ class BulkTestScenarioOut(CamelModel):
 
 
 class ForceNextTradeIn(CamelModel):
-    """One-step QA setup: flag the account and queue the next outcome."""
+    """One-step QA setup: flag the account and queue the next outcome.
+
+    `reason` is optional here, unlike the other audited actions. This one is
+    clicked repeatedly during a QA run, and a mandatory box on every click
+    trains people to type a character and move on, which is worse than a
+    truthful default. The audit row is written either way, with the actor, the
+    target account, the trade and the outcome.
+    """
 
     forced_outcome: Literal["WIN", "LOSS", "DRAW"]
     label: str | None = Field(None, max_length=120)
-    reason: str = Field(..., min_length=1, max_length=2000)
+    reason: str | None = Field(None, max_length=2000)

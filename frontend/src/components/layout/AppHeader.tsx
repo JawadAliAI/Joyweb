@@ -1,19 +1,28 @@
 'use client';
 
 /**
- * Customer header: brand on the left, notifications and the profile menu on
- * the right, with the permanent simulation badge beside the product name.
+ * Customer header.
+ *
+ * The wallet chips, the market search, the notification bell, the deposit
+ * action, and the signed-in account on the far right (which is also the profile
+ * menu trigger).
+ *
+ * The brand lives at the top of the sidebar, so it appears here only below
+ * `lg` where there is no sidebar — exactly one mark is on screen at any width.
+ * Balances are the user's own simulated wallet, read from the API.
  */
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import {
-  Bell, ChevronDown, History, LifeBuoy, LogOut, Receipt, Shield, User as UserIcon,
+  ArrowDownToLine, Bell, ChevronDown, History, LifeBuoy, LogOut, Receipt, Search,
+  Shield, UserCog, User as UserIcon,
 } from 'lucide-react';
-import { cn } from '@/lib/format';
+import { cn, formatAmount } from '@/lib/format';
 import { usePlatform } from '@/components/providers';
-import { useLogout, useSession, useUnreadCount } from '@/hooks/useSession';
+import { useLogout, usePortfolio, useSession, useUnreadCount } from '@/hooks/useSession';
 import { DemoBadge } from '@/components/layout/DemoBadge';
+import { Skeleton } from '@/components/ui/primitives';
 
 const MENU_ITEMS = [
   { href: '/profile', label: 'My Profile', icon: UserIcon },
@@ -23,13 +32,46 @@ const MENU_ITEMS = [
   { href: '/support', label: 'Support', icon: LifeBuoy },
 ];
 
+/** One wallet figure, styled as the reference's bordered chip. */
+function WalletChip({
+  label,
+  value,
+  loading,
+  tone = 'default',
+}: {
+  label: string;
+  value: string;
+  loading?: boolean;
+  tone?: 'default' | 'accent';
+}) {
+  return (
+    <div className="rounded-control border border-border bg-card px-3 py-1.5">
+      <p className="text-[10px] font-medium uppercase tracking-wide text-muted">{label}</p>
+      {loading ? (
+        <Skeleton className="mt-1 h-3.5 w-20" />
+      ) : (
+        <p
+          className={cn(
+            'tabular text-sm font-semibold leading-tight',
+            tone === 'accent' ? 'text-primary' : 'text-fg',
+          )}
+        >
+          {value}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function AppHeader() {
   const { config } = usePlatform();
   const { user } = useSession();
   const { data: unread } = useUnreadCount();
+  const portfolio = usePortfolio();
   const logout = useLogout();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [term, setTerm] = useState('');
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -50,58 +92,135 @@ export function AppHeader() {
 
   const initials =
     user ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || 'U' : '';
+  const usdt = portfolio.data?.assets.find((asset) => asset.asset === 'DEMO_USDT');
+  const pricesDown = portfolio.data?.pricesAvailable === false;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4">
-        <Link href="/" className="flex min-w-0 items-center gap-2">
+    /*
+     * A flat white bar across the top of the content column, matching the
+     * back office it now shares a look with. 50px tall, one hairline rule,
+     * no gap and no radius.
+     */
+    <div className="sticky top-0 z-40 bg-surface pt-[env(safe-area-inset-top)]">
+      <header className="flex h-[50px] items-center gap-3 border-b border-border bg-surface px-[15px]">
+        {/* Brand — below `lg` only. From `lg` up the sidebar carries it, so
+            exactly one mark is on screen at any width. */}
+        <Link
+          href="/"
+          className="flex min-w-0 max-w-[210px] shrink-0 items-center gap-2 lg:hidden"
+        >
           <span
             aria-hidden
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-base font-bold text-primary-foreground"
           >
             {config.appName.charAt(0)}
           </span>
           <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold text-fg">
+            <span className="block truncate text-sm font-semibold leading-tight text-fg">
               {config.appName}
             </span>
             <DemoBadge className="mt-0.5" compact />
           </span>
         </Link>
 
-        <div className="flex items-center gap-1">
+        {/* Wallet chips — the reference's spot/futures pair. This platform has
+            no futures product, so the second chip is the balance that actually
+            gates a demo trade. */}
+        <div className="hidden shrink-0 items-center gap-2 xl:flex">
+          <WalletChip
+            label="Demo wallet"
+            loading={portfolio.isLoading}
+            value={pricesDown ? 'Unavailable' : `$${formatAmount(portfolio.data?.totalEstimatedValue)}`}
+          />
+          <WalletChip
+            label="Free to trade"
+            loading={portfolio.isLoading}
+            tone="accent"
+            value={usdt ? `${formatAmount(usdt.available)} USDT` : '—'}
+          />
+        </div>
+
+        {/* Market search. Submitting hands the term to the markets screen. */}
+        <form
+          role="search"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const query = term.trim();
+            router.push(query ? `/markets?q=${encodeURIComponent(query)}` : '/markets');
+          }}
+          className="mx-auto hidden min-w-0 max-w-sm flex-1 lg:block"
+        >
+          <div className="relative">
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle"
+              aria-hidden
+            />
+            <input
+              type="search"
+              value={term}
+              onChange={(event) => setTerm(event.target.value)}
+              placeholder="Search coins…"
+              aria-label="Search coins"
+              className={cn(
+                'h-10 w-full rounded-pill border border-border bg-card pl-9 pr-3 text-sm',
+                'text-fg placeholder:text-subtle focus:border-primary focus:outline-none',
+              )}
+            />
+          </div>
+        </form>
+
+        <div className="ml-auto flex shrink-0 items-center gap-1 lg:ml-0">
           <Link
             href="/notifications"
             className="relative flex touch-target items-center justify-center rounded-control text-muted transition-colors hover:text-fg"
-            aria-label={
-              unread?.unread
-                ? `Notifications, ${unread.unread} unread`
-                : 'Notifications'
-            }
+            aria-label={unread?.unread ? `Notifications, ${unread.unread} unread` : 'Notifications'}
           >
             <Bell className="h-5 w-5" aria-hidden />
             {Boolean(unread?.unread) && (
               <span
                 aria-hidden
-                className="absolute right-2 top-2 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white"
+                className="absolute right-1.5 top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground"
               >
                 {unread!.unread > 9 ? '9+' : unread!.unread}
               </span>
             )}
           </Link>
 
-          <div ref={menuRef} className="relative">
+          <Link
+            href="/assets/deposit"
+            className={cn(
+              'hidden touch-target items-center gap-2 rounded-pill bg-primary px-4 sm:inline-flex',
+              'text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90',
+            )}
+          >
+            Deposit
+            <ArrowDownToLine className="h-4 w-4" aria-hidden />
+          </Link>
+
+          {/* Account + profile menu, far right. */}
+          <div ref={menuRef} className="relative ml-1 shrink-0">
             <button
               type="button"
               onClick={() => setOpen((current) => !current)}
               aria-haspopup="menu"
               aria-expanded={open}
-              className="flex touch-target items-center gap-1 rounded-control px-1 text-muted hover:text-fg"
+              className="flex touch-target items-center gap-2 rounded-control px-1 text-left transition-colors hover:bg-card"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-xs font-semibold text-primary">
-                {initials || <UserIcon className="h-4 w-4" aria-hidden />}
+              <span
+                aria-hidden
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-semibold text-primary"
+              >
+                {initials || <UserIcon className="h-4 w-4" />}
               </span>
-              <ChevronDown className="h-4 w-4" aria-hidden />
+              <span className="hidden min-w-0 xl:block">
+                <span className="block truncate text-sm font-semibold leading-tight text-fg">
+                  {user?.fullName ?? 'Account'}
+                </span>
+                <span className="block max-w-[160px] truncate text-[11px] leading-tight text-muted">
+                  {user?.email ?? ''}
+                </span>
+              </span>
+              <ChevronDown className="h-4 w-4 shrink-0 text-muted" aria-hidden />
               <span className="sr-only">Account menu</span>
             </button>
 
@@ -130,18 +249,33 @@ export function AppHeader() {
                       </Link>
                     </li>
                   ))}
-                  {user?.role !== 'USER' && (
-                    <li>
-                      <Link
-                        role="menuitem"
-                        href="/admin"
-                        onClick={() => setOpen(false)}
-                        className="flex touch-target items-center gap-3 px-4 text-sm text-primary hover:bg-card"
-                      >
-                        <Shield className="h-4 w-4" aria-hidden />
-                        Admin dashboard
-                      </Link>
-                    </li>
+                  {user && user.role !== 'USER' && (
+                    <>
+                      {(user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') && (
+                        <li>
+                          <Link
+                            role="menuitem"
+                            href="/admin"
+                            onClick={() => setOpen(false)}
+                            className="flex touch-target items-center gap-3 px-4 text-sm text-primary hover:bg-card"
+                          >
+                            <Shield className="h-4 w-4" aria-hidden />
+                            Admin portal
+                          </Link>
+                        </li>
+                      )}
+                      <li>
+                        <Link
+                          role="menuitem"
+                          href="/agent"
+                          onClick={() => setOpen(false)}
+                          className="flex touch-target items-center gap-3 px-4 text-sm text-primary hover:bg-card"
+                        >
+                          <UserCog className="h-4 w-4" aria-hidden />
+                          Agent portal
+                        </Link>
+                      </li>
+                    </>
                   )}
                 </ul>
                 <div className="border-t border-border py-1">
@@ -153,9 +287,7 @@ export function AppHeader() {
                       logout.mutate();
                       router.replace('/login');
                     }}
-                    className={cn(
-                      'flex w-full touch-target items-center gap-3 px-4 text-sm text-danger hover:bg-card',
-                    )}
+                    className="flex w-full touch-target items-center gap-3 px-4 text-sm text-danger hover:bg-card"
                   >
                     <LogOut className="h-4 w-4" aria-hidden />
                     Logout
@@ -165,7 +297,7 @@ export function AppHeader() {
             )}
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </div>
   );
 }

@@ -212,7 +212,11 @@ export function SearchInput({
         value={value}
         onChange={(event) => onValueChange(event.target.value)}
         placeholder={placeholder}
-        className={cn(FIELD_BASE, 'pl-9')}
+        className={cn(
+          'h-11 w-full rounded-pill border border-border bg-card pl-9 pr-3 text-sm',
+          'text-fg placeholder:text-subtle transition-colors',
+          'focus:border-primary focus:outline-none',
+        )}
       />
       <svg
         aria-hidden

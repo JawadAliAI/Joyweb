@@ -118,9 +118,18 @@ def _transaction_row(tx: Transaction) -> dict[str, Any]:
     }
 
 
-def _trade_row(trade: Trade) -> dict[str, Any]:
+def _trade_row(trade: Trade, member: User | None = None) -> dict[str, Any]:
+    """One position.
+
+    `member` carries who placed it. The row reads `userId` alone without it,
+    which is enough on a screen that already knows whose account it is showing
+    (the user detail page) but useless on a platform-wide list.
+    """
     return {
         "id": trade.id, "userId": trade.user_id, "symbol": trade.symbol,
+        "username": member.username if member else None,
+        "email": member.email if member else None,
+        "isTestAccount": bool(member.is_test_account) if member else None,
         "direction": trade.direction, "asset": trade.asset,
         "amount": _money(trade.amount), "durationSeconds": trade.duration_seconds,
         "payoutPercent": _money(trade.payout_percent),
@@ -460,6 +469,53 @@ def debit_balance(user_id: str, body: schemas.BalanceAdjustIn, request: Request,
                                           body.reason, admin_service.DEBIT, request)
     db.commit()
     return ok(result)
+
+
+@router.post("/users/{user_id}/agent", summary="Move a member into an agent's downline")
+def assign_agent(user_id: str, body: schemas.AssignAgentIn, request: Request,
+                 db: Session = Depends(get_db),
+                 admin: User = Depends(require_admin)) -> dict[str, Any]:
+    """Attach a member to an agent, or detach them with a null ``agentId``.
+
+    Registration normally sets this from the invitation the account was created
+    with. This is the administrator's way to correct that after the fact — for
+    an account that predates the agent tier, or one signed up directly.
+
+    An agent account's own upline is set here too: pointing an ``AGENT`` at
+    another agent makes it a sub-agent.
+    """
+    target = _get_user(db, user_id)
+    admin_service.require_reason(body.reason)
+
+    agent = None
+    if body.agent_id:
+        agent = db.get(User, body.agent_id)
+        if agent is None or agent.role != Role.AGENT.value:
+            raise ValidationError("That account is not an agent.", code="NOT_AN_AGENT")
+        if agent.id == target.id:
+            raise ValidationError("An account cannot be its own agent.",
+                                  code="SELF_ASSIGNMENT")
+
+    # An agent joining another agent becomes a sub-agent; anyone else becomes a
+    # member. Writing to one column or the other keeps the two relationships
+    # from ever describing the same pair twice.
+    field = "agent_parent_id" if target.role == Role.AGENT.value else "agent_id"
+    previous = getattr(target, field)
+    setattr(target, field, agent.id if agent else None)
+
+    audit_service.record(
+        db, AuditAction.USER_UPDATED, actor=admin, target_user_id=target.id,
+        old_value={field: previous}, new_value={field: agent.id if agent else None},
+        reason=body.reason, request=request)
+    db.commit()
+
+    return ok({
+        "userId": target.id,
+        "email": target.email,
+        "relationship": field,
+        "agentId": agent.id if agent else None,
+        "agentUsername": agent.username if agent else None,
+    })
 
 
 @router.post("/users/{user_id}/credit-score", summary="Set the internal demo account score")
@@ -918,7 +974,19 @@ def list_trades(user_id: str | None = Query(None, alias="userId"),
         stmt = stmt.where(Trade.outcome == outcome.upper())
     stmt = stmt.order_by(Trade.created_at.desc())
     rows, total = admin_service.paginated(db, stmt, params.page, params.page_size)
-    return ok(paginate([_trade_row(t) for t in rows], total, params))
+
+    members = {}
+    if rows:
+        members = {u.id: u for u in db.scalars(
+            select(User).where(User.id.in_({t.user_id for t in rows})))}
+
+    payload = paginate([_trade_row(t, members.get(t.user_id)) for t in rows],
+                       total, params)
+    # Counters for the live view, over the whole filtered set rather than the page.
+    payload["openCount"] = db.scalar(
+        select(func.count()).select_from(Trade)
+        .where(Trade.status == TradeStatus.OPEN.value)) or 0
+    return ok(payload)
 
 
 # --------------------------------------------------------------------------- #
@@ -1184,7 +1252,9 @@ def force_next_trade(user_id: str, body: schemas.ForceNextTradeIn, request: Requ
     are written to the audit log.
     """
     target = _get_user(db, user_id)
-    admin_service.require_reason(body.reason)
+    # Optional by design — see `ForceNextTradeIn`. The fallback still tells a
+    # later reader what produced the row rather than leaving it blank.
+    reason = (body.reason or "").strip() or "Scripted outcome set from the positions screen."
 
     was_flagged = bool(target.is_test_account)
     if not was_flagged:
@@ -1192,7 +1262,7 @@ def force_next_trade(user_id: str, body: schemas.ForceNextTradeIn, request: Requ
         audit_service.record(
             db, AuditAction.USER_UPDATED, actor=admin, target_user_id=target.id,
             old_value={"isTestAccount": False}, new_value={"isTestAccount": True},
-            reason=body.reason, request=request)
+            reason=reason, request=request)
         notification_service.notify(
             db, target.id, "Account marked as a test account",
             "An administrator marked this account as a QA test account. Trade "
@@ -1242,7 +1312,7 @@ def force_next_trade(user_id: str, body: schemas.ForceNextTradeIn, request: Requ
                    "appliedToOpenTrade": applied_to_open_trade,
                    "accountWasAlreadyFlagged": was_flagged,
                    "supersededScenarios": len(superseded)},
-        reason=body.reason, request=request)
+        reason=reason, request=request)
     db.commit()
 
     if applied_to_open_trade:

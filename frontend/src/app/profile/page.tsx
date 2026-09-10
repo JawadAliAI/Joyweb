@@ -110,7 +110,7 @@ export default function ProfilePage() {
   return (
     <AppShell>
       <PageHeader title="Profile" backHref="/" action={<DemoBadge compact />} />
-      <PageBody>
+      <PageBody width="wide">
         {session.isLoading ? (
           <div className="space-y-3">
             <Skeleton className="h-24 w-full" />
@@ -123,8 +123,8 @@ export default function ProfilePage() {
             onRetry={() => void session.refetch()}
           />
         ) : user ? (
-          <div className="space-y-4">
-            <Card>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card className="md:col-span-2">
               <CardBody className="flex items-center gap-4">
                 <span
                   aria-hidden
@@ -176,7 +176,7 @@ export default function ProfilePage() {
                 <DataRow label="Score" tone="strong" value={user.creditScore} />
                 <Divider />
                 <DataRow label="Band" value={user.creditScoreBand} />
-                <p className="mt-3 rounded-control bg-warning/10 px-3 py-2 text-xs leading-relaxed text-warning">
+                <p className="mt-3 rounded-control bg-primary/10 px-3 py-2 text-xs leading-relaxed text-primary">
                   This is an internal demo account score used only inside this paper-trading
                   simulator. It is <strong className="font-bold">not</strong> a credit-bureau
                   score, is not reported to any agency, and has no effect on your real-world
@@ -244,7 +244,7 @@ export default function ProfilePage() {
               </CardBody>
             </Card>
 
-            <Card>
+            <Card className="md:col-span-2">
               <CardBody className="space-y-2">
                 <nav aria-label="Account links">
                   <ul className="space-y-2">

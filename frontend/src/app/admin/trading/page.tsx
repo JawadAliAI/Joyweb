@@ -461,7 +461,7 @@ export default function AdminTradingPage() {
   const busy = create.isPending || update.isPending;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-[15px]">
       {/* Master switch */}
       <Card>
         <CardHeader

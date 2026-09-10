@@ -1,8 +1,8 @@
 'use client';
 
 /**
- * Underlined tab strip, as used for the market quote filters (Favorites /
- * USDT / BTC / ETH) and the Spot header on the assets screen.
+ * Tab strip in two shapes: `underline` for section headers, and `pill` — the
+ * dashboard's green filled toggle — for filters.
  *
  * Implemented with the ARIA tab pattern: arrow keys move between tabs and only
  * the active tab is in the tab order.
@@ -47,7 +47,7 @@ export function Tabs({
       aria-label={ariaLabel}
       className={cn(
         'no-scrollbar flex gap-1 overflow-x-auto',
-        variant === 'underline' ? 'border-b border-border' : 'rounded-control bg-surface p-1',
+        variant === 'underline' ? 'border-b border-border' : 'rounded-pill bg-elevated/60 p-1',
         className,
       )}
       onKeyDown={(event) => {
@@ -76,14 +76,14 @@ export function Tabs({
             tabIndex={active ? 0 : -1}
             onClick={() => onChange(item.value)}
             className={cn(
-              'relative shrink-0 whitespace-nowrap px-3.5 py-2.5 text-sm font-medium transition-colors',
+              'relative shrink-0 whitespace-nowrap transition-colors',
               variant === 'underline'
                 ? active
-                  ? 'text-primary'
-                  : 'text-muted hover:text-fg'
+                  ? 'px-3.5 py-2.5 text-sm font-medium text-primary'
+                  : 'px-3.5 py-2.5 text-sm font-medium text-muted hover:text-fg'
                 : active
-                  ? 'rounded-control bg-elevated text-fg'
-                  : 'rounded-control text-muted hover:text-fg',
+                  ? 'rounded-pill bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground'
+                  : 'rounded-pill px-3.5 py-1.5 text-xs font-semibold text-muted hover:text-fg',
             )}
           >
             {item.label}

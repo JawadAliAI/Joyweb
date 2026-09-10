@@ -99,6 +99,10 @@ export interface AdminTransaction {
 export interface AdminTrade {
   id: string;
   userId: string;
+  /** Who placed it. Null on rows fetched from a screen that already knows. */
+  username: string | null;
+  email: string | null;
+  isTestAccount: boolean | null;
   symbol: string;
   direction: string;
   asset: string;

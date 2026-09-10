@@ -229,7 +229,7 @@ export default function AdvancedKycPage() {
         action={<DemoBadge compact />}
       />
       <PageBody>
-        <SimulationNotice tone="warning">
+        <SimulationNotice tone="emphasis">
           <strong className="font-bold">Simulated verification.</strong> This demo platform performs
           no real identity verification — uploaded images are not read, matched or checked against
           anything. <strong className="font-bold">Do not upload real identity documents.</strong>{' '}

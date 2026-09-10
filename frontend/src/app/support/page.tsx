@@ -90,96 +90,98 @@ export default function SupportPage() {
   return (
     <AppShell>
       <PageHeader title="Support" backHref="/profile" />
-      <PageBody>
+      <PageBody width="wide">
         <SimulationNotice>
           Support here covers this paper-trading demo only. Do not share real financial details,
           real wallet keys or real personal documents.
         </SimulationNotice>
 
-        <Card>
-          <CardHeader title="New ticket" />
-          <CardBody className="space-y-4 pt-3">
-            <Input
-              label="Subject"
-              placeholder="Briefly describe the issue"
-              value={subject}
-              error={errors.subject}
-              maxLength={120}
-              onChange={(event) => setSubject(event.target.value)}
-            />
-            {categories.isError ? (
-              <FormError message={errorMessage(categories.error, 'Could not load categories.')} />
-            ) : (
-              <Select
-                label="Category"
-                value={category}
-                error={errors.category}
-                disabled={categories.isLoading}
-                options={(categories.data?.categories ?? []).map((item) => ({
-                  value: item.value,
-                  label: item.label,
-                }))}
-                onChange={(event) => setCategory(event.target.value)}
+        <div className="grid items-start gap-4 lg:grid-cols-[380px_minmax(0,1fr)]">
+          <Card>
+            <CardHeader title="New ticket" />
+            <CardBody className="space-y-4 pt-3">
+              <Input
+                label="Subject"
+                placeholder="Briefly describe the issue"
+                value={subject}
+                error={errors.subject}
+                maxLength={120}
+                onChange={(event) => setSubject(event.target.value)}
               />
-            )}
-            <Textarea
-              label="Message"
-              placeholder="What happened, and what did you expect?"
-              value={message}
-              error={errors.message}
-              maxLength={4000}
-              onChange={(event) => setMessage(event.target.value)}
-              hint={`${message.length}/4000`}
-            />
-            <FormError message={formError} />
-            <Button fullWidth loading={create.isPending} onClick={submit}>
-              Submit ticket
-            </Button>
-          </CardBody>
-        </Card>
+              {categories.isError ? (
+                <FormError message={errorMessage(categories.error, 'Could not load categories.')} />
+              ) : (
+                <Select
+                  label="Category"
+                  value={category}
+                  error={errors.category}
+                  disabled={categories.isLoading}
+                  options={(categories.data?.categories ?? []).map((item) => ({
+                    value: item.value,
+                    label: item.label,
+                  }))}
+                  onChange={(event) => setCategory(event.target.value)}
+                />
+              )}
+              <Textarea
+                label="Message"
+                placeholder="What happened, and what did you expect?"
+                value={message}
+                error={errors.message}
+                maxLength={4000}
+                onChange={(event) => setMessage(event.target.value)}
+                hint={`${message.length}/4000`}
+              />
+              <FormError message={formError} />
+              <Button fullWidth loading={create.isPending} onClick={submit}>
+                Submit ticket
+              </Button>
+            </CardBody>
+          </Card>
 
-        <Card>
-          <CardHeader title="Your tickets" />
-          <CardBody className="pt-2">
-            {tickets.isLoading ? (
-              <ListSkeleton rows={3} />
-            ) : tickets.isError ? (
-              <ErrorState
-                title="Could not load your tickets"
-                description={errorMessage(tickets.error)}
-                onRetry={() => void tickets.refetch()}
-              />
-            ) : !tickets.data || tickets.data.items.length === 0 ? (
-              <EmptyState
-                icon={<LifeBuoy className="h-8 w-8" aria-hidden />}
-                title="No tickets yet"
-                description="Open a ticket above and your conversation will appear here."
-              />
-            ) : (
-              <ul className="divide-y divide-border/70">
-                {tickets.data.items.map((ticket) => (
-                  <li key={ticket.id}>
-                    <Link
-                      href={`/support/${ticket.id}`}
-                      className="flex touch-target items-center gap-3 py-3"
-                    >
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium text-fg">
-                          {ticket.subject}
+          <Card>
+            <CardHeader title="Your tickets" />
+            <CardBody className="pt-2">
+              {tickets.isLoading ? (
+                <ListSkeleton rows={3} />
+              ) : tickets.isError ? (
+                <ErrorState
+                  title="Could not load your tickets"
+                  description={errorMessage(tickets.error)}
+                  onRetry={() => void tickets.refetch()}
+                />
+              ) : !tickets.data || tickets.data.items.length === 0 ? (
+                <EmptyState
+                  icon={<LifeBuoy className="h-8 w-8" aria-hidden />}
+                  title="No tickets yet"
+                  description="Open a ticket above and your conversation will appear here."
+                />
+              ) : (
+                <ul className="divide-y divide-border/70">
+                  {tickets.data.items.map((ticket) => (
+                    <li key={ticket.id}>
+                      <Link
+                        href={`/support/${ticket.id}`}
+                        className="flex touch-target items-center gap-3 py-3"
+                      >
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium text-fg">
+                            {ticket.subject}
+                          </span>
+                          <span className="mt-0.5 block truncate text-xs text-muted">
+                            {ticket.category} · updated {timeAgo(ticket.updatedAt)}
+                          </span>
                         </span>
-                        <span className="mt-0.5 block truncate text-xs text-muted">
-                          {ticket.category} · updated {timeAgo(ticket.updatedAt)}
-                        </span>
-                      </span>
-                      <Badge tone={STATUS_TONE[ticket.status]}>{ticket.status}</Badge>
-                      <ChevronRight className="h-4 w-4 shrink-0 text-muted" aria-hidden />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardBody>
-        </Card>
+                        <Badge tone={STATUS_TONE[ticket.status]}>{ticket.status}</Badge>
+                        <ChevronRight className="h-4 w-4 shrink-0 text-muted" aria-hidden />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardBody>
+          </Card>
+        </div>
       </PageBody>
     </AppShell>
   );

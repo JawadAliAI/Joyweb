@@ -10,7 +10,7 @@ from decimal import Decimal
 
 from sqlalchemy import select
 
-from app.db.models import AuditLog, TradeOutcome, UserStatus
+from app.db.models import AuditAction, AuditLog, TradeOutcome, UserStatus
 from app.services import wallet_service
 from tests.conftest import login
 
@@ -410,11 +410,23 @@ class TestForceNextTrade:
             select(Notification).where(Notification.user_id == demo_user.id))]
         assert any("test account" in title.lower() for title in titles)
 
-    def test_it_requires_a_reason(self, client, admin_user, demo_user):
+    def test_it_does_not_demand_a_reason_but_still_records_one(
+        self, client, seeded, admin_user, demo_user
+    ):
+        """This action is clicked repeatedly during a QA run, so the reason is
+        optional — but the audit row is never left blank."""
         login(client, admin_user.email)
-        assert client.post(f"/api/admin/users/{demo_user.id}/force-next-trade",
-                           json={"forcedOutcome": "WIN",
-                                 "reason": "  "}).status_code >= 400
+        response = client.post(f"/api/admin/users/{demo_user.id}/force-next-trade",
+                               json={"forcedOutcome": "WIN"})
+        assert response.status_code == 200, response.text
+
+        entry = seeded.scalars(
+            select(AuditLog)
+            .where(AuditLog.action == AuditAction.TEST_SCENARIO_CREATED.value)
+            .order_by(AuditLog.created_at.desc())
+        ).first()
+        assert entry is not None
+        assert (entry.reason or "").strip(), "the audit row must explain itself"
 
     def test_a_customer_cannot_call_it(self, client, demo_user):
         login(client, demo_user.email)

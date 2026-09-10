@@ -1,23 +1,34 @@
 'use client';
 
 /**
- * Home.
+ * Home — the customer dashboard.
  *
- * Everything on this screen belongs to the signed-in user and is read from the
- * API — the greeting, the balance, the prices and the activity list. Nothing
- * is hard-coded, and the simulation is labelled in three places.
+ * Layout follows the reference design: a greeting strip with wallet chips, a
+ * row of summary cards, then the quick trade ticket, the gainers/losers card
+ * and the market table, with recent activity in a side rail that drops
+ * underneath on narrow screens.
+ *
+ * Every figure on this screen is read from the API — the user's own balances,
+ * the platform's own markets, and real candles from the public price feed. Two
+ * panels in the reference could not be reproduced honestly and were replaced
+ * rather than filled with plausible-looking numbers: global market cap and BTC
+ * dominance (no supply data behind the price feed) and a per-coin market cap
+ * column. See the notes in StatCards and MarketBoard.
  */
 import Link from 'next/link';
-import { Sparkles } from 'lucide-react';
-import { AppShell, PageBody } from '@/components/layout/AppShell';
-import { DemoBadge, SimulationNotice } from '@/components/layout/DemoBadge';
-import { MarketTicker } from '@/components/market/MarketTicker';
+import { AppShell } from '@/components/layout/AppShell';
+import { DashboardToolbar } from '@/components/home/DashboardToolbar';
+import { MarketBoard } from '@/components/home/MarketBoard';
+import { MarketMovers } from '@/components/home/MarketMovers';
+import { QuickTrade } from '@/components/home/QuickTrade';
+import { StatCards } from '@/components/home/StatCards';
 import {
-  Card, CardHeader, EmptyState, ErrorState, ListSkeleton, Skeleton,
+  Card, CardHeader, EmptyState, ErrorState, ListSkeleton,
 } from '@/components/ui/primitives';
-import { useSession, useTransactions } from '@/hooks/useSession';
+import { useMarkets } from '@/hooks/useMarkets';
+import { useTransactions } from '@/hooks/useSession';
 import { errorMessage } from '@/lib/api';
-import { cn, formatAmount, timeAgo, transactionLabel } from '@/lib/format';
+import { formatAmount, timeAgo, transactionLabel } from '@/lib/format';
 
 function RecentActivity() {
   const { data, isLoading, isError, error, refetch } = useTransactions({ pageSize: 5 });
@@ -75,40 +86,41 @@ function RecentActivity() {
 }
 
 export default function HomePage() {
-  const { user, isLoading } = useSession();
+  const markets = useMarkets();
+  const rows = markets.data?.items ?? [];
 
   return (
     <AppShell>
-      <PageBody>
-        <header className="space-y-1.5">
-          <div className="flex flex-wrap items-center gap-2">
-            {isLoading || !user ? (
-              <Skeleton className="h-6 w-48" />
-            ) : (
-              <h1 className="text-lg font-semibold text-fg">
-                Welcome back, {user.firstName}
-              </h1>
-            )}
-            <DemoBadge />
+      <div className="space-y-4 py-4">
+        {/* Below lg the header has no room for the account strip, so the
+            page carries it instead. */}
+        <div className="lg:hidden">
+          <DashboardToolbar />
+        </div>
+
+        <StatCards />
+
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+          {/* Main column: the trade ticket, movers, then the market table. */}
+          <div className="min-w-0 space-y-4">
+            <QuickTrade />
+
+            <MarketMovers markets={rows} loading={markets.isLoading} />
+
+            <MarketBoard
+              markets={rows}
+              loading={markets.isLoading}
+              dataAvailable={markets.data?.dataAvailable ?? true}
+              message={markets.data?.message}
+            />
           </div>
-          <p className="text-xs text-muted">Demo Account</p>
-        </header>
 
-        <section aria-label="Market prices">
-          <MarketTicker />
-        </section>
-
-        <SimulationNotice>
-          <span className="flex flex-wrap items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden />
-            Start your simulated trading journey — all balances, orders and transfers on this
-            platform are practice only. No real funds move and no blockchain transaction is
-            created.
-          </span>
-        </SimulationNotice>
-
-        <RecentActivity />
-      </PageBody>
+          {/* Side rail: the account's own recent activity. */}
+          <div className="min-w-0 space-y-4">
+            <RecentActivity />
+          </div>
+        </div>
+      </div>
     </AppShell>
   );
 }

@@ -26,7 +26,7 @@ export function DemoBadge({
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-pill bg-warning/15 font-bold uppercase tracking-wider text-warning',
+        'inline-flex items-center rounded-pill bg-primary/15 font-bold uppercase tracking-wider text-primary',
         compact ? 'px-1.5 py-px text-[9px]' : 'px-2 py-0.5 text-[10px]',
         className,
       )}
@@ -36,22 +36,29 @@ export function DemoBadge({
   );
 }
 
-/** Inline explanatory banner for deposit / withdraw / trade flows. */
+/**
+ * Inline explanatory banner for deposit / withdraw / trade flows.
+ *
+ * These say "this is a simulation", which is the product describing itself —
+ * not a warning about something going wrong. They carry the accent, and the
+ * warning colour stays reserved for actual warnings (a frozen account, a
+ * forced password change, a scripted outcome).
+ */
 export function SimulationNotice({
   children,
   tone = 'info',
   className,
 }: {
   children: ReactNode;
-  tone?: 'info' | 'warning';
+  tone?: 'info' | 'emphasis';
   className?: string;
 }) {
   return (
     <div
       className={cn(
         'flex items-start gap-2.5 rounded-card px-3.5 py-3 text-xs leading-relaxed',
-        tone === 'warning'
-          ? 'bg-warning/10 text-warning'
+        tone === 'emphasis'
+          ? 'bg-primary/10 text-primary'
           : 'bg-elevated text-muted',
         className,
       )}
@@ -78,15 +85,27 @@ export function RestrictionNotice({ reason }: { reason?: string | null }) {
   );
 }
 
-/** Shown when an admin has switched a capability off. */
-export function FeatureDisabledNotice({ message }: { message: string }) {
+/**
+ * Shown when an admin has switched a capability off.
+ *
+ * `hint` is the second line. It defaults to the generic "check back later"
+ * because most callers pass a one-line message; pass `null` when the message
+ * already says everything, so the notice does not repeat itself.
+ */
+export function FeatureDisabledNotice({
+  message,
+  hint = 'Please check back later.',
+}: {
+  message: string;
+  hint?: string | null;
+}) {
   return (
     <div
       role="status"
       className="rounded-card border border-border bg-card px-4 py-6 text-center"
     >
       <p className="text-sm font-medium text-fg">{message}</p>
-      <p className="mt-1 text-xs text-muted">Please check back later.</p>
+      {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
     </div>
   );
 }

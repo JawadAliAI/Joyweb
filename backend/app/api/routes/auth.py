@@ -27,7 +27,7 @@ from app.core.security import (
     new_reset_token, set_auth_cookies, verify_password,
 )
 from app.db.base import utcnow
-from app.db.models import AuditAction, PasswordResetToken, User, UserStatus
+from app.db.models import AuditAction, PasswordResetToken, Role, User, UserStatus
 from app.db.session import get_db
 from app.schemas.auth import (
     ChangePasswordIn, ForgotPasswordIn, LoginIn, MeOut, RegisterIn,
@@ -137,9 +137,18 @@ def register(payload: RegisterIn, request: Request, response: Response,
         # Consumed in the same transaction that creates the account, so an
         # invite can never admit two users.
         invite = invite_service.claim(db, invite_code, email=email, user_id=user.id)
+
+        # An invite issued by an agent attaches the new account to that agent's
+        # downline. This is the only way a member acquires an agent, so the
+        # hierarchy can never disagree with the invite record it came from.
+        inviter = (db.get(User, invite.created_by) if invite.created_by else None)
+        if inviter is not None and inviter.role == Role.AGENT.value:
+            user.agent_id = inviter.id
+
         audit_service.record(db, AuditAction.INVITE_USED, actor=user,
                              target_user_id=user.id, request=request,
-                             new_value={"inviteId": invite.id},
+                             new_value={"inviteId": invite.id,
+                                        "agentId": user.agent_id},
                              reason="Invitation consumed during registration.")
 
     wallet_service.ensure_wallets(db, user.id)

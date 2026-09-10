@@ -233,7 +233,7 @@ export default function KycPage() {
     <AppShell hideBottomNav>
       <PageHeader title="Identity verification" backHref="/profile" action={<DemoBadge compact />} />
       <PageBody>
-        <SimulationNotice tone="warning">
+        <SimulationNotice tone="emphasis">
           <strong className="font-bold">Simulated verification.</strong> This is a demo
           paper-trading platform and performs no real identity verification. Nothing you submit is
           checked against any registry.{' '}

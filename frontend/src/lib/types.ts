@@ -37,7 +37,7 @@ export interface AssetMeta {
 }
 
 export type UserStatus = 'ACTIVE' | 'FROZEN' | 'SUSPENDED';
-export type Role = 'USER' | 'ADMIN' | 'SUPER_ADMIN';
+export type Role = 'USER' | 'AGENT' | 'ADMIN' | 'SUPER_ADMIN';
 
 export interface SessionUser {
   id: string;
@@ -214,6 +214,10 @@ export interface WithdrawalOptions {
   message?: string;
   /** Optional notice shown while withdrawals are open. Admin-editable. */
   notice?: string | null;
+  /** Screen stays open, but every submitted request is refused. */
+  paused?: boolean;
+  /** The refusal wording, when paused. Admin-editable. */
+  pausedMessage?: string | null;
   networks: WithdrawalNetwork[];
   minAmount: Money;
   maxAmount: Money;

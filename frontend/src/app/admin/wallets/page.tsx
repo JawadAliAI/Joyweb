@@ -204,7 +204,7 @@ export default function AdminWalletsPage() {
 
   return (
     <div className="space-y-4">
-      <p className="rounded-card bg-warning/10 px-4 py-3 text-xs text-warning">
+      <p className="rounded-card bg-primary/10 px-4 py-3 text-xs text-primary">
         Every balance shown is a simulated unit. Adjusting one moves nothing real and creates no
         blockchain transaction; the change is audit-logged with your reason.
       </p>

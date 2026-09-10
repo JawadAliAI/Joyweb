@@ -36,7 +36,7 @@ export function MetricCard({
           : 'text-fg';
 
   return (
-    <div className={cn('rounded-card bg-card p-4 shadow-card', className)}>
+    <div className={cn('rounded-card border border-border/70 bg-card p-4 shadow-card', className)}>
       <div className="flex items-start justify-between gap-3">
         <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
         {icon && <span className="shrink-0 text-subtle">{icon}</span>}

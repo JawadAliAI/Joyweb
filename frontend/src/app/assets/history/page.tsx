@@ -9,7 +9,7 @@ export default function AssetsHistoryPage() {
   return (
     <AppShell>
       <PageHeader title="Transaction history" backHref="/assets" />
-      <PageBody>
+      <PageBody width="wide">
         <SimulationNotice>
           Every entry below is a simulated movement of demo credits recorded for paper trading.
         </SimulationNotice>

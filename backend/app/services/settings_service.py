@@ -62,6 +62,20 @@ DEFAULTS: dict[str, tuple[Any, str, str]] = {
         "Demo withdrawals are currently unavailable.", "withdrawal",
         "Shown to customers when withdrawals_enabled is OFF. Say what is "
         "actually happening and when it will be back."),
+    "withdrawal_requests_paused": (
+        False, "withdrawal",
+        "Keeps the withdraw screen open and the form usable, but refuses every "
+        "new request at the moment it is submitted. Use this when payouts are "
+        "not being processed but you still want customers to see the screen. "
+        "`withdrawals_enabled` OFF hides the screen entirely instead."),
+    "withdrawal_paused_message": (
+        "Withdrawals are not being processed at the moment, so this request "
+        "could not be submitted. Nothing has been deducted from your demo "
+        "balance and no funds are locked. Please try again later.",
+        "withdrawal",
+        "Shown when withdrawal_requests_paused is ON and a customer submits. "
+        "Say what is actually happening; do not describe it as a fault if it "
+        "is a deliberate pause."),
     "withdrawal_notice": (
         "", "withdrawal",
         "Optional notice shown on the withdraw screen while withdrawals are "

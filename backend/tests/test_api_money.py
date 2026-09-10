@@ -388,6 +388,43 @@ class TestAdminWithdrawalMessages:
         assert response.status_code == 403
         assert response.json()["error"]["message"] == "Paused for maintenance until Monday."
 
+    def test_pausing_requests_keeps_the_screen_open_but_refuses_a_submission(
+            self, client, seeded, demo_user):
+        """The screen and its networks stay available; submitting is what fails."""
+        settings_service.set_value(seeded, "withdrawal_requests_paused", True)
+        settings_service.set_value(
+            seeded, "withdrawal_paused_message",
+            "Payouts are on hold. Nothing has been deducted.")
+        seeded.commit()
+        login(client, demo_user.email)
+
+        options = client.get("/api/withdrawals/options").json()["data"]
+        assert options["enabled"] is True
+        assert options["paused"] is True
+        assert options["networks"]
+
+        response = client.post("/api/withdrawals/demo", json={
+            "networkId": "DEMO_USDT-TRC", "amount": "100",
+            "address": "DemoAddress1234567890", "fundPassword": "Fund1234"})
+        assert response.status_code == 403
+        error = response.json()["error"]
+        assert error["code"] == "WITHDRAWALS_PAUSED"
+        assert error["message"] == "Payouts are on hold. Nothing has been deducted."
+
+    def test_a_paused_request_locks_nothing(self, client, seeded, demo_user):
+        """A refusal must leave the ledger exactly as it found it."""
+        settings_service.set_value(seeded, "withdrawal_requests_paused", True)
+        seeded.commit()
+        login(client, demo_user.email)
+
+        before = client.get("/api/wallet").json()["data"]
+        client.post("/api/withdrawals/demo", json={
+            "networkId": "DEMO_USDT-TRC", "amount": "100",
+            "address": "DemoAddress1234567890", "fundPassword": "Fund1234"})
+        after = client.get("/api/wallet").json()["data"]
+        assert after == before
+        assert client.get("/api/withdrawals").json()["data"]["items"] == []
+
     def test_the_open_notice_is_shown_when_set(self, client, seeded, demo_user):
         settings_service.set_value(seeded, "withdrawal_notice",
                                    "Requests are reviewed within 24 hours.")

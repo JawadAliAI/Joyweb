@@ -37,6 +37,16 @@ class User(UUIDMixin, TimestampMixin, Base):
     mfa_secret: Mapped[str | None] = mapped_column(String(64), nullable=True)
     must_change_password: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
+    # Reseller hierarchy. `agent_id` is the agent this member was signed up
+    # under, set when the invite that created the account was issued by an
+    # agent. `agent_parent_id` is an agent's own upline. Both are nullable:
+    # accounts created before the agent tier, and members signed up directly by
+    # an administrator, simply belong to nobody.
+    agent_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("users.id"),
+                                                 index=True, nullable=True)
+    agent_parent_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("users.id"),
+                                                        index=True, nullable=True)
+
     freeze_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     frozen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     frozen_by: Mapped[str | None] = mapped_column(String(36), ForeignKey("users.id"),
@@ -54,6 +64,10 @@ class User(UUIDMixin, TimestampMixin, Base):
     @property
     def is_admin(self) -> bool:
         return self.role in (Role.ADMIN.value, Role.SUPER_ADMIN.value)
+
+    @property
+    def is_agent(self) -> bool:
+        return self.role == Role.AGENT.value
 
     @property
     def is_frozen(self) -> bool:

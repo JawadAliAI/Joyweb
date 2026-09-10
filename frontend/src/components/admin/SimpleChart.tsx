@@ -89,7 +89,7 @@ export function SimpleChart({
   const barWidth = model.coords.length > 0 ? Math.max(2, (model.innerW / model.coords.length) * 0.6) : 0;
 
   return (
-    <section className={cn('rounded-card bg-card p-4 shadow-card', className)} aria-labelledby={`${gradientId}-title`}>
+    <section className={cn('rounded-card border border-border/70 bg-card p-4 shadow-card', className)} aria-labelledby={`${gradientId}-title`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 id={`${gradientId}-title`} className="text-sm font-semibold text-fg">

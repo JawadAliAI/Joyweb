@@ -18,7 +18,8 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import rate_limit, require_active_user, require_feature, require_user
 from app.core.errors import (
-    ForbiddenError, NotFoundError, UpstreamUnavailableError, ValidationError,
+    FeatureDisabledError, ForbiddenError, NotFoundError, UpstreamUnavailableError,
+    ValidationError,
 )
 from app.core.security import verify_password
 from app.db.models import (
@@ -310,6 +311,12 @@ def withdrawal_options(
             settings_service.get(db, "withdrawals_disabled_message")
             or "Demo withdrawals are currently unavailable.").strip()),
         "notice": str(settings_service.get(db, "withdrawal_notice") or "").strip() or None,
+        # The screen stays open while this is on; submitting is what fails.
+        "paused": settings_service.get_bool(db, "withdrawal_requests_paused"),
+        "pausedMessage": (str(settings_service.get(db, "withdrawal_paused_message")
+                              or "").strip() or None
+                          if settings_service.get_bool(db, "withdrawal_requests_paused")
+                          else None),
     })
 
 
@@ -329,6 +336,14 @@ def create_demo_withdrawal(
     locked and stay inside the simulator until an administrator reviews the
     request or you cancel it.
     """
+    # Payouts can be paused without hiding the screen: the form stays usable and
+    # the request is refused here, before a single demo credit is touched.
+    if settings_service.get_bool(db, "withdrawal_requests_paused"):
+        raise FeatureDisabledError(
+            str(settings_service.get(db, "withdrawal_paused_message") or "").strip()
+            or "Withdrawals are not being processed at the moment.",
+            code="WITHDRAWALS_PAUSED")
+
     network = next((n for n in _networks(db) if n.get("id") == payload.network_id),
                    None)
     if network is None:

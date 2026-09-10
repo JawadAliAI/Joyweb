@@ -190,7 +190,7 @@ function RegisterForm() {
             )}
 
             {inviteCheckFailed && (
-              <p role="status" className="rounded-card bg-warning/10 px-4 py-3 text-xs text-warning">
+              <p role="status" className="rounded-card bg-primary/10 px-4 py-3 text-xs text-warning">
                 We could not verify your invite just now. You can still submit the form — your
                 invite is checked again when the account is created.
               </p>

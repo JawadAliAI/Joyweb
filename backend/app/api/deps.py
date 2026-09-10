@@ -100,6 +100,19 @@ def require_super_admin(user: User = Depends(require_user)) -> User:
     return user
 
 
+def require_agent(user: User = Depends(require_user)) -> User:
+    """Gate for the reseller back office.
+
+    Administrators only. The AGENT role is a data relationship — it says which
+    members belong to which reseller — not a login into this panel. An admin
+    opens the panel and chooses whose downline to look at, so there is exactly
+    one set of hands on it.
+    """
+    if not user.is_admin:
+        raise ForbiddenError("Administrator access required.")
+    return user
+
+
 def require_feature(*keys: str) -> Callable[..., None]:
     """Guard a route behind one or more admin-controlled feature switches."""
 

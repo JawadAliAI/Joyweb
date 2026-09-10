@@ -11,49 +11,100 @@
  * hard-code a hex value.
  */
 :root {
-  --color-bg: 24 27 33;              /* #181B21 */
-  --color-surface: 32 36 43;         /* #20242B */
-  --color-card: 44 49 56;            /* #2C3138 */
-  --color-elevated: 52 58 66;
-  --color-border: 58 64 72;          /* #3A4048 */
+  /*
+   * The whole product now wears the reference back office's light palette.
+   * Every value was read from that panel's own computed styles rather than
+   * sampled by eye, so the hex in each comment is what the site actually
+   * serves.
+   *
+   * The former dark palette lives on as `.theme-dark` below — nothing uses it
+   * today, but the tokens are the only thing that separated the two looks, so
+   * switching back is a class, not a rewrite.
+   */
+  --color-bg: 242 242 242;           /* html background #F2F2F2 */
+  --color-surface: 255 255 255;      /* .layui-card #FFFFFF */
+  --color-card: 255 255 255;
+  --color-elevated: 246 246 246;     /* active tab / header rule #F6F6F6 */
+  --color-border: 232 232 232;       /* #E8E8E8 — card rules use #F8F8F8 */
 
-  --color-primary: 24 184 135;       /* #18B887 */
+  --color-primary: 22 186 170;       /* .layui-bg-green / active nav #16BAAA */
   --color-primary-foreground: 255 255 255;
-  --color-secondary: 240 185 11;     /* #F0B90B */
-  --color-danger: 233 75 103;        /* #E94B67 */
-  --color-warning: 240 185 11;       /* #F0B90B */
+  --color-secondary: 47 64 86;       /* .layui-bg-cyan badge #2F4056 */
+  --color-danger: 255 87 87;         /* layui red #FF5757 */
+  --color-warning: 255 179 67;       /* layui orange #FFB343 */
 
-  --color-fg: 255 255 255;           /* #FFFFFF */
-  --color-fg-muted: 146 153 165;     /* #9299A5 */
-  --color-fg-subtle: 110 117 128;
+  --color-fg: 51 51 51;              /* body copy #333333 */
+  --color-fg-muted: 102 102 102;     /* #666666 */
+  --color-fg-subtle: 150 150 150;
 
-  --radius-card: 14px;
-  --radius-control: 10px;
+  /* The navigation rail stays dark against the light page, as in the reference. */
+  --color-rail: 32 34 42;            /* .layui-side #20222A */
+  --color-rail-fg: 255 255 255;
+  --color-rail-hover: 42 45 55;
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
+  /* Solid tiles above a list. */
+  --color-tile: 30 143 203;
+  --color-tile-foreground: 255 255 255;
+
+  /* The skeleton sweep. A white sweep is invisible on a light ground, so the
+     highlight is a token rather than a literal. */
+  --color-shimmer: 0 0 0;
+
+  /* layui is square. */
+  --radius-card: 2px;
+  --radius-control: 2px;
+  --radius-panel: 2px;
+
+  --font-sans: -apple-system, Roboto, 'PingFang SC', 'Helvetica Neue', Arial,
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
 
   --bottom-nav-height: 60px;
 
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 /*
- * Optional light palette. The product ships dark (matching the reference
- * design) but the tokens exist so a light theme is a class away rather than a
- * rewrite.
+ * `.theme-light` is now what `:root` already is. It stays as a no-op so the
+ * agent layout keeps working and any future light-on-dark island has a name to
+ * opt into.
  */
 .theme-light {
-  --color-bg: 247 248 250;
-  --color-surface: 255 255 255;
-  --color-card: 255 255 255;
-  --color-elevated: 241 243 246;
-  --color-border: 223 227 233;
-  --color-fg: 18 21 26;
-  --color-fg-muted: 100 108 120;
-  --color-fg-subtle: 140 148 160;
   color-scheme: light;
+}
+
+/*
+ * The product's previous dark palette, kept whole. Apply the class to any
+ * subtree — or to <html> — to put that look back.
+ */
+.theme-dark {
+  --color-bg: 13 17 23;              /* #0D1117 */
+  --color-surface: 18 22 28;         /* #12161C */
+  --color-card: 23 28 35;            /* #171C23 */
+  --color-elevated: 32 38 46;        /* #20262E */
+  --color-border: 38 45 54;          /* #262D36 */
+
+  --color-primary: 24 184 135;       /* #18B887 */
+  --color-primary-foreground: 255 255 255;
+  --color-secondary: 240 185 11;     /* #F0B90B */
+  --color-danger: 233 75 103;
+  --color-warning: 240 185 11;
+
+  --color-fg: 255 255 255;
+  --color-fg-muted: 139 148 163;
+  --color-fg-subtle: 106 115 128;
+
+  --color-rail: 18 22 28;
+  --color-rail-fg: 146 153 165;
+  --color-rail-hover: 32 38 46;
+  --color-shimmer: 255 255 255;
+
+  --radius-card: 14px;
+  --radius-control: 10px;
+  --radius-panel: 18px;
+
+  color-scheme: dark;
 }
 
 @layer base {
@@ -61,14 +112,35 @@
     @apply border-border;
   }
 
+  /*
+   * The canvas is painted here as well as on `body`. A shell pinned to the
+   * viewport should leave nothing underneath it, but if anything ever does
+   * overflow, what shows through is the page ground rather than the browser's
+   * default white.
+   */
   html {
+    height: 100%;
+    background-color: rgb(var(--color-bg));
     -webkit-tap-highlight-color: transparent;
   }
 
   body {
     @apply bg-bg text-fg font-sans antialiased;
+    min-height: 100%;
     /* Keep content clear of the fixed bottom navigation on mobile. */
     overscroll-behavior-y: none;
+  }
+
+  /*
+   * Set by `useDocumentScrollLock` while a full-screen shell is mounted. The
+   * shell is the only scroll container in that state; the document itself must
+   * not move, or its ground shows below the shell as a band of empty grey.
+   */
+  html.shell-locked,
+  html.shell-locked body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
   }
 
   /* Visible, consistent focus for keyboard users on every interactive element. */
@@ -92,15 +164,45 @@
     -moz-appearance: textfield;
   }
 
+  /*
+   * iOS zooms the page whenever a focused control renders text below 16px.
+   * The design uses 14px throughout, so the size is lifted on touch-sized
+   * screens only — desktop keeps the intended scale.
+   */
+  @media (max-width: 1023px) {
+    input,
+    select,
+    textarea {
+      font-size: 16px;
+    }
+  }
+
+  /* Momentum scrolling inside the app's own scroll containers on iOS. */
+  [data-scroll],
+  .overflow-y-auto,
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
   ::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-border;
+    border-radius: 999px;
+    background-color: rgb(var(--color-fg) / 0.45);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(var(--color-fg) / 0.7);
   }
   ::-webkit-scrollbar-track {
     background: transparent;
+  }
+
+  /* Firefox has no ::-webkit pseudo-elements. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--color-fg) / 0.45) transparent;
   }
 }
 

@@ -149,7 +149,7 @@ export default function SecurityPage() {
   return (
     <AppShell hideBottomNav>
       <PageHeader title="Security" backHref="/profile" />
-      <PageBody>
+      <PageBody width="wide">
         {mustChange && (
           <div
             role="alert"
@@ -167,90 +167,92 @@ export default function SecurityPage() {
             </p>
           </div>
         )}
-        <Card>
-          <CardHeader
-            title="Change password"
-            description="Used to sign in to your demo account."
-          />
-          <CardBody className="space-y-4 pt-3">
-            <PasswordInput
-              label="Current password"
-              autoComplete="current-password"
-              value={currentPassword}
-              error={passwordErrors.currentPassword}
-              onChange={(event) => setCurrentPassword(event.target.value)}
+        <div className="grid items-start gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader
+              title="Change password"
+              description="Used to sign in to your demo account."
             />
-            <PasswordInput
-              label="New password"
-              autoComplete="new-password"
-              value={newPassword}
-              error={passwordErrors.newPassword}
-              onChange={(event) => setNewPassword(event.target.value)}
-            />
-            <RuleList rules={PASSWORD_RULES} value={newPassword} />
-            <PasswordInput
-              label="Confirm new password"
-              autoComplete="new-password"
-              value={confirmPassword}
-              error={passwordErrors.confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-            />
-            <FormError message={passwordFormError} />
-            <FormSuccess message={passwordSuccess} />
-            <Button fullWidth loading={changePassword.isPending} onClick={submitPassword}>
-              Change password
-            </Button>
-          </CardBody>
-        </Card>
+            <CardBody className="space-y-4 pt-3">
+              <PasswordInput
+                label="Current password"
+                autoComplete="current-password"
+                value={currentPassword}
+                error={passwordErrors.currentPassword}
+                onChange={(event) => setCurrentPassword(event.target.value)}
+              />
+              <PasswordInput
+                label="New password"
+                autoComplete="new-password"
+                value={newPassword}
+                error={passwordErrors.newPassword}
+                onChange={(event) => setNewPassword(event.target.value)}
+              />
+              <RuleList rules={PASSWORD_RULES} value={newPassword} />
+              <PasswordInput
+                label="Confirm new password"
+                autoComplete="new-password"
+                value={confirmPassword}
+                error={passwordErrors.confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+              />
+              <FormError message={passwordFormError} />
+              <FormSuccess message={passwordSuccess} />
+              <Button fullWidth loading={changePassword.isPending} onClick={submitPassword}>
+                Change password
+              </Button>
+            </CardBody>
+          </Card>
 
-        <Card>
-          <CardHeader
-            title={hasFundPassword ? 'Replace fund password' : 'Set fund password'}
-            description="Required to confirm demo withdrawals and transfers."
-            action={
-              <Badge tone={hasFundPassword ? 'success' : 'warning'}>
-                {hasFundPassword ? 'Set' : 'Not set'}
-              </Badge>
-            }
-          />
-          <CardBody className="space-y-4 pt-3">
-            <PasswordInput
-              label="Login password"
-              autoComplete="current-password"
-              value={loginPasswordForFund}
-              error={fundErrors.loginPassword}
-              hint="Confirms it is really you before the fund password changes."
-              onChange={(event) => setLoginPasswordForFund(event.target.value)}
+          <Card>
+            <CardHeader
+              title={hasFundPassword ? 'Replace fund password' : 'Set fund password'}
+              description="Required to confirm demo withdrawals and transfers."
+              action={
+                <Badge tone={hasFundPassword ? 'success' : 'warning'}>
+                  {hasFundPassword ? 'Set' : 'Not set'}
+                </Badge>
+              }
             />
-            <PasswordInput
-              label="Fund password"
-              autoComplete="new-password"
-              value={fundPassword}
-              error={fundErrors.fundPassword}
-              onChange={(event) => setFundPassword(event.target.value)}
-            />
-            <RuleList rules={FUND_RULES} value={fundPassword} />
-            <PasswordInput
-              label="Confirm fund password"
-              autoComplete="new-password"
-              value={fundConfirm}
-              error={fundErrors.fundConfirm}
-              onChange={(event) => setFundConfirm(event.target.value)}
-            />
-            <FormError message={fundFormError} />
-            <FormSuccess message={fundSuccess} />
-            <Button
-              fullWidth
-              loading={setFundPasswordMutation.isPending}
-              onClick={submitFundPassword}
-            >
-              {hasFundPassword ? 'Replace fund password' : 'Set fund password'}
-            </Button>
-            <p className="text-xs text-muted">
-              Your passwords are never displayed back to you and are not stored in this browser.
-            </p>
-          </CardBody>
-        </Card>
+            <CardBody className="space-y-4 pt-3">
+              <PasswordInput
+                label="Login password"
+                autoComplete="current-password"
+                value={loginPasswordForFund}
+                error={fundErrors.loginPassword}
+                hint="Confirms it is really you before the fund password changes."
+                onChange={(event) => setLoginPasswordForFund(event.target.value)}
+              />
+              <PasswordInput
+                label="Fund password"
+                autoComplete="new-password"
+                value={fundPassword}
+                error={fundErrors.fundPassword}
+                onChange={(event) => setFundPassword(event.target.value)}
+              />
+              <RuleList rules={FUND_RULES} value={fundPassword} />
+              <PasswordInput
+                label="Confirm fund password"
+                autoComplete="new-password"
+                value={fundConfirm}
+                error={fundErrors.fundConfirm}
+                onChange={(event) => setFundConfirm(event.target.value)}
+              />
+              <FormError message={fundFormError} />
+              <FormSuccess message={fundSuccess} />
+              <Button
+                fullWidth
+                loading={setFundPasswordMutation.isPending}
+                onClick={submitFundPassword}
+              >
+                {hasFundPassword ? 'Replace fund password' : 'Set fund password'}
+              </Button>
+              <p className="text-xs text-muted">
+                Your passwords are never displayed back to you and are not stored in this browser.
+              </p>
+            </CardBody>
+          </Card>
+        </div>
       </PageBody>
     </AppShell>
   );

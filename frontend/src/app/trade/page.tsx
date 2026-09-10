@@ -245,7 +245,7 @@ function TradeScreen() {
           />
         ) : tradeConfig.data ? (
           <div className="space-y-4">
-            <SimulationNotice tone="warning">
+            <SimulationNotice tone="emphasis">
               <strong className="font-bold uppercase tracking-wide">
                 Paper trading simulation.
               </strong>{' '}
@@ -277,66 +277,70 @@ function TradeScreen() {
               }}
             />
 
-            <Card>
-              <CardHeader title="Open positions" />
-              <CardBody className="pt-2">
-                {openTrades.isLoading ? (
-                  <ListSkeleton rows={3} />
-                ) : openTrades.isError ? (
-                  <ErrorState
-                    title="Could not load open positions"
-                    description={errorMessage(openTrades.error)}
-                    onRetry={() => void openTrades.refetch()}
-                  />
-                ) : !openTrades.data || openTrades.data.items.length === 0 ? (
-                  <EmptyState
-                    icon={<LineChart className="h-8 w-8" aria-hidden />}
-                    title="No open positions"
-                    description="Place a demo position above to see it counting down here."
-                  />
-                ) : (
-                  <ul className="divide-y divide-border/70">
-                    {openTrades.data.items.map((trade) => (
-                      <TradeRow key={trade.id} trade={trade} />
-                    ))}
-                  </ul>
-                )}
-              </CardBody>
-            </Card>
-
-            <Card>
-              <CardHeader title="Trade history" />
-              <CardBody className="space-y-3 pt-2">
-                <Tabs
-                  items={HISTORY_TABS}
-                  value={historyTab}
-                  onChange={setHistoryTab}
-                  ariaLabel="Filter trade history by outcome"
-                />
-                <TabPanel value={historyTab} active>
-                  {history.isLoading ? (
-                    <ListSkeleton rows={4} />
-                  ) : history.isError ? (
+            {/* Positions and history sit side by side once there is room. */}
+            <div className="grid items-start gap-4 lg:grid-cols-2">
+              <Card>
+                <CardHeader title="Open positions" />
+                <CardBody className="pt-2">
+                  {openTrades.isLoading ? (
+                    <ListSkeleton rows={3} />
+                  ) : openTrades.isError ? (
                     <ErrorState
-                      title="Could not load trade history"
-                      description={errorMessage(history.error)}
-                      onRetry={() => void history.refetch()}
+                      title="Could not load open positions"
+                      description={errorMessage(openTrades.error)}
+                      onRetry={() => void openTrades.refetch()}
                     />
-                  ) : !history.data || history.data.items.length === 0 ? (
+                  ) : !openTrades.data || openTrades.data.items.length === 0 ? (
                     <EmptyState
-                      title="No settled trades yet"
-                      description="Settled demo positions appear here with their outcome."
+                      icon={<LineChart className="h-8 w-8" aria-hidden />}
+                      title="No open positions"
+                      description="Place a demo position above to see it counting down here."
                     />
                   ) : (
                     <ul className="divide-y divide-border/70">
-                      {history.data.items.map((trade) => (
+                      {openTrades.data.items.map((trade) => (
                         <TradeRow key={trade.id} trade={trade} />
                       ))}
                     </ul>
                   )}
-                </TabPanel>
-              </CardBody>
-            </Card>
+                </CardBody>
+              </Card>
+
+              <Card>
+                <CardHeader title="Trade history" />
+                <CardBody className="space-y-3 pt-2">
+                  <Tabs
+                    items={HISTORY_TABS}
+                    value={historyTab}
+                    onChange={setHistoryTab}
+                    ariaLabel="Filter trade history by outcome"
+                    variant="pill"
+                  />
+                  <TabPanel value={historyTab} active>
+                    {history.isLoading ? (
+                      <ListSkeleton rows={4} />
+                    ) : history.isError ? (
+                      <ErrorState
+                        title="Could not load trade history"
+                        description={errorMessage(history.error)}
+                        onRetry={() => void history.refetch()}
+                      />
+                    ) : !history.data || history.data.items.length === 0 ? (
+                      <EmptyState
+                        title="No settled trades yet"
+                        description="Settled demo positions appear here with their outcome."
+                      />
+                    ) : (
+                      <ul className="divide-y divide-border/70">
+                        {history.data.items.map((trade) => (
+                          <TradeRow key={trade.id} trade={trade} />
+                        ))}
+                      </ul>
+                    )}
+                  </TabPanel>
+                </CardBody>
+              </Card>
+            </div>
           </div>
         ) : null}
       </PageBody>

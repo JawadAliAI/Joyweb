@@ -24,7 +24,7 @@ export default function AssetsPage() {
 
   return (
     <AppShell>
-      <PageBody>
+      <PageBody width="wide">
         <Tabs items={TABS} value={tab} onChange={setTab} ariaLabel="Account sections" />
 
         <TabPanel value="spot" active={tab === 'spot'} className="space-y-4">
@@ -71,7 +71,7 @@ export default function AssetsPage() {
                 }
               />
             ) : (
-              <ul className="space-y-3">
+              <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {portfolio.data.assets.map((asset) => (
                   <li key={asset.asset}>
                     <AssetCard asset={asset} />

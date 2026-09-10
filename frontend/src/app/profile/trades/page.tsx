@@ -115,7 +115,7 @@ export default function ProfileTradesPage() {
   return (
     <AppShell>
       <PageHeader title="Trading history" backHref="/profile" />
-      <PageBody>
+      <PageBody width="wide">
         <SimulationNotice>
           Every position below was staked with simulated demo credits. No real trade was executed.
         </SimulationNotice>
@@ -128,6 +128,7 @@ export default function ProfileTradesPage() {
             setPage(1);
           }}
           ariaLabel="Filter trading history by outcome"
+          variant="pill"
         />
 
         {query.isLoading ? (
@@ -146,7 +147,7 @@ export default function ProfileTradesPage() {
           />
         ) : (
           <>
-            <ul className="space-y-3">
+            <ul className="grid gap-3 lg:grid-cols-2">
               {query.data.items.map((trade) => (
                 <TradeCard key={trade.id} trade={trade} />
               ))}

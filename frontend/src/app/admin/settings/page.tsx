@@ -253,8 +253,8 @@ export default function AdminSettingsPage() {
   const hasJsonError = Object.keys(jsonErrors).length > 0;
 
   return (
-    <div className="space-y-5">
-      <p className="rounded-card bg-warning/10 px-4 py-3 text-xs text-warning">
+    <div className="space-y-[15px]">
+      <p className="rounded-card bg-primary/10 px-4 py-3 text-xs text-primary">
         Settings changes require a reason and are recorded in the audit log with their old and new
         values. Changes in the <strong>System</strong> group require a super administrator.
       </p>

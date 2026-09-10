@@ -60,7 +60,6 @@ export default function WithdrawPage() {
   const options = useQuery({
     queryKey: ['withdrawal-options'],
     queryFn: () => api.get<WithdrawalOptions>('/withdrawals/options'),
-    enabled: config.withdrawalsEnabled,
   });
 
   const networks = useMemo<WithdrawalNetwork[]>(() => options.data?.networks ?? [], [options.data]);
@@ -97,7 +96,16 @@ export default function WithdrawPage() {
         setFormError(null);
         return;
       }
-      setFormError(errorMessage(error));
+      const text = errorMessage(error);
+      // Payouts paused: the form was fine, the request simply was not accepted.
+      // Say so in both places so it cannot be missed above the fold.
+      if (error instanceof ApiError && error.code === 'WITHDRAWALS_PAUSED') {
+        const reason = text || options.data?.pausedMessage || '';
+        setFormError(reason);
+        toast.error('Withdrawal not submitted', reason);
+        return;
+      }
+      setFormError(text);
     },
   });
 
@@ -131,32 +139,32 @@ export default function WithdrawPage() {
     setConfirmOpen(true);
   };
 
-  const disabledByFlag = !config.withdrawalsEnabled;
-  const disabledByApi = options.data ? !options.data.enabled : false;
+  // Either source can switch withdrawals off; both are answered by the same
+  // notice, carrying whatever message the administrator set.
+  const disabled = !config.withdrawalsEnabled || (options.data ? !options.data.enabled : false);
 
   return (
     <AppShell hideBottomNav>
       <PageHeader title="Withdraw" backHref="/assets" />
       <PageBody>
-        {disabledByFlag ? (
-          <FeatureDisabledNotice
-            message={options.data?.message || 'Demo withdrawals are currently unavailable.'}
-          />
-        ) : options.isLoading ? (
+        {options.isLoading ? (
           <div className="space-y-3">
             <Skeleton className="h-24 w-full" />
             <Skeleton className="h-14 w-full" />
             <Skeleton className="h-14 w-full" />
           </div>
+        ) : disabled ? (
+          <FeatureDisabledNotice
+            message={options.data?.message || 'Demo withdrawals are currently unavailable.'}
+            // The admin's own message says when to come back; only the fallback
+            // needs that line added for it.
+            hint={options.data?.message ? null : undefined}
+          />
         ) : options.isError ? (
           <ErrorState
             title="Could not load withdrawal options"
             description={errorMessage(options.error)}
             onRetry={() => void options.refetch()}
-          />
-        ) : disabledByApi ? (
-          <FeatureDisabledNotice
-            message={options.data?.message || 'Demo withdrawals are currently unavailable.'}
           />
         ) : (
           <div className="space-y-4">
@@ -169,7 +177,7 @@ export default function WithdrawPage() {
               </div>
             )}
 
-            <SimulationNotice tone="warning">
+            <SimulationNotice tone="emphasis">
               <strong className="font-bold uppercase tracking-wide">
                 Simulation only — no real blockchain transfer.
               </strong>{' '}

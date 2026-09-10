@@ -149,7 +149,7 @@ export function TradingChart({
   const unavailable = query.isError || (query.data ? !query.data.dataAvailable : false);
 
   return (
-    <section className={cn('rounded-card bg-card', className)} aria-label={`${symbol} price chart`}>
+    <section className={cn('rounded-card border border-border/70 bg-card', className)} aria-label={`${symbol} price chart`}>
       <div className="flex items-center gap-2 border-b border-border px-3 py-2">
         <span className="rounded-control bg-elevated px-2.5 py-1 text-xs font-semibold text-primary">
           M1

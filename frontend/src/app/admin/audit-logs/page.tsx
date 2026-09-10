@@ -124,7 +124,7 @@ export default function AdminAuditLogsPage() {
 
   return (
     <div className="space-y-4">
-      <p className="rounded-card bg-card px-4 py-3 text-xs text-muted">
+      <p className="rounded-card border border-border/70 bg-card px-4 py-3 text-xs text-muted">
         This trail is append-only. Application code never edits or deletes an audit row.
       </p>
 

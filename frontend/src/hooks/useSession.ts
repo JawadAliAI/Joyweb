@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { ApiError, api } from '@/lib/api';
 import type {
-  Notification, Paged, Portfolio, SessionUser, Transaction,
+  Notification, Paged, Portfolio, SessionUser, Trade, Transaction,
 } from '@/lib/types';
 
 export const sessionKey = ['session'] as const;
@@ -70,7 +70,37 @@ export function useRequireAdmin({ enabled = true }: { enabled?: boolean } = {}) 
       router.replace(`/admin/login?next=${encodeURIComponent(next)}`);
       return;
     }
-    if (session.user && session.user.role === 'USER') {
+    // Anything that is not an administrator goes back to the customer app.
+    // Checking only for USER let an AGENT through the guard and into a shell
+    // whose every request would then 403.
+    if (session.user && session.user.role !== 'ADMIN'
+        && session.user.role !== 'SUPER_ADMIN') {
+      router.replace('/');
+    }
+  }, [enabled, session.isLoading, session.unauthenticated, session.user, router]);
+
+  return session;
+}
+
+/**
+ * Guard for the reseller back office.
+ *
+ * Administrators only, matching the API. The AGENT role is a data relationship
+ * naming whose members are whose; it is not a login into this panel.
+ */
+export function useRequireAgent({ enabled = true }: { enabled?: boolean } = {}) {
+  const session = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!enabled || session.isLoading) return;
+    if (session.unauthenticated) {
+      const next = typeof window !== 'undefined' ? window.location.pathname : '/agent';
+      router.replace(`/agent/login?next=${encodeURIComponent(next)}`);
+      return;
+    }
+    if (session.user && session.user.role !== 'ADMIN'
+        && session.user.role !== 'SUPER_ADMIN') {
       router.replace('/');
     }
   }, [enabled, session.isLoading, session.unauthenticated, session.user, router]);
@@ -108,6 +138,21 @@ export function useTransactions(params: {
   return useQuery({
     queryKey: ['transactions', params],
     queryFn: () => api.get<Paged<Transaction>>('/wallet/history', params),
+  });
+}
+
+/**
+ * Count of this account's still-open demo positions.
+ *
+ * Only the paging total is needed, so a single row is requested — `meta.total`
+ * is the exact count regardless of page size.
+ */
+export function useOpenTradeCount() {
+  return useQuery({
+    queryKey: ['trades', 'open-count'],
+    queryFn: () => api.get<Paged<Trade>>('/trades', { status: 'OPEN', pageSize: 1 }),
+    select: (data) => data.meta.total,
+    staleTime: 15_000,
   });
 }
 

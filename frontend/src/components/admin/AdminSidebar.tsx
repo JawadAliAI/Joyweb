@@ -12,7 +12,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import {
   Activity, ArrowLeftRight, BarChart3, Coins, FileClock, Gauge, LayoutDashboard,
-  LifeBuoy, LogOut, Mail, Settings, TrendingUp, Users, Wallet, X,
+  LifeBuoy, LogOut, Mail, Settings, TrendingUp, UserCog, Users, Wallet, X,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/format';
@@ -32,6 +32,8 @@ export const ADMIN_NAV: NavItem[] = [
   { href: '/admin/users', label: 'Users', icon: Users },
   { href: '/admin/invites', label: 'Invites', icon: Mail },
   { href: '/admin/markets', label: 'Markets', icon: BarChart3 },
+  { href: '/admin/trades', label: 'Live Positions', icon: Activity },
+  { href: '/admin/settlements', label: 'Outcomes & Payments', icon: Coins },
   { href: '/admin/trading', label: 'Demo Trading', icon: TrendingUp },
   { href: '/admin/wallets', label: 'Demo Wallets', icon: Wallet },
   { href: '/admin/withdrawals', label: 'Withdrawals', icon: Coins },
@@ -53,8 +55,8 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const logout = useLogout();
 
   return (
-    <nav aria-label="Administration" className="flex min-h-0 flex-1 flex-col">
-      <ul className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 py-4">
+    <nav aria-label="Administration" className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <ul className="min-h-0 flex-1 overflow-y-auto">
         {ADMIN_NAV.map((item) => {
           const active = isActive(pathname, item);
           const Icon = item.icon;
@@ -65,11 +67,11 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                 onClick={onNavigate}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'flex min-h-[44px] items-center gap-3 rounded-control px-3 text-sm font-medium',
-                  'transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                  'flex h-10 items-center gap-3 pl-[15px] pr-[30px] text-sm',
+                  'transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary',
                   active
-                    ? 'bg-primary/15 text-primary'
-                    : 'text-muted hover:bg-card hover:text-fg',
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-rail-fg hover:bg-rail-hover',
                 )}
               >
                 <Icon className="h-4 w-4 shrink-0" aria-hidden />
@@ -79,15 +81,31 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
           );
         })}
       </ul>
-      <div className="border-t border-border px-3 py-3">
+      {/* Across to the reseller panel, kept apart from the admin sections. */}
+      <div className="border-t border-white/10">
+        <Link
+          href="/agent"
+          onClick={onNavigate}
+          className={cn(
+            'flex h-10 items-center gap-3 pl-[15px] pr-[30px] text-sm',
+            'text-rail-fg transition-colors hover:bg-rail-hover',
+          )}
+        >
+          <UserCog className="h-4 w-4 shrink-0" aria-hidden />
+          Agent portal
+        </Link>
+      </div>
+
+      <div className="border-t border-white/10">
         <button
           type="button"
           onClick={() => logout.mutate()}
           disabled={logout.isPending}
           className={cn(
-            'flex min-h-[44px] w-full items-center gap-3 rounded-control px-3 text-sm font-medium',
-            'text-muted transition-colors hover:bg-card hover:text-danger',
-            'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-60',
+            'flex h-10 w-full items-center gap-3 pl-[15px] pr-[30px] text-sm',
+            'text-rail-fg transition-colors hover:bg-rail-hover',
+            'focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary',
+            'disabled:opacity-60',
           )}
         >
           <LogOut className="h-4 w-4 shrink-0" aria-hidden />
@@ -101,9 +119,9 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
 function Brand() {
   const { config } = usePlatform();
   return (
-    <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-5">
-      <span className="text-sm font-semibold text-fg">{config.appName}</span>
-      <span className="rounded-pill bg-elevated px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted">
+    <div className="flex h-[49px] shrink-0 items-center gap-2 px-[15px]">
+      <span className="truncate text-base text-white/80">{config.appName}</span>
+      <span className="rounded-card bg-white/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-white/70">
         Admin
       </span>
     </div>
@@ -129,7 +147,7 @@ export function AdminSidebar({
   return (
     <>
       {/* Persistent rail */}
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-surface lg:flex">
+      <aside className="hidden h-full w-[220px] shrink-0 flex-col overflow-hidden bg-rail lg:flex">
         <Brand />
         <NavList />
       </aside>
@@ -146,7 +164,7 @@ export function AdminSidebar({
             role="dialog"
             aria-modal="true"
             aria-label="Administration navigation"
-            className="relative flex h-full w-64 max-w-[85vw] flex-col bg-surface shadow-raised"
+            className="relative flex h-full w-[220px] max-w-[85vw] flex-col bg-rail shadow-raised"
           >
             <div className="flex items-center justify-between border-b border-border pr-2">
               <div className="flex-1">

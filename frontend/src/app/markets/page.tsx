@@ -7,7 +7,8 @@
  * Favouriting is optimistic — the star flips immediately and the list is
  * re-fetched once the server confirms.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AppShell, PageBody } from '@/components/layout/AppShell';
 import { Tabs, TabPanel } from '@/components/ui/tabs';
@@ -36,9 +37,17 @@ function useDebounced<T>(value: T, delay = 300): T {
   return debounced;
 }
 
-export default function MarketsPage() {
+function MarketsScreen() {
+  // The header's search box hands its term over as ?q=, so submitting there
+  // lands here with the list already filtered.
+  const queryParam = useSearchParams().get('q') ?? '';
   const [tab, setTab] = useState<string>('USDT');
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(queryParam);
+
+  // Searching again from the header pushes a new ?q= without remounting us.
+  useEffect(() => {
+    setSearch(queryParam);
+  }, [queryParam]);
   const debouncedSearch = useDebounced(search, 300);
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -86,7 +95,7 @@ export default function MarketsPage() {
 
   return (
     <AppShell>
-      <PageBody>
+      <PageBody width="wide">
         <h1 className="text-lg font-semibold text-fg">Markets</h1>
         <p className="-mt-2 text-xs text-muted">
           Simulated markets. Prices come from a public market-data provider and are
@@ -95,11 +104,11 @@ export default function MarketsPage() {
 
         <SearchInput value={search} onValueChange={setSearch} placeholder="Search markets" />
 
-        <Tabs items={TABS} value={tab} onChange={setTab} ariaLabel="Market filters" />
+        <Tabs items={TABS} value={tab} onChange={setTab} ariaLabel="Market filters" variant="pill" />
 
         <TabPanel value={tab} active>
           {query.isLoading ? (
-            <div className="rounded-card bg-card p-4">
+            <div className="rounded-card border border-border/70 bg-card p-4">
               <MarketSkeleton rows={8} />
             </div>
           ) : query.isError ? (
@@ -136,5 +145,13 @@ export default function MarketsPage() {
         </TabPanel>
       </PageBody>
     </AppShell>
+  );
+}
+
+export default function MarketsPage() {
+  return (
+    <Suspense fallback={null}>
+      <MarketsScreen />
+    </Suspense>
   );
 }

@@ -2,7 +2,7 @@
 from fastapi import APIRouter
 
 from app.api.routes import (
-    admin, auth, kyc, markets, notifications, platform, support, trades,
+    admin, agent, auth, kyc, markets, notifications, platform, support, trades,
     transactions, wallet,
 )
 
@@ -18,5 +18,6 @@ api_router.include_router(notifications.router, prefix="/notifications",
                           tags=["notifications"])
 api_router.include_router(support.router, prefix="/support", tags=["support"])
 api_router.include_router(kyc.router, prefix="/kyc", tags=["kyc"])
+api_router.include_router(agent.router, prefix="/agent", tags=["agent"])
 api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
 api_router.include_router(kyc.admin_router, prefix="/admin/kyc", tags=["admin"])

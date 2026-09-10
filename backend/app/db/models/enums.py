@@ -19,6 +19,9 @@ class UserStatus(StrEnum):
 
 class Role(StrEnum):
     USER = "USER"
+    # A reseller. Sees only the accounts in its own downline, never the
+    # platform. Not an administrator: an agent cannot reach /api/admin.
+    AGENT = "AGENT"
     ADMIN = "ADMIN"
     SUPER_ADMIN = "SUPER_ADMIN"
 

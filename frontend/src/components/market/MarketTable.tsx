@@ -10,10 +10,9 @@
 import Link from 'next/link';
 import { Star } from 'lucide-react';
 import type { MarketRow } from '@/lib/types';
-import {
-  changeTone, cn, formatCompact, formatPercent, formatPrice, symbolToSlug, toneClass,
-} from '@/lib/format';
+import { cn, formatCompact, formatPrice, symbolToSlug } from '@/lib/format';
 import { AssetIcon } from '@/components/AssetIcon';
+import { ChangeChip } from '@/components/ui/primitives';
 
 export function MarketTableHeader({ showFavorite = false }: { showFavorite?: boolean }) {
   return (
@@ -41,7 +40,6 @@ export function MarketTableRow({
   onToggleFavorite?: (market: MarketRow) => void;
   favoritePending?: boolean;
 }) {
-  const tone = changeTone(market.change24h);
   const showFavorite = Boolean(onToggleFavorite);
 
   return (
@@ -96,10 +94,8 @@ export function MarketTableRow({
                 : formatPrice(market.price, market.priceDecimals)}
             </span>
           </span>
-          <span className={cn('hidden w-24 text-right sm:block', toneClass(tone))}>
-            <span className="tabular text-sm font-semibold">
-              {market.change24h === null ? '—' : formatPercent(market.change24h)}
-            </span>
+          <span className="hidden w-24 justify-end sm:flex">
+            <ChangeChip value={market.change24h} />
           </span>
           <span className="hidden w-28 text-right sm:block">
             <span className="tabular text-sm text-muted">{formatCompact(market.volume24h)}</span>
@@ -110,9 +106,7 @@ export function MarketTableRow({
           <span className="tabular text-sm font-semibold text-fg">
             {market.price === null ? '—' : formatPrice(market.price, market.priceDecimals)}
           </span>
-          <span className={cn('tabular text-xs font-semibold', toneClass(tone))}>
-            {market.change24h === null ? '—' : formatPercent(market.change24h)}
-          </span>
+          <ChangeChip value={market.change24h} plain />
         </span>
       </Link>
 
@@ -135,7 +129,7 @@ export function MarketTable({
   ariaLabel?: string;
 }) {
   return (
-    <div className={cn('overflow-hidden rounded-card bg-card', className)}>
+    <div className={cn('overflow-hidden rounded-card border border-border/70 bg-card', className)}>
       <MarketTableHeader showFavorite={Boolean(onToggleFavorite)} />
       <ul aria-label={ariaLabel} className="divide-y divide-border/60">
         {markets.map((market) => (

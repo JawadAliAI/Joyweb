@@ -51,8 +51,8 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="space-y-5">
-      <p className="rounded-card bg-warning/10 px-4 py-3 text-xs text-warning">
+    <div className="space-y-[15px]">
+      <p className="rounded-card bg-primary/10 px-4 py-3 text-xs text-primary">
         {data?.message ??
           'All figures describe simulated activity. No real funds exist and no blockchain transaction is ever created.'}
       </p>

@@ -142,7 +142,7 @@ export default function DepositPage() {
           />
         ) : (
           <div className="space-y-4">
-            <SimulationNotice tone="warning">
+            <SimulationNotice tone="emphasis">
               <strong className="font-bold uppercase tracking-wide">
                 Simulation only — no real blockchain transfer.
               </strong>{' '}

@@ -22,8 +22,13 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  // Pinch-zoom stays available; capping it at 5 keeps the layout usable while
+  // still meeting the "do not block zoom" accessibility rule.
   maximumScale: 5,
-  themeColor: '#181B21',
+  // Without `cover`, `env(safe-area-inset-*)` resolves to zero on iOS and the
+  // notch and home indicator overlap the fixed shell.
+  viewportFit: 'cover',
+  themeColor: '#f2f2f2',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

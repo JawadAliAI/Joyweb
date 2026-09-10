@@ -129,7 +129,7 @@ export default function TransferPage() {
           />
         ) : (
           <div className="space-y-4">
-            <SimulationNotice tone="warning">
+            <SimulationNotice tone="emphasis">
               <strong className="font-bold uppercase tracking-wide">Simulation only.</strong> This
               moves simulated demo credits between two accounts on this paper-trading demo. No real
               money or cryptocurrency is transferred.

@@ -64,9 +64,9 @@ export default function NotificationsPage() {
           ) : undefined
         }
       />
-      <PageBody>
+      <PageBody width="wide">
         {query.isLoading ? (
-          <div className="rounded-card bg-card p-4">
+          <div className="rounded-card border border-border/70 bg-card p-4">
             <ListSkeleton rows={5} />
           </div>
         ) : query.isError ? (
@@ -82,13 +82,15 @@ export default function NotificationsPage() {
             description="Account and simulated trading updates will appear here."
           />
         ) : (
-          <ul className="space-y-2">
+          <ul className="grid gap-2 md:grid-cols-2">
             {items.map((item) => (
               <li
                 key={item.id}
                 className={cn(
-                  'flex items-start gap-3 rounded-card bg-card p-4',
-                  !item.read && 'border border-primary/30',
+                  'flex items-start gap-3 rounded-card border bg-card p-4',
+                  // A ternary, not two competing border-colour utilities:
+                  // which of those wins is decided by stylesheet order.
+                  item.read ? 'border-border/70' : 'border-primary/30',
                 )}
               >
                 <div className="min-w-0 flex-1">

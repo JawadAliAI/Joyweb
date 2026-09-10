@@ -59,10 +59,10 @@ export function AdminHeader({ onOpenNav }: { onOpenNav: () => void }) {
   const { user } = useSession();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-border bg-surface pt-[env(safe-area-inset-top)]">
       <div
         role="status"
-        className="flex items-center justify-center gap-2 bg-warning/15 px-4 py-1.5 text-center text-[11px] font-semibold uppercase tracking-wide text-warning"
+        className="flex items-center justify-center gap-2 bg-primary/15 px-4 py-1.5 text-center text-[11px] font-semibold uppercase tracking-wide text-primary"
       >
         <ShieldAlert className="h-3.5 w-3.5 shrink-0" aria-hidden />
         <span>
@@ -71,7 +71,7 @@ export function AdminHeader({ onOpenNav }: { onOpenNav: () => void }) {
         </span>
       </div>
 
-      <div className="flex items-center gap-3 px-4 py-3 sm:px-6">
+      <div className="flex h-[50px] items-center gap-3 px-[15px]">
         <button
           type="button"
           onClick={onOpenNav}
@@ -82,15 +82,15 @@ export function AdminHeader({ onOpenNav }: { onOpenNav: () => void }) {
         </button>
 
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-lg font-semibold text-fg">{meta.title}</h1>
+          <h1 className="truncate text-sm font-medium text-fg">{meta.title}</h1>
           {meta.description && (
-            <p className="truncate text-xs text-muted">{meta.description}</p>
+            <p className="hidden truncate text-xs text-muted sm:block">{meta.description}</p>
           )}
         </div>
 
         {meta.actions}
 
-        <div className="hidden items-center gap-3 border-l border-border pl-4 sm:flex">
+        <div className="hidden items-center gap-3 border-l border-border pl-[15px] sm:flex">
           <div className="text-right">
             <p className="max-w-[160px] truncate text-sm font-medium text-fg">
               {user?.fullName || user?.username || '—'}

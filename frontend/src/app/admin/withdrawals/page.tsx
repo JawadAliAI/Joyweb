@@ -172,7 +172,7 @@ export default function AdminWithdrawalsPage() {
 
   return (
     <div className="space-y-4">
-      <p className="rounded-card bg-warning/10 px-4 py-3 text-xs text-warning">
+      <p className="rounded-card bg-primary/10 px-4 py-3 text-xs text-primary">
         {query.data?.blockchainNotice ?? NO_CHAIN}
       </p>
 

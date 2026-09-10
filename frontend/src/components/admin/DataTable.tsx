@@ -140,7 +140,7 @@ export function DataTable<T>({
   }, [isLoading, error, errorMessage, onRetry, rows.length, emptyTitle, emptyDescription]);
 
   return (
-    <div className={cn('rounded-card bg-card shadow-card', className)}>
+    <div className={cn('rounded-card border border-border/70 bg-card shadow-card', className)}>
       {body ?? (
         <div className="w-full overflow-x-auto">
           <table className="w-full min-w-[640px] border-collapse text-sm">

@@ -39,7 +39,9 @@ function LoginForm() {
       }
       // Staff land in the back office, not the customer app. An explicit
       // ?next= is still honoured so a deep link keeps working.
-      if (user.role !== 'USER' && !nextParam) {
+      // Only administrators have a back office to land in. An AGENT is a
+      // customer account that happens to own a downline, so it stays here.
+      if ((user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') && !nextParam) {
         router.replace('/admin');
         return;
       }

@@ -70,7 +70,7 @@ export function AssetCard({ asset, balance: balanceProp, href, className }: Asse
     </>
   );
 
-  const shell = cn('block rounded-card bg-card p-4', className);
+  const shell = cn('block rounded-card border border-border/70 bg-card p-4', className);
 
   if (href) {
     return (

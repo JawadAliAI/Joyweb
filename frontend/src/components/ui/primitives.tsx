@@ -8,7 +8,7 @@
  */
 import { forwardRef } from 'react';
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
-import { cn } from '@/lib/format';
+import { changeTone, cn, formatPercent } from '@/lib/format';
 
 /* ------------------------------------------------------------------ Button */
 
@@ -71,6 +71,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
 /* -------------------------------------------------------------------- Card */
 
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+  // `.layui-card`: white, no border, 2px corners, and a shadow faint enough to
+  // read as a hairline against the page's light grey.
   return <div className={cn('rounded-card bg-card shadow-card', className)} {...props} />;
 }
 
@@ -134,6 +136,45 @@ export function Badge({
   );
 }
 
+/* -------------------------------------------------------------- ChangeChip */
+
+/**
+ * Signed percentage pill — the dashboard's 24h-change marker.
+ *
+ * `plain` drops the pill background for dense rows. It is a variant rather
+ * than a `className` override because two competing `bg-*` utilities are
+ * resolved by stylesheet order, not by the order they appear in the string.
+ */
+export function ChangeChip({
+  value,
+  plain = false,
+  className,
+}: {
+  value: string | number | null | undefined;
+  plain?: boolean;
+  className?: string;
+}) {
+  const tone = changeTone(value);
+  if (value === null || value === undefined || value === '') {
+    return <span className="text-xs text-muted">—</span>;
+  }
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center gap-0.5 text-[11px] font-semibold tabular',
+        !plain && 'rounded-pill px-2 py-1',
+        tone === 'up' && (plain ? 'text-primary' : 'bg-primary/15 text-primary'),
+        tone === 'down' && (plain ? 'text-danger' : 'bg-danger/15 text-danger'),
+        tone === 'flat' && (plain ? 'text-muted' : 'bg-elevated text-muted'),
+        className,
+      )}
+    >
+      <span aria-hidden>{tone === 'down' ? '▼' : '▲'}</span>
+      {formatPercent(value)}
+    </span>
+  );
+}
+
 /* ---------------------------------------------------------------- Skeleton */
 
 export function Skeleton({ className }: { className?: string }) {
@@ -143,7 +184,7 @@ export function Skeleton({ className }: { className?: string }) {
       className={cn(
         'relative overflow-hidden rounded-control bg-elevated/60',
         'after:absolute after:inset-0 after:-translate-x-full after:animate-shimmer',
-        'after:bg-gradient-to-r after:from-transparent after:via-white/5 after:to-transparent',
+        'after:bg-gradient-to-r after:from-transparent after:via-shimmer/[0.06] after:to-transparent',
         className,
       )}
     />
