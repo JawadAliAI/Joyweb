@@ -39,7 +39,7 @@ import type { Column } from '@/components/admin/DataTable';
 import { ReasonDialog } from '@/components/admin/ReasonDialog';
 
 const TEST_MODE_NOTICE =
-  'Simulation Test Mode exists for QA only. A scripted outcome can be queued ONLY for an account explicitly flagged as a test account — any other target is refused with NOT_A_TEST_ACCOUNT. Every scenario is labelled as a scripted outcome wherever it appears and every creation and cancellation is written to the audit log. It cannot be used to influence a real demo customer’s trade.';
+  'Simulation Test Mode exists for QA only. A scripted outcome can be queued ONLY for an account explicitly flagged as a test account — any other target is refused with NOT_A_TEST_ACCOUNT. Every scenario is labelled as a scripted outcome wherever it appears and every creation and cancellation is written to the audit log. It cannot be used to influence a real customer’s trade.';
 
 interface DurationForm {
   seconds: string;
@@ -466,7 +466,7 @@ export default function AdminTradingPage() {
       <Card>
         <CardHeader
           title="Bulk position controls"
-          description="Act on every open demo position at once. Each action needs a reason and is audited."
+          description="Act on every open position at once. Each action needs a reason and is audited."
         />
         <CardBody className="space-y-3 pt-2">
           <div className="flex flex-wrap gap-3">
@@ -744,7 +744,7 @@ export default function AdminTradingPage() {
           setSwitchError(null);
         }}
         onSubmit={(reason) => toggleTrading.mutate(reason)}
-        title={tradingEnabled ? 'Disable trading' : 'Enable trading'}}
+        title={tradingEnabled ? 'Disable trading' : 'Enable trading'}
         description={
           tradingEnabled
             ? 'Customers will no longer be able to open positions. Open positions still settle normally.'

@@ -75,7 +75,7 @@ def _money(value: Any) -> str:
 def _get_user(db: Session, user_id: str) -> User:
     user = db.get(User, user_id)
     if user is None:
-        raise NotFoundError("Demo user not found.", code="USER_NOT_FOUND")
+        raise NotFoundError("User not found.", code="USER_NOT_FOUND")
     return user
 
 
@@ -242,7 +242,7 @@ def _scenario_row(scenario: TradeTestScenario, user: User | None) -> dict[str, A
 TEST_SCENARIO_NOTICE = (
     "QA test scenario. Applies only to accounts flagged as test accounts, is "
     "labelled as a scripted outcome wherever it is used, and is fully audited. "
-    "It can never be applied to a real demo customer's trade."
+    "It can never be applied to a real customer's trade."
 )
 
 
@@ -287,7 +287,7 @@ def get_dashboard(days: int = Query(30, ge=7, le=90),
 # --------------------------------------------------------------------------- #
 
 
-@router.get("/users", summary="List demo users")
+@router.get("/users", summary="List users")
 async def list_users(
     search: str | None = Query(None, max_length=255),
     status: str | None = Query(None),
@@ -329,7 +329,7 @@ async def list_users(
     return ok(payload)
 
 
-@router.get("/users/{user_id}", summary="Full demo user detail")
+@router.get("/users/{user_id}", summary="Full user detail")
 async def get_user_detail(user_id: str, db: Session = Depends(get_db),
                           admin: User = Depends(require_admin)) -> dict[str, Any]:
     """Profile, simulated wallets, recent ledger entries, recent simulated
@@ -370,7 +370,7 @@ async def get_user_detail(user_id: str, db: Session = Depends(get_db),
     })
 
 
-@router.post("/users/{user_id}/freeze", summary="Freeze a demo account")
+@router.post("/users/{user_id}/freeze", summary="Freeze an account")
 def freeze_user(user_id: str, body: schemas.ReasonIn, request: Request,
                 db: Session = Depends(get_db),
                 admin: User = Depends(require_admin)) -> dict[str, Any]:
@@ -379,7 +379,7 @@ def freeze_user(user_id: str, body: schemas.ReasonIn, request: Request,
     user = _get_user(db, user_id)
     result = admin_service.freeze_account(db, admin, user, body.reason, request)
     db.commit()
-    result["message"] = "Demo account frozen. The customer has been notified."
+    result["message"] = "Account frozen. The customer has been notified."
     return ok(result)
 
 
@@ -432,19 +432,19 @@ def set_test_account(user_id: str, body: schemas.TestAccountIn, request: Request
     })
 
 
-@router.post("/users/{user_id}/unfreeze", summary="Lift a demo account freeze")
+@router.post("/users/{user_id}/unfreeze", summary="Lift an account freeze")
 def unfreeze_user(user_id: str, body: schemas.ReasonIn, request: Request,
                   db: Session = Depends(get_db),
                   admin: User = Depends(require_admin)) -> dict[str, Any]:
-    """Restore full demo functionality. A reason is mandatory and audited."""
+    """Restore full functionality. A reason is mandatory and audited."""
     user = _get_user(db, user_id)
     result = admin_service.unfreeze_account(db, admin, user, body.reason, request)
     db.commit()
-    result["message"] = "Demo account restored. The customer has been notified."
+    result["message"] = "Account restored. The customer has been notified."
     return ok(result)
 
 
-@router.post("/users/{user_id}/balance/credit", summary="Credit a simulated balance")
+@router.post("/users/{user_id}/balance/credit", summary="Credit a balance")
 def credit_balance(user_id: str, body: schemas.BalanceAdjustIn, request: Request,
                    db: Session = Depends(get_db),
                    admin: User = Depends(require_admin)) -> dict[str, Any]:
@@ -458,7 +458,7 @@ def credit_balance(user_id: str, body: schemas.BalanceAdjustIn, request: Request
     return ok(result)
 
 
-@router.post("/users/{user_id}/balance/debit", summary="Debit a simulated balance")
+@router.post("/users/{user_id}/balance/debit", summary="Debit a balance")
 def debit_balance(user_id: str, body: schemas.BalanceAdjustIn, request: Request,
                   db: Session = Depends(get_db),
                   admin: User = Depends(require_admin)) -> dict[str, Any]:
@@ -518,7 +518,7 @@ def assign_agent(user_id: str, body: schemas.AssignAgentIn, request: Request,
     })
 
 
-@router.post("/users/{user_id}/credit-score", summary="Set the internal demo account score")
+@router.post("/users/{user_id}/credit-score", summary="Set the internal account score")
 def set_score(user_id: str, body: schemas.CreditScoreIn, request: Request,
               db: Session = Depends(get_db),
               admin: User = Depends(require_admin)) -> dict[str, Any]:
@@ -578,12 +578,12 @@ def issue_password_reset(user_id: str, body: schemas.ReasonIn, request: Request,
     })
 
 
-@router.get("/users/{user_id}/transactions", summary="A user's simulated ledger")
+@router.get("/users/{user_id}/transactions", summary="An user's ledger")
 def user_transactions(user_id: str, page: int = Query(1, ge=1),
                       page_size: int = Query(20, ge=1, le=100, alias="pageSize"),
                       db: Session = Depends(get_db),
                       admin: User = Depends(require_admin)) -> dict[str, Any]:
-    """Paginated ledger entries for one demo account."""
+    """Paginated ledger entries for one account."""
     user = _get_user(db, user_id)
     params = _page(page, page_size)
     stmt = (select(Transaction).where(Transaction.user_id == user.id)
@@ -592,12 +592,12 @@ def user_transactions(user_id: str, page: int = Query(1, ge=1),
     return ok(paginate([_transaction_row(t) for t in rows], total, params))
 
 
-@router.get("/users/{user_id}/trades", summary="A user's simulated trades")
+@router.get("/users/{user_id}/trades", summary="An user's trades")
 def user_trades(user_id: str, page: int = Query(1, ge=1),
                 page_size: int = Query(20, ge=1, le=100, alias="pageSize"),
                 db: Session = Depends(get_db),
                 admin: User = Depends(require_admin)) -> dict[str, Any]:
-    """Paginated simulated positions for one demo account."""
+    """Paginated positions for one account."""
     user = _get_user(db, user_id)
     params = _page(page, page_size)
     stmt = (select(Trade).where(Trade.user_id == user.id)
@@ -611,7 +611,7 @@ def user_audit_logs(user_id: str, page: int = Query(1, ge=1),
                     page_size: int = Query(20, ge=1, le=100, alias="pageSize"),
                     db: Session = Depends(get_db),
                     admin: User = Depends(require_admin)) -> dict[str, Any]:
-    """Every audited action taken on or by this demo account."""
+    """Every audited action taken on or by this account."""
     user = _get_user(db, user_id)
     params = _page(page, page_size)
     stmt = (select(AuditLog).where(AuditLog.target_user_id == user.id)
@@ -661,7 +661,7 @@ def list_audit_logs(action: str | None = Query(None),
 # --------------------------------------------------------------------------- #
 
 
-@router.get("/withdrawals", summary="Simulated withdrawal queue")
+@router.get("/withdrawals", summary="Withdrawal queue")
 def list_withdrawals(status: str = Query("PENDING"),
                      page: int = Query(1, ge=1),
                      page_size: int = Query(20, ge=1, le=100, alias="pageSize"),
@@ -691,7 +691,7 @@ def _withdrawal_transaction(db: Session, withdrawal: Withdrawal) -> Transaction 
 
 
 @router.post("/withdrawals/{withdrawal_id}/approve",
-             summary="Approve a simulated withdrawal")
+             summary="Approve a withdrawal")
 def approve_withdrawal(withdrawal_id: str, body: schemas.ReasonIn, request: Request,
                        db: Session = Depends(get_db),
                        admin: User = Depends(require_admin)) -> dict[str, Any]:
@@ -729,8 +729,8 @@ def approve_withdrawal(withdrawal_id: str, body: schemas.ReasonIn, request: Requ
                    "blockchainTransaction": False},
         reason=reason, request=request)
     notification_service.notify(
-        db, withdrawal.user_id, "Demo withdrawal approved",
-        f"Your simulated withdrawal of {_money(withdrawal.amount)} "
+        db, withdrawal.user_id, "Withdrawal approved",
+        f"Your withdrawal of {_money(withdrawal.amount)} "
         f"{_asset_label(withdrawal.asset)} was approved. "
         f"{admin_service.NO_BLOCKCHAIN_NOTICE}",
         notification_service.DEMO_WITHDRAWAL)
@@ -738,13 +738,13 @@ def approve_withdrawal(withdrawal_id: str, body: schemas.ReasonIn, request: Requ
 
     return ok({
         "id": withdrawal.id, "status": withdrawal.status, "reason": reason,
-        "message": "Simulated withdrawal approved and the locked demo funds retired.",
+        "message": "Withdrawal approved and the locked funds retired.",
         "blockchainNotice": admin_service.NO_BLOCKCHAIN_NOTICE,
     })
 
 
 @router.post("/withdrawals/{withdrawal_id}/reject",
-             summary="Reject a simulated withdrawal")
+             summary="Reject a withdrawal")
 def reject_withdrawal(withdrawal_id: str, body: schemas.ReasonIn, request: Request,
                       db: Session = Depends(get_db),
                       admin: User = Depends(require_admin)) -> dict[str, Any]:
@@ -780,9 +780,9 @@ def reject_withdrawal(withdrawal_id: str, body: schemas.ReasonIn, request: Reque
                    "blockchainTransaction": False},
         reason=reason, request=request)
     notification_service.notify(
-        db, withdrawal.user_id, "Demo withdrawal rejected",
-        f"Your simulated withdrawal of {_money(withdrawal.amount)} "
-        f"{_asset_label(withdrawal.asset)} was rejected and the demo funds "
+        db, withdrawal.user_id, "Withdrawal rejected",
+        f"Your withdrawal of {_money(withdrawal.amount)} "
+        f"{_asset_label(withdrawal.asset)} was rejected and the funds "
         f"returned to your available balance. Reason: {reason}. "
         f"{admin_service.NO_BLOCKCHAIN_NOTICE}",
         notification_service.DEMO_WITHDRAWAL)
@@ -790,7 +790,7 @@ def reject_withdrawal(withdrawal_id: str, body: schemas.ReasonIn, request: Reque
 
     return ok({
         "id": withdrawal.id, "status": withdrawal.status, "reason": reason,
-        "message": "Simulated withdrawal rejected and the demo funds returned.",
+        "message": "Withdrawal rejected and the funds returned.",
         "blockchainNotice": admin_service.NO_BLOCKCHAIN_NOTICE,
     })
 
@@ -800,13 +800,13 @@ def reject_withdrawal(withdrawal_id: str, body: schemas.ReasonIn, request: Reque
 # --------------------------------------------------------------------------- #
 
 
-@router.get("/deposits", summary="Simulated deposit queue")
+@router.get("/deposits", summary="Deposit queue")
 def list_deposits(status: str = Query("PENDING"),
                   page: int = Query(1, ge=1),
                   page_size: int = Query(20, ge=1, le=100, alias="pageSize"),
                   db: Session = Depends(get_db),
                   admin: User = Depends(require_admin)) -> dict[str, Any]:
-    """Simulated deposits awaiting review. Pass ``status=ALL`` for history."""
+    """Deposits awaiting review. Pass ``status=ALL`` for history."""
     params = _page(page, page_size)
     stmt = select(Deposit)
     if status and status.upper() != "ALL":
@@ -819,7 +819,7 @@ def list_deposits(status: str = Query("PENDING"),
                        total, params))
 
 
-@router.post("/deposits/{deposit_id}/approve", summary="Approve a simulated deposit")
+@router.post("/deposits/{deposit_id}/approve", summary="Approve a deposit")
 def approve_deposit(deposit_id: str, body: schemas.ReasonIn, request: Request,
                     db: Session = Depends(get_db),
                     admin: User = Depends(require_admin)) -> dict[str, Any]:
@@ -837,7 +837,7 @@ def approve_deposit(deposit_id: str, body: schemas.ReasonIn, request: Request,
     transaction = wallet_service.credit(
         db, deposit.user_id, deposit.asset, Decimal(deposit.amount),
         tx_type=TransactionType.DEMO_DEPOSIT,
-        description="Simulated deposit approved by an administrator",
+        description="Deposit approved by an administrator",
         metadata={"depositId": deposit.id, "reason": reason, "simulated": True})
     old_status = deposit.status
     deposit.status = TransactionStatus.COMPLETED.value
@@ -850,26 +850,26 @@ def approve_deposit(deposit_id: str, body: schemas.ReasonIn, request: Request,
                    "asset": deposit.asset, "reference": deposit.reference},
         reason=reason, request=request)
     notification_service.notify(
-        db, deposit.user_id, "Demo deposit approved",
-        f"Your simulated deposit of {_money(deposit.amount)} "
-        f"{_asset_label(deposit.asset)} was approved and credited to your demo "
+        db, deposit.user_id, "Deposit approved",
+        f"Your deposit of {_money(deposit.amount)} "
+        f"{_asset_label(deposit.asset)} was approved and credited to your "
         "balance. No real funds were received.",
         notification_service.DEMO_DEPOSIT)
     db.commit()
 
     return ok({
         "id": deposit.id, "status": deposit.status, "reason": reason,
-        "message": "Simulated deposit credited.",
+        "message": "Deposit credited.",
         "blockchainNotice": ("No blockchain transaction was involved; this is a "
-                             "simulated deposit."),
+                             "deposit."),
     })
 
 
-@router.post("/deposits/{deposit_id}/reject", summary="Reject a simulated deposit")
+@router.post("/deposits/{deposit_id}/reject", summary="Reject a deposit")
 def reject_deposit(deposit_id: str, body: schemas.ReasonIn, request: Request,
                    db: Session = Depends(get_db),
                    admin: User = Depends(require_admin)) -> dict[str, Any]:
-    """Cancel a pending simulated deposit without crediting anything."""
+    """Cancel a pending deposit without crediting anything."""
     deposit = db.get(Deposit, deposit_id)
     if deposit is None:
         raise NotFoundError("Deposit not found.", code="DEPOSIT_NOT_FOUND")
@@ -887,17 +887,17 @@ def reject_deposit(deposit_id: str, body: schemas.ReasonIn, request: Request,
         new_value={"status": deposit.status, "reference": deposit.reference},
         reason=reason, request=request)
     notification_service.notify(
-        db, deposit.user_id, "Demo deposit rejected",
-        f"Your simulated deposit request was rejected. Reason: {reason}. "
+        db, deposit.user_id, "Deposit rejected",
+        f"Your deposit request was rejected. Reason: {reason}. "
         "Nothing was credited and no real funds were involved.",
         notification_service.DEMO_DEPOSIT)
     db.commit()
 
     return ok({
         "id": deposit.id, "status": deposit.status, "reason": reason,
-        "message": "Simulated deposit rejected.",
+        "message": "Deposit rejected.",
         "blockchainNotice": ("No blockchain transaction was involved; this is a "
-                             "simulated deposit."),
+                             "deposit."),
     })
 
 
@@ -906,7 +906,7 @@ def reject_deposit(deposit_id: str, body: schemas.ReasonIn, request: Request,
 # --------------------------------------------------------------------------- #
 
 
-@router.get("/transactions", summary="Platform-wide simulated ledger")
+@router.get("/transactions", summary="Platform-wide ledger")
 def list_transactions(user_id: str | None = Query(None, alias="userId"),
                       type: str | None = Query(None),
                       asset: str | None = Query(None),
@@ -932,14 +932,14 @@ def list_transactions(user_id: str | None = Query(None, alias="userId"),
     return ok(paginate([_transaction_row(t) for t in rows], total, params))
 
 
-@router.get("/transfers", summary="Platform-wide simulated transfers")
+@router.get("/transfers", summary="Platform-wide transfers")
 def list_transfers(user_id: str | None = Query(None, alias="userId"),
                    asset: str | None = Query(None),
                    page: int = Query(1, ge=1),
                    page_size: int = Query(20, ge=1, le=100, alias="pageSize"),
                    db: Session = Depends(get_db),
                    admin: User = Depends(require_admin)) -> dict[str, Any]:
-    """Internal demo transfers between accounts."""
+    """Internal transfers between accounts."""
     params = _page(page, page_size)
     stmt = select(Transfer)
     if user_id:
@@ -952,7 +952,7 @@ def list_transfers(user_id: str | None = Query(None, alias="userId"),
     return ok(paginate([_transfer_row(t) for t in rows], total, params))
 
 
-@router.get("/trades", summary="Platform-wide simulated trades")
+@router.get("/trades", summary="Platform-wide trades")
 def list_trades(user_id: str | None = Query(None, alias="userId"),
                 symbol: str | None = Query(None),
                 status: str | None = Query(None),
@@ -961,7 +961,7 @@ def list_trades(user_id: str | None = Query(None, alias="userId"),
                 page_size: int = Query(20, ge=1, le=100, alias="pageSize"),
                 db: Session = Depends(get_db),
                 admin: User = Depends(require_admin)) -> dict[str, Any]:
-    """Every simulated position, with the settlement source that decided it."""
+    """Every position, with the settlement source that decided it."""
     params = _page(page, page_size)
     stmt = select(Trade)
     if user_id:
@@ -1075,7 +1075,7 @@ def delete_market(market_id: str, request: Request,
 @router.get("/trading/durations", summary="List trading durations")
 def list_durations(db: Session = Depends(get_db),
                    admin: User = Depends(require_admin)) -> dict[str, Any]:
-    """The duration / payout options offered on the demo trade screen."""
+    """The duration / payout options offered on the trade screen."""
     rows = db.scalars(select(TradingDuration)
                       .order_by(TradingDuration.sort_order, TradingDuration.seconds))
     return ok([_duration_row(d) for d in rows])
@@ -1510,7 +1510,7 @@ def update_ticket(ticket_id: str, body: schemas.SupportStatusIn, request: Reques
 # --------------------------------------------------------------------------- #
 
 
-@router.get("/credit-scores", summary="Internal demo score change history")
+@router.get("/credit-scores", summary="Internal score change history")
 def list_credit_scores(user_id: str | None = Query(None, alias="userId"),
                        page: int = Query(1, ge=1),
                        page_size: int = Query(20, ge=1, le=100, alias="pageSize"),
@@ -1554,7 +1554,7 @@ def create_test_scenario(body: schemas.TestScenarioCreateIn, request: Request,
     if not target.is_test_account:
         raise ForbiddenError(
             "Scripted trade outcomes are permitted only on accounts flagged as "
-            "test accounts. This account is a real demo customer.",
+            "test accounts. This account is a real customer.",
             code="NOT_A_TEST_ACCOUNT")
 
     outcome = body.forced_outcome.upper()
@@ -1695,7 +1695,7 @@ def change_role(user_id: str, body: schemas.RoleChangeIn, request: Request,
 
 
 @router.post("/trades/settle-all",
-             summary="Settle every open demo trade at the live market price")
+             summary="Settle every open trade at the live market price")
 async def settle_all_trades(body: schemas.ReasonIn, request: Request,
                             db: Session = Depends(get_db),
                             admin: User = Depends(require_admin)) -> dict[str, Any]:
@@ -1715,7 +1715,7 @@ async def settle_all_trades(body: schemas.ReasonIn, request: Request,
 
 
 @router.post("/trades/void-all",
-             summary="Cancel every open demo trade and return every stake")
+             summary="Cancel every open trade and return every stake")
 def void_all_trades(body: schemas.ReasonIn, request: Request,
                     db: Session = Depends(get_db),
                     admin: User = Depends(require_admin)) -> dict[str, Any]:
@@ -1781,12 +1781,12 @@ def create_bulk_test_scenarios(body: schemas.BulkTestScenarioIn, request: Reques
     message = (
         f"Queued a scripted {outcome} outcome on {len(targets)} QA test "
         f"account(s). This applies to accounts flagged as test accounts only, "
-        f"never to a real demo customer, and is labelled as a test scenario on "
+        f"never to a real customer, and is labelled as a test scenario on "
         f"every affected trade."
     ) if targets else (
         "No accounts are flagged as QA test accounts, so no test scenarios were "
         "created. Scripted outcomes apply to test accounts only and can never "
-        "be queued for a real demo customer."
+        "be queued for a real customer."
     )
 
     return ok({

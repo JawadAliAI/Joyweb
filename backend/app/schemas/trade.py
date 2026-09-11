@@ -15,16 +15,16 @@ from app.schemas.common import CamelModel
 
 
 class TradeCreate(CamelModel):
-    """Open one simulated fixed-duration position."""
+    """Open one fixed-duration position."""
 
     symbol: str = Field(..., max_length=20, examples=["BTC/USDT"])
     direction: Literal["UP", "DOWN"]
-    amount: Decimal = Field(..., gt=0, description="Demo stake amount.")
+    amount: Decimal = Field(..., gt=0, description="Stake amount.")
     duration_seconds: int = Field(..., gt=0, le=86400,
                                   description="Must match an offered duration.")
     stake_asset: str | None = Field(
         None, max_length=20,
-        description="Which simulated stablecoin funds the stake: DEMO_USDT "
+        description="Which stablecoin funds the stake: DEMO_USDT "
                     "(default) or DEMO_USDC. It never affects the outcome.")
 
     @field_validator("amount", mode="before")
@@ -44,7 +44,7 @@ class TradeCreate(CamelModel):
 
 
 class TradeOut(CamelModel):
-    """A simulated position, including exactly how it was (or will be) settled."""
+    """A position, including exactly how it was (or will be) settled."""
 
     id: str
     symbol: str
@@ -102,7 +102,7 @@ class DurationOut(CamelModel):
 
 
 class StakeAssetOut(CamelModel):
-    """A simulated stablecoin a position may be staked in."""
+    """A stablecoin a position may be staked in."""
 
     asset: str
     label: str

@@ -135,7 +135,7 @@ function HourlyVolume({
       </div>
 
       <p className="sr-only">
-        Today&rsquo;s simulated order volume across your members, by hour. Total{' '}
+        Today&rsquo;s order volume across your members, by hour. Total{' '}
         {formatAmount(total)}, busiest hour {formatAmount(peak)}.
       </p>
     </div>

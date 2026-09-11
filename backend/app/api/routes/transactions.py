@@ -39,8 +39,7 @@ from app.services import (
 router = APIRouter()
 
 RATE_SCALE = Decimal("0.000000000001")
-ADDRESS_PATTERN = re.compile(r"^[A-Za-z0-9:_\-]{8,200}$")
-DEMO_NOTE = "This is a simulated demo movement. No real funds are involved."
+DEMO_NOTE = ""
 
 
 # --------------------------------------------------------------------------- #
@@ -57,10 +56,10 @@ def _decimals(asset: str) -> int:
 
 
 def _require_fund_password(user: User, supplied: str) -> None:
-    """Demo money movements need the separate fund password on the account."""
+    """Money movements need the separate fund password on the account."""
     if not user.fund_password_hash:
         raise ValidationError(
-            "Set a fund password under Security before moving demo funds.",
+            "Set a fund password under Security before moving funds.",
             code="FUND_PASSWORD_NOT_SET")
     if not verify_password(supplied, user.fund_password_hash):
         raise ValidationError("The fund password you entered is incorrect.",
@@ -147,7 +146,7 @@ async def _quote_conversion(db: Session, from_asset: str, to_asset: str,
     from_asset = wallet_service.validate_asset(from_asset.strip().upper())
     to_asset = wallet_service.validate_asset(to_asset.strip().upper())
     if from_asset == to_asset:
-        raise ValidationError("Choose two different demo assets to convert between.",
+        raise ValidationError("Choose two different assets to convert between.",
                               code="SAME_ASSET")
     amount = wallet_service.validate_amount(amount)
 
@@ -168,7 +167,7 @@ async def _quote_conversion(db: Session, from_asset: str, to_asset: str,
     receive = wallet_service.quantize(amount * rate)
     if receive <= 0:
         raise ValidationError(
-            "That amount is too small to convert once the simulated spread is "
+            "That amount is too small to convert once the spread is "
             "applied.", code="AMOUNT_TOO_SMALL")
     return {
         "fromAsset": from_asset,
@@ -188,7 +187,7 @@ async def _quote_conversion(db: Session, from_asset: str, to_asset: str,
 # --------------------------------------------------------------------------- #
 
 
-@router.post("/deposits/demo", summary="Create a simulated deposit")
+@router.post("/deposits/demo", summary="Create a deposit")
 def create_demo_deposit(
     payload: DepositCreate,
     request: Request,
@@ -207,7 +206,7 @@ def create_demo_deposit(
     maximum = settings_service.get_decimal(db, "demo_deposit_max")
     if maximum > 0 and amount > maximum:
         raise ValidationError(
-            f"The largest single simulated deposit is {maximum}.",
+            f"The largest single deposit is {maximum}.",
             code="DEPOSIT_LIMIT_EXCEEDED")
 
     reference = wallet_service.new_reference("DEP")
@@ -247,14 +246,14 @@ def create_demo_deposit(
     return ok(_deposit_payload(deposit, message))
 
 
-@router.get("/deposits", summary="List simulated deposits")
+@router.get("/deposits", summary="List deposits")
 def list_deposits(
     user: Annotated[User, Depends(require_user)],
     db: Annotated[Session, Depends(get_db)],
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100, alias="pageSize")] = 20,
 ) -> dict:
-    """Paginated history of the simulated deposits on this demo account."""
+    """Paginated history of the deposits on this account."""
     params = _pagination(page, page_size)
     total = int(db.scalar(select(func.count()).select_from(Deposit)
                           .where(Deposit.user_id == user.id)) or 0)
@@ -269,7 +268,7 @@ def list_deposits(
 # --------------------------------------------------------------------------- #
 
 
-@router.get("/withdrawals/options", summary="Demo withdrawal options and limits")
+@router.get("/withdrawals/options", summary="Withdrawal options and limits")
 def withdrawal_options(
     user: Annotated[User, Depends(require_user)],
     db: Annotated[Session, Depends(get_db)],
@@ -307,7 +306,7 @@ def withdrawal_options(
         # Both strings are admin-editable in Settings -> Withdrawals.
         "message": (None if enabled else str(
             settings_service.get(db, "withdrawals_disabled_message")
-            or "Demo withdrawals are currently unavailable.").strip()),
+            or "Withdrawals are currently unavailable.").strip()),
         "notice": str(settings_service.get(db, "withdrawal_notice") or "").strip() or None,
         # The screen stays open while this is on; submitting is what fails.
         "paused": settings_service.get_bool(db, "withdrawal_requests_paused"),
@@ -318,7 +317,7 @@ def withdrawal_options(
     })
 
 
-@router.post("/withdrawals/demo", summary="Request a simulated withdrawal")
+@router.post("/withdrawals/demo", summary="Request a withdrawal")
 def create_demo_withdrawal(
     payload: WithdrawalCreate,
     request: Request,
@@ -409,14 +408,14 @@ def create_demo_withdrawal(
     return ok(_withdrawal_payload(withdrawal, message))
 
 
-@router.get("/withdrawals", summary="List simulated withdrawals")
+@router.get("/withdrawals", summary="List withdrawals")
 def list_withdrawals(
     user: Annotated[User, Depends(require_user)],
     db: Annotated[Session, Depends(get_db)],
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100, alias="pageSize")] = 20,
 ) -> dict:
-    """Paginated history of the simulated withdrawal requests on this account."""
+    """Paginated history of the withdrawal requests on this account."""
     params = _pagination(page, page_size)
     total = int(db.scalar(select(func.count()).select_from(Withdrawal)
                           .where(Withdrawal.user_id == user.id)) or 0)
@@ -427,19 +426,19 @@ def list_withdrawals(
 
 
 @router.post("/withdrawals/{withdrawal_id}/cancel",
-             summary="Cancel a pending simulated withdrawal")
+             summary="Cancel a pending withdrawal")
 def cancel_withdrawal(
     withdrawal_id: str,
     request: Request,
     user: Annotated[User, Depends(require_active_user)],
     db: Annotated[Session, Depends(get_db)],
 ) -> dict:
-    """Cancel your own pending simulated withdrawal and unlock the demo funds."""
+    """Cancel your own pending withdrawal and unlock the funds."""
     withdrawal = db.get(Withdrawal, withdrawal_id)
     if withdrawal is None:
-        raise NotFoundError("That simulated withdrawal could not be found.")
+        raise NotFoundError("That withdrawal could not be found.")
     if withdrawal.user_id != user.id:
-        raise ForbiddenError("You can only cancel your own demo withdrawals.")
+        raise ForbiddenError("You can only cancel your own withdrawals.")
     if withdrawal.status != WithdrawalStatus.PENDING.value:
         raise ValidationError(
             "Only a pending withdrawal can be cancelled.",
@@ -472,7 +471,7 @@ def cancel_withdrawal(
 # --------------------------------------------------------------------------- #
 
 
-@router.post("/transfers", summary="Send simulated funds to another demo account")
+@router.post("/transfers", summary="Send funds to another account")
 def create_transfer(
     payload: TransferCreate,
     request: Request,
@@ -493,14 +492,14 @@ def create_transfer(
     recipient = db.scalar(select(User).where(or_(
         func.lower(User.username) == handle, func.lower(User.email) == handle)))
     if recipient is None:
-        raise NotFoundError("No demo account matches that username or email.",
+        raise NotFoundError("No account matches that username or email.",
                             code="RECIPIENT_NOT_FOUND")
     if recipient.id == user.id:
-        raise ValidationError("You cannot transfer demo funds to yourself.",
+        raise ValidationError("You cannot transfer funds to yourself.",
                               code="SELF_TRANSFER")
     if recipient.status != UserStatus.ACTIVE.value:
         raise ValidationError(
-            "That demo account cannot receive transfers at the moment.",
+            "That account cannot receive transfers at the moment.",
             code="RECIPIENT_RESTRICTED")
 
     _out, _in, reference = wallet_service.transfer_between_users(
@@ -515,30 +514,30 @@ def create_transfer(
                                     "amount": str(amount), "reference": reference},
                          request=request)
     notification_service.notify(
-        db, user.id, "Simulated transfer sent",
-        f"You sent {amount} {asset} in simulated funds to {recipient.username}. "
-        f"{DEMO_NOTE}", notification_service.DEMO_BALANCE)
+        db, user.id, "Transfer sent",
+        f"You sent {amount} {asset} to {recipient.username}.",
+        notification_service.DEMO_BALANCE)
     notification_service.notify(
-        db, recipient.id, "Simulated transfer received",
-        f"You received {amount} {asset} in simulated funds from {user.username}. "
-        f"{DEMO_NOTE}", notification_service.DEMO_BALANCE)
+        db, recipient.id, "Transfer received",
+        f"You received {amount} {asset} from {user.username}.",
+        notification_service.DEMO_BALANCE)
     db.commit()
     db.refresh(transfer)
 
     payload_out = _transfer_payload(transfer, user.id,
                                     {recipient.id: recipient.username})
-    payload_out["message"] = f"Simulated transfer complete. {DEMO_NOTE}"
+    payload_out["message"] = "Transfer complete."
     return ok(payload_out)
 
 
-@router.get("/transfers", summary="List simulated transfers")
+@router.get("/transfers", summary="List transfers")
 def list_transfers(
     user: Annotated[User, Depends(require_user)],
     db: Annotated[Session, Depends(get_db)],
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100, alias="pageSize")] = 20,
 ) -> dict:
-    """Paginated history of simulated transfers sent or received by this account."""
+    """Paginated history of transfers sent or received by this account."""
     params = _pagination(page, page_size)
     condition = or_(Transfer.sender_id == user.id, Transfer.recipient_id == user.id)
     total = int(db.scalar(select(func.count()).select_from(Transfer)
@@ -561,7 +560,7 @@ def list_transfers(
 # --------------------------------------------------------------------------- #
 
 
-@router.post("/conversions/quote", summary="Quote a simulated conversion")
+@router.post("/conversions/quote", summary="Quote a conversion")
 async def quote_conversion(
     payload: ConvertQuoteIn,
     user: Annotated[User, Depends(require_active_user)],
@@ -577,11 +576,11 @@ async def quote_conversion(
                                     payload.amount)
     body = {key: value for key, value in quote.items() if not key.startswith("_")}
     body["demoLabel"] = settings_service.get(db, "demo_label")
-    body["message"] = "Indicative simulated rate. No real assets are exchanged."
+    body["message"] = "Indicative rate. No real assets are exchanged."
     return ok(body)
 
 
-@router.post("/conversions", summary="Convert between demo assets")
+@router.post("/conversions", summary="Convert between assets")
 async def create_conversion(
     payload: ConvertCreate,
     request: Request,
@@ -607,12 +606,12 @@ async def create_conversion(
     wallet_service.debit(
         db, user.id, from_asset, amount, tx_type=TransactionType.DEMO_CONVERSION,
         reference=f"{reference}-OUT",
-        description=f"Simulated conversion to {to_asset}",
+        description=f"Conversion to {to_asset}",
         metadata={"simulated": True, "toAsset": to_asset, "rate": str(rate)})
     wallet_service.credit(
         db, user.id, to_asset, receive, tx_type=TransactionType.DEMO_CONVERSION,
         reference=f"{reference}-IN",
-        description=f"Simulated conversion from {from_asset}",
+        description=f"Conversion from {from_asset}",
         metadata={"simulated": True, "fromAsset": from_asset, "rate": str(rate)})
 
     conversion = Conversion(user_id=user.id, from_asset=from_asset,
@@ -621,8 +620,7 @@ async def create_conversion(
     db.add(conversion)
     db.flush()
 
-    message = (f"Converted {amount} {from_asset} into {receive} {to_asset} in "
-               f"simulated funds. {DEMO_NOTE}")
+    message = f"Converted {amount} {from_asset} into {receive} {to_asset}."
     audit_service.record(db, AuditAction.CONVERSION_CREATED, actor=user,
                          new_value={"fromAsset": from_asset, "toAsset": to_asset,
                                     "fromAmount": str(amount),
@@ -630,7 +628,7 @@ async def create_conversion(
                                     "reference": reference},
                          request=request)
     notification_service.notify(
-        db, user.id, "Simulated conversion complete", message,
+        db, user.id, "Conversion complete", message,
         notification_service.DEMO_BALANCE)
     db.commit()
     db.refresh(conversion)

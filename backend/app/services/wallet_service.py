@@ -130,7 +130,7 @@ def credit(db: Session, user_id: str, asset: str, amount: Decimal, *,
            reference: str | None = None, fee: Decimal = ZERO,
            metadata: dict[str, Any] | None = None,
            status: TransactionStatus = TransactionStatus.COMPLETED) -> Transaction:
-    """Add simulated funds and write the matching ledger entry."""
+    """Add funds and write the matching ledger entry."""
     amount = validate_amount(amount)
     wallet = get_wallet(db, user_id, asset, for_update=True)
     wallet.available = quantize(wallet.available + amount)
@@ -145,7 +145,7 @@ def debit(db: Session, user_id: str, asset: str, amount: Decimal, *,
           reference: str | None = None, fee: Decimal = ZERO,
           metadata: dict[str, Any] | None = None,
           status: TransactionStatus = TransactionStatus.COMPLETED) -> Transaction:
-    """Remove simulated funds, refusing to overdraw."""
+    """Remove funds, refusing to overdraw."""
     amount = validate_amount(amount)
     wallet = get_wallet(db, user_id, asset, for_update=True)
     if wallet.available < amount:
@@ -208,12 +208,12 @@ def transfer_between_users(db: Session, sender: User, recipient: User, asset: st
     out_tx = debit(db, sender.id, asset, amount,
                    tx_type=TransactionType.DEMO_TRANSFER_OUT,
                    reference=f"{reference}-OUT",
-                   description=f"Demo transfer to {recipient.username}",
+                   description=f"Transfer to {recipient.username}",
                    metadata={"counterparty": recipient.username, "note": note})
     in_tx = credit(db, recipient.id, asset, amount,
                    tx_type=TransactionType.DEMO_TRANSFER_IN,
                    reference=f"{reference}-IN",
-                   description=f"Demo transfer from {sender.username}",
+                   description=f"Transfer from {sender.username}",
                    metadata={"counterparty": sender.username, "note": note})
     return out_tx, in_tx, reference
 

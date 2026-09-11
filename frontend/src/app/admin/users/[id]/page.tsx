@@ -70,7 +70,7 @@ export default function AdminUserDetailPage() {
   });
 
   useAdminPage(
-    detail.data ? detail.data.profile.fullName || detail.data.profile.username : 'Demo user',
+    detail.data ? detail.data.profile.fullName || detail.data.profile.username : 'User',
     detail.data ? detail.data.profile.email : undefined,
   );
 
@@ -170,7 +170,7 @@ export default function AdminUserDetailPage() {
       }),
     onSuccess: (result) => {
       toast.success(
-        'Internal demo score updated',
+        'Internal score updated',
         `${result.oldScore} → ${result.newScore}. ${result.disclaimer}`,
       );
       invalidate();
@@ -219,7 +219,7 @@ export default function AdminUserDetailPage() {
   if (detail.isError || !detail.data) {
     return (
       <ErrorState
-        title="Could not load this demo user"
+        title="Could not load this user"
         description={errorMessage(detail.error)}
         onRetry={() => void detail.refetch()}
       />
@@ -365,10 +365,10 @@ export default function AdminUserDetailPage() {
             </Button>
           )}
           <Button variant="outline" onClick={() => openAdjust('credit')}>
-            Credit demo balance
+            Credit balance
           </Button>
           <Button variant="outline" onClick={() => openAdjust('debit')}>
-            Debit demo balance
+            Debit balance
           </Button>
           <Button
             variant="outline"
@@ -430,12 +430,12 @@ export default function AdminUserDetailPage() {
             <DataRow label="Test account" value={profile.isTestAccount ? 'Yes' : 'No'} />
             <Divider />
             <DataRow
-              label="Total demo value"
+              label="Total value"
               value={formatAmount(profile.totalDemoValue, 2)}
               tone="strong"
             />
             <Divider />
-            <DataRow label="Open demo trades" value={data.openTrades} />
+            <DataRow label="Open trades" value={data.openTrades} />
             <Divider />
             <DataRow label="Registered" value={formatDateTime(profile.createdAt)} />
             <Divider />
@@ -628,7 +628,7 @@ export default function AdminUserDetailPage() {
       <TabPanel value="score" active={tab === 'score'}>
         <Card>
           <CardHeader
-            title="Internal demo account score"
+            title="Internal account score"
             description="Not a credit-bureau score"
           />
           <CardBody>
@@ -662,7 +662,7 @@ export default function AdminUserDetailPage() {
 
       <TabPanel value="audit" active={tab === 'audit'}>
         <DataTable<AuditLogEntry>
-          caption="Audit trail for this demo account"
+          caption="Audit trail for this account"
           columns={auditColumns}
           rows={auditLogs.data?.items ?? []}
           rowKey={(row) => row.id}
@@ -680,8 +680,8 @@ export default function AdminUserDetailPage() {
         open={dialog === 'freeze'}
         onClose={closeDialog}
         onSubmit={(reason) => freeze.mutate(reason)}
-        title="Freeze demo account"
-        description="The customer will be locked out of demo trading and withdrawals, and will see this reason."
+        title="Freeze account"
+        description="The customer will be locked out of trading and withdrawals, and will see this reason."
         confirmLabel="Freeze account"
         confirmVariant="danger"
         loading={busy}
@@ -732,8 +732,8 @@ export default function AdminUserDetailPage() {
         open={dialog === 'unfreeze'}
         onClose={closeDialog}
         onSubmit={(reason) => unfreeze.mutate(reason)}
-        title="Restore demo account"
-        description="Full demo functionality is returned to the customer."
+        title="Restore account"
+        description="Full functionality is returned to the customer."
         confirmLabel="Unfreeze account"
         loading={busy}
         error={dialogError}
@@ -755,7 +755,7 @@ export default function AdminUserDetailPage() {
         extraFields={
           <div className="space-y-3">
             <Select
-              label="Demo asset"
+              label="Asset"
               options={
                 assetOptions.length > 0
                   ? assetOptions
@@ -782,8 +782,8 @@ export default function AdminUserDetailPage() {
         open={dialog === 'score'}
         onClose={closeDialog}
         onSubmit={(reason) => setCreditScore.mutate(reason)}
-        title="Adjust internal demo score"
-        description="This is an internal demo account score used only inside this simulator. It is not a credit-bureau score and has no real-world meaning."
+        title="Adjust internal score"
+        description="This is an internal account score used only inside this platform. It is not a credit-bureau score and has no real-world meaning."
         confirmLabel="Set score"
         loading={busy}
         error={dialogError}

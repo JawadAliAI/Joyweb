@@ -26,7 +26,7 @@ DEFAULTS: dict[str, tuple[Any, str, str]] = {
     "secondary_color": ("#F0B90B", "branding", "Secondary accent colour."),
     "support_email": (env.SUPPORT_EMAIL, "branding", "Support contact address."),
     "display_currency": ("USD", "branding", "Currency used for estimated values."),
-    "demo_label": (env.DEMO_LABEL, "branding", "Permanent simulation banner text."),
+    "demo_label": (env.DEMO_LABEL, "branding", "Header banner text (leave blank to hide)."),
 
     # --- System ---
     "maintenance_mode": (False, "system", "Block customer access for maintenance."),
@@ -48,10 +48,10 @@ DEFAULTS: dict[str, tuple[Any, str, str]] = {
         "Falls back to the first configured CORS origin when blank."),
 
     # --- Trading ---
-    "trading_enabled": (True, "trading", "Master switch for demo trading."),
+    "trading_enabled": (True, "trading", "Master switch for trading."),
     "default_duration_seconds": (60, "trading", "Pre-selected trade duration."),
-    "trade_min_amount": ("10", "trading", "Minimum demo stake."),
-    "trade_max_amount": ("10000", "trading", "Maximum demo stake."),
+    "trade_min_amount": ("10", "trading", "Minimum stake."),
+    "trade_max_amount": ("10000", "trading", "Maximum stake."),
     "trade_quick_amounts": ([10, 50, 100, 500, 1000], "trading",
                             "Quick-pick stake buttons."),
     "simulation_disclosure": (
@@ -61,9 +61,9 @@ DEFAULTS: dict[str, tuple[Any, str, str]] = {
         "trading", "Text shown to users explaining how outcomes are decided."),
 
     # --- Withdrawals ---
-    "withdrawals_enabled": (True, "withdrawal", "Master switch for demo withdrawals."),
+    "withdrawals_enabled": (True, "withdrawal", "Master switch for withdrawals."),
     "withdrawals_disabled_message": (
-        "Demo withdrawals are currently unavailable.", "withdrawal",
+        "Withdrawals are currently unavailable.", "withdrawal",
         "Shown to customers when withdrawals_enabled is OFF. Say what is "
         "actually happening and when it will be back."),
     "withdrawal_requests_paused": (
@@ -74,7 +74,7 @@ DEFAULTS: dict[str, tuple[Any, str, str]] = {
         "`withdrawals_enabled` OFF hides the screen entirely instead."),
     "withdrawal_paused_message": (
         "Withdrawals are not being processed at the moment, so this request "
-        "could not be submitted. Nothing has been deducted from your demo "
+        "could not be submitted. Nothing has been deducted from your "
         "balance and no funds are locked. Please try again later.",
         "withdrawal",
         "Shown when withdrawal_requests_paused is ON and a customer submits. "
@@ -84,10 +84,10 @@ DEFAULTS: dict[str, tuple[Any, str, str]] = {
         "", "withdrawal",
         "Optional notice shown on the withdraw screen while withdrawals are "
         "open, e.g. processing times or fee details. Leave blank to hide it."),
-    "withdrawal_min_amount": ("10", "withdrawal", "Minimum demo withdrawal."),
-    "withdrawal_max_amount": ("10000", "withdrawal", "Maximum demo withdrawal."),
-    "withdrawal_fee_flat": ("5", "withdrawal", "Flat simulated withdrawal fee."),
-    "withdrawal_fee_percent": ("0", "withdrawal", "Percentage simulated fee."),
+    "withdrawal_min_amount": ("10", "withdrawal", "Minimum withdrawal."),
+    "withdrawal_max_amount": ("10000", "withdrawal", "Maximum withdrawal."),
+    "withdrawal_fee_flat": ("5", "withdrawal", "Flat withdrawal fee."),
+    "withdrawal_fee_percent": ("0", "withdrawal", "Percentage fee."),
     "withdrawal_networks": (
         [
             {"id": "DEMO_USDT-ERC", "asset": "DEMO_USDT", "network": "ERC",
@@ -99,17 +99,17 @@ DEFAULTS: dict[str, tuple[Any, str, str]] = {
             {"id": "DEMO_BTC-BTC", "asset": "DEMO_BTC", "network": "BTC",
              "label": "BTC", "enabled": True},
         ],
-        "withdrawal", "Simulated asset/network options offered on the withdraw screen."),
+        "withdrawal", "Asset/network options offered on the withdraw screen."),
 
     # --- Deposits / transfers / conversion ---
-    "deposits_enabled": (True, "wallet", "Master switch for demo deposits."),
-    "transfers_enabled": (True, "wallet", "Master switch for internal demo transfers."),
-    "conversions_enabled": (True, "wallet", "Master switch for demo conversions."),
-    "conversion_fee_percent": ("0.1", "wallet", "Simulated conversion spread, percent."),
+    "deposits_enabled": (True, "wallet", "Master switch for deposits."),
+    "transfers_enabled": (True, "wallet", "Master switch for internal transfers."),
+    "conversions_enabled": (True, "wallet", "Master switch for conversions."),
+    "conversion_fee_percent": ("0.1", "wallet", "Conversion spread, percent."),
     "demo_deposit_auto_credit": (True, "wallet",
-                                 "Credit simulated deposits immediately instead of "
+                                 "Credit deposits immediately instead of "
                                  "leaving them pending admin review."),
-    "demo_deposit_max": ("100000", "wallet", "Largest single simulated deposit."),
+    "demo_deposit_max": ("100000", "wallet", "Largest single deposit."),
 }
 
 

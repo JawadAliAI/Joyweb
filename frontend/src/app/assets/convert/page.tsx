@@ -174,12 +174,6 @@ export default function ConvertPage() {
           />
         ) : (
           <div className="space-y-4">
-            <SimulationNotice tone="emphasis">
-              <strong className="font-bold uppercase tracking-wide">Simulation only.</strong>{' '}
-              Converting exchanges one simulated demo balance for another at an indicative rate.
-              No real assets are bought, sold or held.
-            </SimulationNotice>
-
             <Card>
               <CardBody className="space-y-3">
                 <Select

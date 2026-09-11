@@ -80,7 +80,7 @@ function Switch({
 }
 
 export default function AdminSettingsPage() {
-  useAdminPage('Settings', 'Runtime configuration for the simulator');
+  useAdminPage('Settings', 'Runtime configuration for the platform');
 
   const toast = useToast();
   const queryClient = useQueryClient();

@@ -75,7 +75,7 @@ def _status_payload(db: Session, user: User) -> dict[str, Any]:
 # --------------------------------------------------------------------------- #
 
 
-@router.get("", summary="My simulated verification status")
+@router.get("", summary="My verification status")
 def get_status(user: User = Depends(require_user),
                db: Session = Depends(get_db)) -> dict[str, Any]:
     """Per-level simulated verification status and this account's history.
@@ -84,7 +84,7 @@ def get_status(user: User = Depends(require_user),
     return ok(_status_payload(db, user))
 
 
-@router.post("/basic", summary="Submit simulated basic verification")
+@router.post("/basic", summary="Submit basic verification")
 def submit_basic(payload: BasicKycIn, request: Request,
                  user: User = Depends(require_active_user),
                  db: Session = Depends(get_db),
@@ -104,8 +104,8 @@ def submit_basic(payload: BasicKycIn, request: Request,
                    "documentType": submission.document_type,
                    "simulated": True})
     notification_service.notify(
-        db, user.id, "Simulated verification submitted",
-        "Your basic verification details are pending simulated review. "
+        db, user.id, "Verification submitted",
+        "Your basic verification details are pending review. "
         + DEMO_NOTICE,
         notification_service.ACCOUNT)
     db.commit()
@@ -115,7 +115,7 @@ def submit_basic(payload: BasicKycIn, request: Request,
                "demoNotice": DEMO_NOTICE})
 
 
-@router.post("/advanced", summary="Submit simulated advanced verification")
+@router.post("/advanced", summary="Submit advanced verification")
 def submit_advanced(request: Request,
                     front_image: UploadFile = File(..., alias="frontImage"),
                     back_image: UploadFile = File(..., alias="backImage"),
@@ -138,8 +138,8 @@ def submit_advanced(request: Request,
         new_value={"submissionId": submission.id, "level": submission.level,
                    "simulated": True})
     notification_service.notify(
-        db, user.id, "Simulated verification submitted",
-        "Your document images are pending simulated review. " + DEMO_NOTICE,
+        db, user.id, "Verification submitted",
+        "Your document images are pending review. " + DEMO_NOTICE,
         notification_service.ACCOUNT)
     db.commit()
     db.refresh(submission)
@@ -149,7 +149,7 @@ def submit_advanced(request: Request,
 
 
 @router.get("/documents/{submission_id}/{side}",
-            summary="Stream one simulated verification image")
+            summary="Stream one verification image")
 def get_document(submission_id: str, side: str,
                  user: User = Depends(require_user),
                  db: Session = Depends(get_db)) -> FileResponse:
@@ -182,7 +182,7 @@ def get_document(submission_id: str, side: str,
 # --------------------------------------------------------------------------- #
 
 
-@admin_router.get("", summary="List simulated verification submissions")
+@admin_router.get("", summary="List verification submissions")
 def admin_list(page: int = Query(1, ge=1),
                page_size: int = Query(20, ge=1, le=100, alias="pageSize"),
                status: str | None = Query(None),
@@ -231,9 +231,9 @@ def _review(db: Session, request: Request, admin: User, submission_id: str,
 
     verb = "approved" if approved else "rejected"
     notification_service.notify(
-        db, submission.user_id, f"Simulated verification {verb}",
-        f"Your {submission.level.lower()} verification was {verb} in this demo: "
-        f"{body.reason.strip()} " + DEMO_NOTICE,
+        db, submission.user_id, f"Verification {verb}",
+        f"Your {submission.level.lower()} verification was {verb}: "
+        f"{body.reason.strip()}",
         notification_service.ACCOUNT)
     db.commit()
     db.refresh(submission)
@@ -243,7 +243,7 @@ def _review(db: Session, request: Request, admin: User, submission_id: str,
 
 
 @admin_router.post("/{submission_id}/approve",
-                   summary="Approve a simulated verification submission")
+                   summary="Approve a verification submission")
 def admin_approve(submission_id: str, body: ReasonIn, request: Request,
                   admin: User = Depends(require_admin),
                   db: Session = Depends(get_db)) -> dict[str, Any]:
@@ -254,7 +254,7 @@ def admin_approve(submission_id: str, body: ReasonIn, request: Request,
 
 
 @admin_router.post("/{submission_id}/reject",
-                   summary="Reject a simulated verification submission")
+                   summary="Reject a verification submission")
 def admin_reject(submission_id: str, body: ReasonIn, request: Request,
                  admin: User = Depends(require_admin),
                  db: Session = Depends(get_db)) -> dict[str, Any]:

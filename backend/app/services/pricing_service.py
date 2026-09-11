@@ -20,14 +20,14 @@ from app.services import market_data, wallet_service
 
 QUOTE_ASSET = Asset.DEMO_USDT.value
 PRICES_UNAVAILABLE_MESSAGE = (
-    "Live market data is unavailable, so estimated demo values cannot be shown "
+    "Live market data is unavailable, so estimated values cannot be shown "
     "right now."
 )
 
 
 @dataclass(frozen=True)
 class PriceSnapshot:
-    """A point-in-time view of demo asset prices."""
+    """A point-in-time view of asset prices."""
 
     prices: dict[str, Decimal] = field(default_factory=dict)
     available: bool = True
@@ -38,7 +38,7 @@ class PriceSnapshot:
 
 
 def _market_symbols(db: Session) -> dict[str, str]:
-    """asset -> provider symbol, for every demo asset that has a market pair."""
+    """asset -> provider symbol, for every asset that has a market pair."""
     wanted = {
         asset: meta["market"]
         for asset, meta in wallet_service.ASSET_META.items()

@@ -160,7 +160,7 @@ export default function AdminUsersPage() {
       </div>
 
       <DataTable<AdminUserRow>
-        caption="Demo user accounts"
+        caption="User accounts"
         columns={columns}
         rows={query.data?.items ?? []}
         rowKey={(row) => row.id}

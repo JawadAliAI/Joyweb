@@ -19,7 +19,7 @@ from app.schemas.common import CamelModel
 
 
 class AssetOut(CamelModel):
-    """Metadata for one supported simulated asset."""
+    """Metadata for one supported asset."""
 
     asset: str
     label: str
@@ -29,7 +29,7 @@ class AssetOut(CamelModel):
 
 
 class WalletOut(CamelModel):
-    """One simulated balance row."""
+    """One balance row."""
 
     asset: str
     label: str
@@ -41,7 +41,7 @@ class WalletOut(CamelModel):
 
 
 class PortfolioOut(CamelModel):
-    """The caller's whole simulated portfolio."""
+    """The caller's whole portfolio."""
 
     total_estimated_value: str
     display_currency: str
@@ -52,7 +52,7 @@ class PortfolioOut(CamelModel):
 
 
 class TransactionOut(CamelModel):
-    """A single ledger entry describing a simulated balance movement."""
+    """A single ledger entry describing a balance movement."""
 
     id: str
     type: str

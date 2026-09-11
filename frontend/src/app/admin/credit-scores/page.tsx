@@ -18,10 +18,10 @@ import { DataTable, useDebounced, useTableState } from '@/components/admin/DataT
 import type { Column } from '@/components/admin/DataTable';
 
 const DISCLAIMER =
-  'This is an internal demo account score used only inside this simulator. It is not a credit-bureau score and has no real-world meaning.';
+  'This is an internal account score used only inside this platform. It is not a credit-bureau score and has no real-world meaning.';
 
 export default function AdminCreditScoresPage() {
-  useAdminPage('Credit Scores', 'Internal demo account score changes');
+  useAdminPage('Credit Scores', 'Internal account score changes');
 
   const [userId, setUserId] = useState('');
   const debouncedUser = useDebounced(userId);
@@ -110,7 +110,7 @@ export default function AdminCreditScoresPage() {
       />
 
       <DataTable<CreditScoreEntry>
-        caption="Internal demo account score change history"
+        caption="Internal account score change history"
         columns={columns}
         rows={query.data?.items ?? []}
         rowKey={(row) => row.id}

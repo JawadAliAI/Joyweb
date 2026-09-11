@@ -133,7 +133,7 @@ class SetFundPasswordIn(CamelModel):
 
 
 class MeOut(CamelModel):
-    """The signed-in demo account. Never carries a hash or a token."""
+    """The signed-in account. Never carries a hash or a token."""
 
     id: str
     email: str

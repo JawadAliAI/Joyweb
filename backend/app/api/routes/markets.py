@@ -73,7 +73,7 @@ async def _tickers_for(markets: list[Market]) -> tuple[dict, bool]:
         return {}, False
 
 
-@router.get("", summary="List tradable demo markets")
+@router.get("", summary="List tradable markets")
 async def list_markets(request: Request,
                        quote: str | None = Query(None, description="Quote asset tab, e.g. USDT"),
                        favorites: bool = Query(False, description="Only my favourites"),

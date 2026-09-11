@@ -21,7 +21,7 @@ from app.db.models.enums import KycStatus
 
 
 class KycSubmission(UUIDMixin, TimestampMixin, Base):
-    """One simulated verification attempt at one level, for one user."""
+    """One verification attempt at one level, for one user."""
 
     __tablename__ = "kyc_submissions"
 

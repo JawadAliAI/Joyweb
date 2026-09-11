@@ -72,7 +72,7 @@ def require_user(request: Request, db: Session = Depends(get_db)) -> User:
     if user is None:
         raise AuthError()
     if user.status == UserStatus.SUSPENDED.value:
-        raise AccountRestrictedError("This demo account has been suspended.")
+        raise AccountRestrictedError("This account has been suspended.")
     return user
 
 
@@ -84,7 +84,7 @@ def require_active_user(user: User = Depends(require_user)) -> User:
     """
     if user.is_frozen:
         raise AccountRestrictedError(
-            user.freeze_reason or "Your demo account is currently restricted.")
+            user.freeze_reason or "Your account is currently restricted.")
     return user
 
 
@@ -134,11 +134,11 @@ _CUSTOM_MESSAGE_KEYS = {
 }
 
 _FEATURE_MESSAGES = {
-    "withdrawals_enabled": "Demo withdrawals are currently unavailable.",
-    "trading_enabled": "Demo trading is currently unavailable.",
-    "deposits_enabled": "Demo deposits are currently unavailable.",
-    "transfers_enabled": "Demo transfers are currently unavailable.",
-    "conversions_enabled": "Demo conversions are currently unavailable.",
+    "withdrawals_enabled": "Withdrawals are currently unavailable.",
+    "trading_enabled": "Trading is currently unavailable.",
+    "deposits_enabled": "Deposits are currently unavailable.",
+    "transfers_enabled": "Transfers are currently unavailable.",
+    "conversions_enabled": "Conversions are currently unavailable.",
 }
 
 

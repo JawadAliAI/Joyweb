@@ -325,7 +325,6 @@ export function TradePanel({
         </CardBody>
       </Card>
 
-      <SimulationNotice>{config.disclosure}</SimulationNotice>
     </div>
   );
 }

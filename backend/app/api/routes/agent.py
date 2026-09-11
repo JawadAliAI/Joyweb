@@ -272,7 +272,7 @@ async def dashboard(agent_id: str | None = Query(None, alias="agentId"),
         "activeMemberCount": active,
         "tradeVolumeToday": str(volume_today),
         "tradeVolume": series,
-        "message": "All figures describe simulated activity for your own members.",
+        "message": "All figures describe activity for your own members.",
     })
 
 
@@ -424,7 +424,7 @@ def list_sub_agents(
 # --------------------------------------------------------------------------- #
 
 
-@router.get("/trades", summary="Simulated positions across this agent's members")
+@router.get("/trades", summary="Positions across this agent's members")
 def list_trades(
     symbol: str | None = Query(None, max_length=40),
     status: str | None = Query(None),
@@ -496,7 +496,7 @@ def _movements(db: Session, agent: User | None, model: Any, kind: str,
     return payload
 
 
-@router.get("/deposits", summary="Simulated deposits by this agent's members")
+@router.get("/deposits", summary="Deposits by this agent's members")
 def list_deposits(
     status: str | None = Query(None),
     agent_id: str | None = Query(None, alias="agentId"),
@@ -508,7 +508,7 @@ def list_deposits(
     return ok(_movements(db, _scope(db, agent_id), Deposit, "DEPOSIT", status, _page(page, page_size)))
 
 
-@router.get("/withdrawals", summary="Simulated withdrawals by this agent's members")
+@router.get("/withdrawals", summary="Withdrawals by this agent's members")
 def list_withdrawals(
     status: str | None = Query(None),
     agent_id: str | None = Query(None, alias="agentId"),

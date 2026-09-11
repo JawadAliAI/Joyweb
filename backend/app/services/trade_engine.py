@@ -65,7 +65,7 @@ def resolve_stake_asset(asset: str | None) -> str:
 
 VOID_NOTE = (
     "Simulation voided: public market data was unavailable at expiry, so no "
-    "exit price could be recorded. Your demo stake was returned in full."
+    "exit price could be recorded. Your stake was returned in full."
 )
 
 
@@ -88,7 +88,7 @@ def calculate_outcome(direction: str, entry_price: Decimal,
 
 def calculate_settlement(amount: Decimal, payout_percent: Decimal,
                          outcome: TradeOutcome | str) -> tuple[Decimal, Decimal]:
-    """Return `(profit_loss, returned_amount)` for a finished simulated trade."""
+    """Return `(profit_loss, returned_amount)` for a finished trade."""
     amount = wallet_service.quantize(amount)
     outcome = TradeOutcome(str(outcome))
     if outcome is TradeOutcome.WIN:
@@ -139,11 +139,11 @@ def _notify(db: Session, user_id: str, title: str, body: str, kind: str) -> None
 def get_market(db: Session, symbol: str) -> Market:
     market = db.scalar(select(Market).where(Market.symbol == symbol))
     if market is None or not market.is_enabled:
-        raise NotFoundError(f"Demo market {symbol} is not available.",
+        raise NotFoundError(f"Market {symbol} is not available.",
                             code="MARKET_NOT_FOUND")
     if not market.is_tradable:
         raise ValidationError(
-            f"Demo market {symbol} is not open for simulated trading right now.",
+            f"Market {symbol} is not open for trading right now.",
             code="MARKET_NOT_TRADABLE")
     return market
 
@@ -153,7 +153,7 @@ def get_duration(db: Session, duration_seconds: int) -> TradingDuration:
         TradingDuration.seconds == int(duration_seconds)))
     if duration is None or not duration.is_enabled:
         raise ValidationError(
-            f"{duration_seconds}s is not one of the offered demo trade durations.",
+            f"{duration_seconds}s is not one of the offered trade durations.",
             code="INVALID_DURATION")
     return duration
 
@@ -226,7 +226,7 @@ def trade_config(db: Session) -> dict:
             settings_service.get(db, "default_duration_seconds") or 60),
         "disclosure": settings_service.get(db, "simulation_disclosure"),
         "demoNotice": (
-            "Simulated trading only. Stakes and payouts are demo balances; no "
+            "Trading only. Stakes and payouts are balances; no "
             "real funds are ever placed at risk."
         ),
     }
@@ -257,16 +257,16 @@ async def open_trade(db: Session, user: User, symbol: str, direction: str,
     minimum, maximum = amount_bounds(db, duration)
     if minimum > maximum:
         raise ValidationError(
-            "Demo stake limits are misconfigured for this duration.",
+            "Stake limits are misconfigured for this duration.",
             code="INVALID_AMOUNT_LIMITS")
     if stake < minimum:
         raise ValidationError(
-            f"Minimum demo stake for this duration is {minimum} "
+            f"Minimum stake for this duration is {minimum} "
             f"{wallet_service.ASSET_META[asset]['label']}.",
             code="AMOUNT_BELOW_MINIMUM")
     if stake > maximum:
         raise ValidationError(
-            f"Maximum demo stake for this duration is {maximum} "
+            f"Maximum stake for this duration is {maximum} "
             f"{wallet_service.ASSET_META[asset]['label']}.",
             code="AMOUNT_ABOVE_MAXIMUM")
 
@@ -276,7 +276,7 @@ async def open_trade(db: Session, user: User, symbol: str, direction: str,
     entry_price = Decimal(str(ticker.price))
     if entry_price <= ZERO:
         raise UpstreamUnavailableError(
-            "Market data returned an unusable price; the demo trade was not opened.")
+            "Market data returned an unusable price; the trade was not opened.")
 
     wallet_service.lock_funds(db, user.id, asset, stake)
 
@@ -409,7 +409,7 @@ async def settle_trade(db: Session, trade: Trade) -> Trade:
 
     user = db.get(User, trade.user_id)
     if user is None:  # pragma: no cover - FK makes this near-impossible
-        raise NotFoundError("The account for this simulated trade no longer exists.")
+        raise NotFoundError("The account for this trade no longer exists.")
 
     market = db.scalar(select(Market).where(Market.symbol == trade.symbol))
     exit_price: Decimal | None = None
@@ -504,7 +504,7 @@ async def settle_trade(db: Session, trade: Trade) -> Trade:
 
 
 async def settle_due_trades(db: Session) -> int:
-    """Settle every open simulated trade that has reached its expiry."""
+    """Settle every open trade that has reached its expiry."""
     now = utcnow()
     due = list(db.scalars(
         select(Trade)
@@ -534,7 +534,7 @@ async def settle_due_trades(db: Session) -> int:
 
 BULK_VOID_NOTE = (
     "Simulation cancelled by an administrator before expiry, so no exit price "
-    "was recorded and no outcome was decided. Your demo stake was returned in "
+    "was recorded and no outcome was decided. Your stake was returned in "
     "full. Reason: {reason}"
 )
 
@@ -598,8 +598,8 @@ async def settle_all_open(db: Session, admin: User, reason: str,
         touched.append((trade.user_id, trade.symbol))
 
     for user_id, symbol in touched:
-        _notify(db, user_id, "Demo trade closed early",
-                (f"An administrator closed all open demo positions, including "
+        _notify(db, user_id, "Trade closed early",
+                (f"An administrator closed all open positions, including "
                  f"your {symbol} trade, at the live public market price. "
                  f"Reason: {text}"),
                 "TRADE_SETTLED")
@@ -611,7 +611,7 @@ async def settle_all_open(db: Session, admin: User, reason: str,
 
     counts["reason"] = text
     counts["message"] = (
-        f"Settled {counts['settled']} open demo trade(s) against the live public "
+        f"Settled {counts['settled']} open trade(s) against the live public "
         f"market price; {counts['voided']} were voided with the stake returned "
         f"because market data was unavailable. Outcomes were decided by the "
         f"price comparison alone."
@@ -653,8 +653,8 @@ def void_all_open(db: Session, admin: User, reason: str,
         touched.append((trade.user_id, trade.symbol))
 
     for user_id, symbol in touched:
-        _notify(db, user_id, "Demo trade cancelled",
-                f"Your open {symbol} demo trade was cancelled by an "
+        _notify(db, user_id, "Trade cancelled",
+                f"Your open {symbol} trade was cancelled by an "
                 f"administrator and the full stake was returned. Reason: {text}",
                 "TRADE_VOIDED")
 
@@ -670,7 +670,7 @@ def void_all_open(db: Session, admin: User, reason: str,
         "returnedTotal": wallet_service.quantize(returned_total),
         "reason": text,
         "message": (
-            f"Cancelled {voided} open demo trade(s) and returned every stake in "
+            f"Cancelled {voided} open trade(s) and returned every stake in "
             f"full. No outcome was decided and nobody won or lost."
         ),
     }

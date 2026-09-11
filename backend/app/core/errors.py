@@ -54,13 +54,13 @@ class ForbiddenError(APIError):
 
 class InsufficientBalanceError(APIError):
     code = "INSUFFICIENT_BALANCE"
-    message = "Insufficient demo balance."
+    message = "Insufficient balance."
 
 
 class AccountRestrictedError(APIError):
     status_code = status.HTTP_403_FORBIDDEN
     code = "ACCOUNT_RESTRICTED"
-    message = "Your demo account is currently restricted."
+    message = "Your account is currently restricted."
 
 
 class FeatureDisabledError(APIError):

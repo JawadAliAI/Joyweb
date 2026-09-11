@@ -31,11 +31,11 @@ def _serialize(trade: Trade) -> dict[str, Any]:
 def _owned_trade(db: Session, trade_id: str, user: User) -> Trade:
     trade = db.get(Trade, trade_id)
     if trade is None or trade.user_id != user.id:
-        raise NotFoundError("Simulated trade not found.", code="TRADE_NOT_FOUND")
+        raise NotFoundError("Trade not found.", code="TRADE_NOT_FOUND")
     return trade
 
 
-@router.get("/config", summary="Demo trade configuration")
+@router.get("/config", summary="Trade configuration")
 def get_trade_config(
     db: Session = Depends(get_db),
     user: User = Depends(require_user),
@@ -48,7 +48,7 @@ def get_trade_config(
     return ok(config.model_dump(by_alias=True, mode="json"))
 
 
-@router.post("", summary="Open a simulated trade", status_code=201)
+@router.post("", summary="Open a trade", status_code=201)
 async def create_trade(
     payload: TradeCreate,
     request: Request,
@@ -72,7 +72,7 @@ async def create_trade(
     return ok(_serialize(trade))
 
 
-@router.get("", summary="Simulated trade history")
+@router.get("", summary="Trade history")
 def list_trades(
     db: Session = Depends(get_db),
     user: User = Depends(require_user),
@@ -81,7 +81,7 @@ def list_trades(
     outcome: str = Query("all", description="all | WIN | LOSS | DRAW"),
     status: str | None = Query(None, description="OPEN | SETTLED | VOIDED"),
 ) -> dict[str, Any]:
-    """Paginated history of this account's simulated trades, newest first."""
+    """Paginated history of this account's trades, newest first."""
     params = PaginationParams(page=page, page_size=page_size)
 
     filters = [Trade.user_id == user.id]
@@ -107,13 +107,13 @@ def list_trades(
     return ok(paginate([_serialize(t) for t in rows], total, params))
 
 
-@router.get("/{trade_id}", summary="One simulated trade")
+@router.get("/{trade_id}", summary="One trade")
 def get_trade(
     trade_id: str,
     db: Session = Depends(get_db),
     user: User = Depends(require_user),
 ) -> dict[str, Any]:
-    """Fetch a single simulated trade belonging to the signed-in account."""
+    """Fetch a single trade belonging to the signed-in account."""
     return ok(_serialize(_owned_trade(db, trade_id, user)))
 
 

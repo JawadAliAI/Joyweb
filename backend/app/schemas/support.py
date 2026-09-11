@@ -13,9 +13,9 @@ TICKET_CATEGORIES: tuple[str, ...] = (
 
 CATEGORY_LABELS: dict[str, str] = {
     "ACCOUNT": "Account",
-    "DEPOSIT": "Demo deposits",
-    "WITHDRAWAL": "Demo withdrawals",
-    "TRADING": "Demo trading",
+    "DEPOSIT": "Deposits",
+    "WITHDRAWAL": "Withdrawals",
+    "TRADING": "Trading",
     "TECHNICAL": "Technical problem",
     "OTHER": "Something else",
 }

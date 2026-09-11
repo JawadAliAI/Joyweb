@@ -12,7 +12,7 @@ from app.db.models.wallet import MONEY
 
 
 class Transaction(UUIDMixin, TimestampMixin, Base):
-    """Immutable ledger entry for a simulated balance movement."""
+    """Immutable ledger entry for a balance movement."""
 
     __tablename__ = "transactions"
 

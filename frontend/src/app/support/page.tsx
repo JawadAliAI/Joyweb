@@ -91,10 +91,6 @@ export default function SupportPage() {
     <AppShell>
       <PageHeader title="Support" backHref="/profile" />
       <PageBody width="wide">
-        <SimulationNotice>
-          Support here covers this paper-trading demo only. Do not share real financial details,
-          real wallet keys or real personal documents.
-        </SimulationNotice>
 
         <div className="grid items-start gap-4 lg:grid-cols-[380px_minmax(0,1fr)]">
           <Card>

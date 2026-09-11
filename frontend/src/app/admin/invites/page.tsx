@@ -45,7 +45,7 @@ const EXPIRY_OPTIONS = [
 ];
 
 const SINGLE_USE_NOTICE =
-  'This link works exactly once and stops working after it expires. Anyone holding it can create one demo account, so share it only with the intended person.';
+  'This link works exactly once and stops working after it expires. Anyone holding it can create one account, so share it only with the intended person.';
 
 function statusTone(status: InviteStatus): 'success' | 'neutral' | 'warning' | 'danger' {
   if (status === 'ACTIVE') return 'success';
@@ -384,7 +384,7 @@ export default function AdminInvitesPage() {
         errorMessage={query.isError ? errorMessage(query.error) : undefined}
         onRetry={() => void query.refetch()}
         emptyTitle={status === 'ALL' ? 'No invites yet' : `No ${status.toLowerCase()} invites`}
-        emptyDescription="Generate an invite link to let someone create a demo account."
+        emptyDescription="Generate an invite link to let someone create an account."
         meta={query.data?.meta ?? null}
         onPageChange={table.setPage}
       />

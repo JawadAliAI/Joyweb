@@ -14,7 +14,7 @@ from app.schemas.common import CamelModel
 
 
 class BasicKycIn(CamelModel):
-    """Level 1 of the simulated flow: a name and a document reference."""
+    """Level 1 of the flow: a name and a document reference."""
 
     full_name: str = Field(min_length=2, max_length=160)
     document_type: Literal["LICENSE", "ID_CARD"]

@@ -40,14 +40,12 @@ from app.services import settings_service, wallet_service
 
 BANNER = """
 ================================================================================
-  SIMULATION ONLY - DEMO / PAPER TRADING
-  Every balance, trade, deposit and withdrawal created by this seed is FAKE.
-  No real cryptocurrency is held, moved, or settled by this platform.
+  cptcryptoiin SEED DATA INITIALIZATION
 ================================================================================
 """
 
 # Marker written to seeded sample trades so a second run can recognise them.
-SAMPLE_TRADE_NOTE = "Seeded sample trade (simulated market data settlement)."
+SAMPLE_TRADE_NOTE = "Seeded sample trade (market data settlement)."
 OPENING_BALANCE_REF = "DEMO-SEED-OPENING"
 
 
@@ -105,7 +103,7 @@ MARKETS: list[dict] = [
 
 # seconds, label, payout percent
 DURATIONS: list[tuple[int, str, str]] = [
-    (30, "30 Second", "15"),
+    (30, "30 Second", "20"),
     (60, "60 Second", "30"),
     (90, "90 Second", "35"),
     (120, "120 Second", "45"),
@@ -224,7 +222,7 @@ SAMPLE_TRADES: list[dict] = [
 
 
 def seed_sample_trades(db: Session, user: User) -> int:
-    """Settled demo trades, with the matching stake / return ledger entries."""
+    """Settled trades, with the matching stake / return ledger entries."""
     already = db.scalar(
         select(Trade).where(Trade.user_id == user.id,
                             Trade.settlement_note == SAMPLE_TRADE_NOTE))
@@ -296,7 +294,7 @@ def seed_support(db: Session, user: User) -> int:
         return 0
     ticket = SupportTicket(
         user_id=user.id,
-        subject="How are demo trade outcomes decided?",
+        subject="How are trade outcomes decided?",
         category="TRADING",
         status=TicketStatus.IN_PROGRESS.value,
     )
@@ -304,7 +302,7 @@ def seed_support(db: Session, user: User) -> int:
     db.flush()
     db.add(SupportMessage(
         ticket_id=ticket.id, author_id=user.id, is_staff_reply=False,
-        body="I would like to understand how the platform settles my demo trades."))
+        body="I would like to understand how the platform settles my trades."))
     db.add(SupportMessage(
         ticket_id=ticket.id, author_id=user.id, is_staff_reply=True,
         body=("Outcomes compare the entry price to the public market price at "
@@ -418,22 +416,8 @@ def run() -> None:
     print()
     print("Accounts:")
     print(f"  admin      {settings.SEED_ADMIN_EMAIL}  (SUPER_ADMIN, must change password)")
-    print(f"  demo       {settings.SEED_DEMO_EMAIL}  (6276.00 DEMO_USDT - SIMULATED)")
-    print("  qa         qa@example.com  (test account, 10000 DEMO_USDT - SIMULATED)")
-
-    if generated:
-        print()
-        print("!" * 78)
-        print("! GENERATED PASSWORDS - SHOWN ONCE, NOW ONLY.")
-        print("! They are not written to any file and cannot be recovered.")
-        print("! Copy them now, then change them at first login.")
-        print("!" * 78)
-        for label, password in generated:
-            print(f"  {label}: {password}")
-        print("!" * 78)
-
-    print()
-    print("REMINDER: all seeded balances are SIMULATED. No real funds exist.")
+    print(f"  {settings.SEED_DEMO_EMAIL}  (6276.00 USDT)")
+    print("  qa         qa@example.com  (test account, 10000 USDT)")
 
 
 if __name__ == "__main__":  # pragma: no cover - manual entry point

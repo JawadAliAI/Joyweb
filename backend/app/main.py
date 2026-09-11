@@ -40,7 +40,7 @@ async def lifespan(app: FastAPI):
     if not settings.DEMO_MODE:
         # The application has no non-simulated code path; refuse to pretend.
         raise RuntimeError(
-            "DEMO_MODE must be true. This platform only implements simulated "
+            "DEMO_MODE must be true. This platform only implements "
             "trading and has no real-money or blockchain functionality.")
     settler = await settle_due_trades_loop.start()
     try:

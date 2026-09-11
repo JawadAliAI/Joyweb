@@ -10,7 +10,7 @@ from app.schemas.common import CamelModel
 
 
 class MarketOut(CamelModel):
-    """One tradable simulated pair, optionally merged with live ticker data."""
+    """One tradable pair, optionally merged with live ticker data."""
 
     symbol: str
     display_name: str

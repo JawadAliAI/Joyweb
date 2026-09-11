@@ -35,9 +35,5 @@ def public_config(db: Session = Depends(get_db)) -> dict:
         }
         for asset, meta in wallet_service.ASSET_META.items()
     ]
-    config["simulationNotice"] = (
-        "Simulation only. Balances, deposits, withdrawals and trades on this "
-        "platform are paper-trading records. No real funds are involved and no "
-        "blockchain transaction is ever created."
-    )
+    config["simulationNotice"] = ""
     return ok(config)

@@ -196,7 +196,7 @@ def get_pending(db: Session, submission_id: str) -> KycSubmission:
 
 def review(db: Session, submission: KycSubmission, *, approved: bool,
            reviewer: User, reason: str) -> KycSubmission:
-    """Apply a simulated review decision. Does not commit."""
+    """Apply a review decision. Does not commit."""
     reason = (reason or "").strip()
     if not reason:
         raise ValidationError("A reason is required.", code="REASON_REQUIRED")

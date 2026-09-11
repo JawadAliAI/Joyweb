@@ -58,7 +58,7 @@ NO_EMAIL_DOMAIN = "no-email.invalid"
 
 
 def credit_score_band(score: int) -> str:
-    """Map a demo account score (1-100) to the band shown in the UI."""
+    """Map an account score (1-100) to the band shown in the UI."""
     if score >= 85:
         return "Excellent"
     if score >= 70:
@@ -125,7 +125,7 @@ def _username_for_email(db: Session, email: str) -> str:
     return candidate
 
 
-@router.post("/register", summary="Create a demo account",
+@router.post("/register", summary="Create an account",
              dependencies=[Depends(rate_limit(10, 60, "register"))])
 def register(payload: RegisterIn, request: Request, response: Response,
              db: Session = Depends(get_db)) -> dict:
@@ -230,7 +230,7 @@ def check_invite(code: str, db: Session = Depends(get_db)) -> dict:
     })
 
 
-@router.post("/login", summary="Sign in to a demo account",
+@router.post("/login", summary="Sign in to an account",
              dependencies=[Depends(rate_limit(10, 60, "login"))])
 def login(payload: LoginIn, request: Request, response: Response,
           db: Session = Depends(get_db)) -> dict:
@@ -252,7 +252,7 @@ def login(payload: LoginIn, request: Request, response: Response,
         audit_service.record(db, AuditAction.LOGIN_FAILED, actor=user,
                              request=request, reason="Account suspended.")
         db.commit()
-        raise AuthError("This demo account has been suspended.",
+        raise AuthError("This account has been suspended.",
                         code="ACCOUNT_SUSPENDED", status_code=403)
 
     if needs_rehash(user.password_hash):
@@ -302,7 +302,7 @@ def refresh(request: Request, response: Response,
     return ok(me_payload(db, user))
 
 
-@router.get("/me", summary="The signed-in demo account")
+@router.get("/me", summary="The signed-in account")
 def me(user: User = Depends(require_user), db: Session = Depends(get_db)) -> dict:
     """Return the current account profile. Never includes secrets."""
     return ok(me_payload(db, user))

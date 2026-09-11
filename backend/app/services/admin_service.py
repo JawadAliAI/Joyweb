@@ -40,7 +40,7 @@ MAX_CREDIT_SCORE = 100
 # score invented by this simulator; it is not a credit-bureau score and has no
 # bearing on anybody's real-world creditworthiness.
 CREDIT_SCORE_DISCLAIMER = (
-    "This is an internal demo account score used only inside this simulator. "
+    "This is an internal account score used only inside this platform. "
     "It is not a credit-bureau score and has no real-world meaning."
 )
 
@@ -196,25 +196,25 @@ def dashboard_metrics(db: Session) -> dict[str, Any]:
 
 
 def registration_series(db: Session, days: int = 30) -> list[dict[str, str]]:
-    """New demo registrations per day, zero-filled across the window."""
+    """New registrations per day, zero-filled across the window."""
     return _series(db, User.created_at, func.count(User.id), [], days)
 
 
 def trade_volume_series(db: Session, days: int = 30) -> list[dict[str, str]]:
-    """Total simulated stake placed per day, zero-filled."""
+    """Total stake placed per day, zero-filled."""
     return _series(db, Trade.created_at,
                    func.coalesce(func.sum(Trade.amount), 0), [], days)
 
 
 def deposit_series(db: Session, days: int = 30) -> list[dict[str, str]]:
-    """Completed simulated deposit value per day, zero-filled."""
+    """Completed deposit value per day, zero-filled."""
     return _series(db, Deposit.created_at,
                    func.coalesce(func.sum(Deposit.amount), 0),
                    [Deposit.status == TransactionStatus.COMPLETED.value], days)
 
 
 def withdrawal_series(db: Session, days: int = 30) -> list[dict[str, str]]:
-    """Completed simulated withdrawal value per day, zero-filled."""
+    """Completed withdrawal value per day, zero-filled."""
     return _series(db, Withdrawal.created_at,
                    func.coalesce(func.sum(Withdrawal.amount), 0),
                    [Withdrawal.status == WithdrawalStatus.COMPLETED.value], days)
@@ -343,7 +343,7 @@ def set_credit_score(db: Session, admin: User, user: User, new_score: int,
 
 def freeze_account(db: Session, admin: User, user: User, reason: str,
                    request: Request | None = None) -> dict[str, Any]:
-    """Freeze a demo account: it can still sign in and read, but not move funds."""
+    """Freeze an account: it can still sign in and read, but not move funds."""
     reason = require_reason(reason)
     old_status = user.status
     user.status = UserStatus.FROZEN.value
@@ -435,7 +435,7 @@ def total_demo_value_map(db: Session, user_ids: list[str],
 
 
 def open_trade_count(db: Session, user_id: str) -> int:
-    """How many simulated positions the account currently has open."""
+    """How many positions the account currently has open."""
     return int(db.scalar(
         select(func.count(Trade.id)).where(
             Trade.user_id == user_id,

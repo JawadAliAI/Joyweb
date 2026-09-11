@@ -36,7 +36,7 @@ function WalletBreakdown({ userId }: { userId: string }) {
 
   const wallets = query.data?.wallets ?? [];
   if (wallets.length === 0) {
-    return <p className="text-xs text-muted">This account holds no demo wallets yet.</p>;
+    return <p className="text-xs text-muted">This account holds no wallets yet.</p>;
   }
 
   return (
@@ -162,7 +162,7 @@ export default function AdminWalletsPage() {
     },
     {
       key: 'balance',
-      header: 'Total demo value',
+      header: 'Total value',
       sortable: true,
       align: 'right',
       render: (row) => (
@@ -179,7 +179,7 @@ export default function AdminWalletsPage() {
             size="sm"
             variant="ghost"
             aria-expanded={expanded === row.id}
-            aria-label={`${expanded === row.id ? 'Hide' : 'Show'} demo balances for ${row.username}`}
+            aria-label={`${expanded === row.id ? 'Hide' : 'Show'} balances for ${row.username}`}
             onClick={() => setExpanded((current) => (current === row.id ? null : row.id))}
           >
             {expanded === row.id ? 'Hide balances' : 'Balances'}
@@ -193,7 +193,7 @@ export default function AdminWalletsPage() {
               setAmount('');
               setDialogError(null);
             }}
-            aria-label={`Adjust demo balance for ${row.username}`}
+            aria-label={`Adjust balance for ${row.username}`}
           >
             Adjust
           </Button>
@@ -214,7 +214,7 @@ export default function AdminWalletsPage() {
       />
 
       <DataTable<AdminUserRow>
-        caption="Customer demo wallet totals"
+        caption="Customer wallet totals"
         columns={columns}
         rows={query.data?.items ?? []}
         rowKey={(row) => row.id}
@@ -238,7 +238,7 @@ export default function AdminWalletsPage() {
           setDialogError(null);
         }}
         onSubmit={(reason) => adjust.mutate(reason)}
-        title={`Adjust ${target?.username ?? ''}'s demo balance`}
+        title={`Adjust ${target?.username ?? ''}'s balance`}
         description="A debit that would overdraw is refused, never clamped."
         confirmLabel={direction === 'debit' ? 'Debit balance' : 'Credit balance'}
         confirmVariant={direction === 'debit' ? 'danger' : 'primary'}
@@ -257,7 +257,7 @@ export default function AdminWalletsPage() {
               onChange={(event) => setDirection(event.target.value === 'debit' ? 'debit' : 'credit')}
             />
             <Select
-              label="Demo asset"
+              label="Asset"
               options={
                 assetOptions.length > 0 ? assetOptions : [{ value: asset, label: asset }]
               }

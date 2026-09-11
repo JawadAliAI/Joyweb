@@ -51,7 +51,7 @@ const BOOL_OPTIONS = [
 ];
 
 export default function AdminMarketsPage() {
-  useAdminPage('Markets', 'Tradable pairs offered on the demo trade screen');
+  useAdminPage('Markets', 'Tradable pairs offered on the trade screen');
 
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -263,7 +263,7 @@ export default function AdminMarketsPage() {
         errorMessage={query.isError ? errorMessage(query.error) : undefined}
         onRetry={() => void query.refetch()}
         emptyTitle="No markets configured"
-        emptyDescription="Add a pair to make it available on the demo trade screen."
+        emptyDescription="Add a pair to make it available on the trade screen."
       />
 
       <Modal
@@ -368,7 +368,7 @@ export default function AdminMarketsPage() {
           if (deleteTarget) remove.mutate(deleteTarget.id);
         }}
         title={`Delete ${deleteTarget?.symbol ?? 'market'}`}
-        description="The pair disappears from the demo trade screen. Historic trades keep their recorded symbol."
+        description="The pair disappears from the trade screen. Historic trades keep their recorded symbol."
         confirmLabel="Delete market"
         confirmVariant="danger"
         loading={remove.isPending}

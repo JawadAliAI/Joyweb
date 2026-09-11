@@ -91,13 +91,13 @@ class TicketStatus(StrEnum):
 
 
 class KycLevel(StrEnum):
-    """Which simulated verification tier a submission belongs to."""
+    """Which verification tier a submission belongs to."""
     BASIC = "BASIC"
     ADVANCED = "ADVANCED"
 
 
 class KycStatus(StrEnum):
-    """Simulated review state. No real identity check is ever performed."""
+    """Review state. No real identity check is ever performed."""
     NOT_SUBMITTED = "NOT_SUBMITTED"
     PENDING = "PENDING"
     APPROVED = "APPROVED"

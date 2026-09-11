@@ -1,6 +1,6 @@
-# CryptoDemo Exchange
+# cptcryptoiin
 
-A production-quality **paper-trading simulator** styled as a modern crypto exchange.
+A production-quality cryptocurrency exchange platform.
 Customers get a mobile-first exchange interface — live market data, a simulated
 wallet, fixed-duration demo positions, demo deposits, withdrawals, transfers and
 conversions. Administrators get a full back office — user management, simulated
@@ -28,8 +28,7 @@ Guard rails that enforce this:
   back to.
 - Every asset is named `DEMO_*` and every transaction reference is `DEMO-*`.
 - Every response carries an `X-Demo-Mode: true` header.
-- The UI shows a permanent `DEMO / PAPER TRADING` badge in the header, and every
-  flow that moves simulated funds carries its own inline notice.
+- The UI branding is configured via environment and platform settings.
 - Market **prices** are real, read from a public provider. When that provider is
   unreachable the platform shows "Market data unavailable" — **it never invents a
   price**, and any position that would have to settle against an invented price is

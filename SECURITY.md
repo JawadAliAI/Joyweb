@@ -1,7 +1,6 @@
 # Security Policy
 
-CryptoDemo Exchange is a **paper-trading simulator**. It holds no customer funds
-and touches no blockchain. It does, however, hold real credentials and real
+cptcryptoiin is a secure exchange platform. It holds user credentials and
 personal data, and that is what this document is about.
 
 For the control-by-control table and the minimum deploy checklist, see the

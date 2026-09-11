@@ -165,7 +165,6 @@ function KycContent({ data }: { data: KycOverview }) {
 
   return (
     <>
-      {data.demoNotice && <SimulationNotice>{data.demoNotice}</SimulationNotice>}
 
       <LevelCard
         icon={<IdCard className="h-4 w-4" />}

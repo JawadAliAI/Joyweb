@@ -1,4 +1,4 @@
-# CryptoDemo Exchange - DEMO / PAPER TRADING platform.
+# cptcryptoiin platform.
 #
 # Secrets have NO defaults on purpose: `${VAR:?message}` makes compose abort with
 # a readable error if the variable is missing, so an image can never start with a
@@ -50,7 +50,7 @@ services:
       MARKET_DATA_BASE_URL: ${MARKET_DATA_BASE_URL:-https://api.binance.com}
       MARKET_DATA_API_KEY: ${MARKET_DATA_API_KEY:-}
       MARKET_DATA_CACHE_SECONDS: ${MARKET_DATA_CACHE_SECONDS:-10}
-      SUPPORT_EMAIL: ${SUPPORT_EMAIL:-support@cryptodemo.example}
+      SUPPORT_EMAIL: ${SUPPORT_EMAIL:-support@cptcryptoiin.com}
     command: >
       sh -c "alembic upgrade head &&
              uvicorn app.main:app --host 0.0.0.0 --port 8000"

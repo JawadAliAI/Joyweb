@@ -43,7 +43,7 @@ def _wallet_payload(wallet, price: Decimal | None) -> dict:
     }
 
 
-@router.get("/assets", summary="List supported demo assets")
+@router.get("/assets", summary="List supported assets")
 def list_assets(user: Annotated[User, Depends(require_user)]) -> dict:
     """Metadata for every simulated asset this demo platform supports.
 
@@ -62,11 +62,11 @@ def list_assets(user: Annotated[User, Depends(require_user)]) -> dict:
             for asset, meta in wallet_service.ASSET_META.items()
         ],
         "quoteAsset": Asset.DEMO_USDT.value,
-        "note": "All balances on this platform are simulated demo funds.",
+        "note": "All balances on this platform are funds.",
     })
 
 
-@router.get("/wallet", summary="Get the caller's demo portfolio")
+@router.get("/wallet", summary="Get the caller's portfolio")
 async def get_portfolio(user: Annotated[User, Depends(require_user)],
                         db: Annotated[Session, Depends(get_db)]) -> dict:
     """The caller's simulated balances plus an estimated value in DEMO USDT.
@@ -90,14 +90,14 @@ async def get_portfolio(user: Annotated[User, Depends(require_user)],
     })
 
 
-@router.get("/wallet/history", summary="List the caller's demo ledger entries")
+@router.get("/wallet/history", summary="List the caller's ledger entries")
 def wallet_history(
     user: Annotated[User, Depends(require_user)],
     db: Annotated[Session, Depends(get_db)],
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100, alias="pageSize")] = 20,
     type: Annotated[str | None, Query(description="Filter by transaction type.")] = None,
-    asset: Annotated[str | None, Query(description="Filter by demo asset.")] = None,
+    asset: Annotated[str | None, Query(description="Filter by asset.")] = None,
 ) -> dict:
     """Paginated history of every simulated balance movement on this account.
 
