@@ -14,7 +14,7 @@ import { DataTable, useDebounced, useTableState } from '@/components/admin/DataT
 import type { Column } from '@/components/admin/DataTable';
 
 export default function AdminTransfersPage() {
-  useAdminPage('Transfers', 'Simulated transfers between demo accounts');
+  useAdminPage('Transfers', 'Transfers between accounts');
 
   const [userId, setUserId] = useState('');
   const [asset, setAsset] = useState('');
@@ -95,7 +95,7 @@ export default function AdminTransfersPage() {
       </div>
 
       <DataTable<AdminTransfer>
-        caption="Internal simulated transfers"
+        caption="Internal transfers"
         columns={columns}
         rows={query.data?.items ?? []}
         rowKey={(row) => row.id}

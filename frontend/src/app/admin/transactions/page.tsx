@@ -43,7 +43,7 @@ function tone(status: string): 'success' | 'danger' | 'warning' | 'neutral' {
 }
 
 export default function AdminTransactionsPage() {
-  useAdminPage('Transactions', 'Every simulated balance movement on the platform');
+  useAdminPage('Transactions', 'Every balance movement on the platform');
 
   const [userId, setUserId] = useState('');
   const [type, setType] = useState('');
@@ -134,7 +134,7 @@ export default function AdminTransactionsPage() {
       </div>
 
       <DataTable<AdminTransaction>
-        caption="Platform-wide simulated ledger"
+        caption="Platform-wide ledger"
         columns={columns}
         rows={query.data?.items ?? []}
         rowKey={(row) => row.id}

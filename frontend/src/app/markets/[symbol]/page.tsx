@@ -101,11 +101,6 @@ export default function MarketDetailPage() {
 
             <TradingChart symbol={market.symbol} />
 
-            <SimulationNotice>
-              This chart is informational only and sourced from a public market-data provider. It
-              does not represent an executable price — trades placed here are simulated and never
-              reach a real exchange.
-            </SimulationNotice>
 
             {market.isTradable ? (
               <Link

@@ -25,7 +25,7 @@ import type { InviteCheck } from '@/lib/invite-types';
 import { isInviteErrorCode } from '@/lib/invite-types';
 
 const PASSWORD_RULES = [
-  { label: 'At least 10 characters', test: (value: string) => value.length >= 10 },
+  { label: 'At least 5 characters', test: (value: string) => value.length >= 5 },
   { label: 'Contains a letter', test: (value: string) => /[A-Za-z]/.test(value) },
   { label: 'Contains a digit', test: (value: string) => /\d/.test(value) },
 ];

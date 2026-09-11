@@ -15,6 +15,7 @@ import { useDocumentScrollLock } from '@/hooks/useDocumentScrollLock';
 import { useRequireAdmin } from '@/hooks/useSession';
 import { AdminHeader, AdminTitleProvider } from './AdminHeader';
 import { AdminSidebar } from './AdminSidebar';
+import { AdminLanguageProvider } from './AdminLanguageContext';
 
 function ShellSkeleton() {
   return (
@@ -82,18 +83,20 @@ export function AdminShell({ children }: { children: ReactNode }) {
   if (heldForPassword) return <ShellSkeleton />;
 
   return (
-    <AdminTitleProvider>
-      {/* Pinned to the viewport: the rail and the content scroll separately,
-          and nothing can run past the rail onto bare background. */}
-      <div className="fixed inset-0 flex overflow-hidden bg-bg pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
-        <AdminSidebar open={navOpen} onClose={() => setNavOpen(false)} />
-        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <AdminHeader onOpenNav={() => setNavOpen(true)} />
-          <main id="main" className="min-w-0 flex-1 space-y-[15px] overflow-y-auto p-[15px]">
-            {children}
-          </main>
+    <AdminLanguageProvider>
+      <AdminTitleProvider>
+        {/* Pinned to the viewport: the rail and the content scroll separately,
+            and nothing can run past the rail onto bare background. */}
+        <div className="fixed inset-0 flex overflow-hidden bg-bg pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
+          <AdminSidebar open={navOpen} onClose={() => setNavOpen(false)} />
+          <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+            <AdminHeader onOpenNav={() => setNavOpen(true)} />
+            <main id="main" className="min-w-0 flex-1 space-y-[15px] overflow-y-auto p-[15px]">
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
-    </AdminTitleProvider>
+      </AdminTitleProvider>
+    </AdminLanguageProvider>
   );
 }

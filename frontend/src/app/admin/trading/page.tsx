@@ -73,7 +73,7 @@ const OUTCOME_OPTIONS = [
 ];
 
 export default function AdminTradingPage() {
-  useAdminPage('Demo Trading', 'Duration and payout options for the simulated trade screen');
+  useAdminPage('Trading', 'Duration and payout options for the trade screen');
 
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -495,7 +495,7 @@ export default function AdminTradingPage() {
       <Card>
         <CardHeader
           title="Demo trading master switch"
-          description="Turns the simulated trade screen on or off for every customer."
+          description="Turns the trade screen on or off for every customer."
         />
         <CardBody className="flex flex-wrap items-center justify-between gap-3 pt-2">
           <div className="flex items-center gap-3">
@@ -504,8 +504,8 @@ export default function AdminTradingPage() {
             </Badge>
             <p className="text-xs text-muted">
               {tradingEnabled
-                ? 'Customers can open simulated positions.'
-                : 'Customers cannot open new simulated positions.'}
+                ? 'Customers can open positions.'
+                : 'Customers cannot open new positions.'}
             </p>
           </div>
           <Button
@@ -547,7 +547,7 @@ export default function AdminTradingPage() {
           errorMessage={durations.isError ? errorMessage(durations.error) : undefined}
           onRetry={() => void durations.refetch()}
           emptyTitle="No durations configured"
-          emptyDescription="Add at least one duration so customers can place a simulated trade."
+          emptyDescription="Add at least one duration so customers can place a trade."
         />
       </section>
 
@@ -747,8 +747,8 @@ export default function AdminTradingPage() {
         title={tradingEnabled ? 'Disable demo trading' : 'Enable demo trading'}
         description={
           tradingEnabled
-            ? 'Customers will no longer be able to open simulated positions. Open positions still settle normally.'
-            : 'Customers will be able to open simulated positions again.'
+            ? 'Customers will no longer be able to open positions. Open positions still settle normally.'
+            : 'Customers will be able to open positions again.'
         }
         confirmLabel={tradingEnabled ? 'Disable trading' : 'Enable trading'}
         confirmVariant={tradingEnabled ? 'danger' : 'primary'}

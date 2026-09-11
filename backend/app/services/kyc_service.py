@@ -21,11 +21,7 @@ from app.core.errors import NotFoundError, ValidationError
 from app.db.base import utcnow
 from app.db.models import KycLevel, KycStatus, KycSubmission, User
 
-DEMO_NOTICE = (
-    "This is a simulated verification flow on a demo platform. No real identity "
-    "check is performed and no data leaves this demo. Do not upload real "
-    "identity documents."
-)
+DEMO_NOTICE = ""
 
 DOCUMENT_TYPES: tuple[str, ...] = ("LICENSE", "ID_CARD")
 
@@ -73,8 +69,7 @@ def save_image(data: bytes) -> str:
     media_type = detect_image_type(data)
     if media_type is None:
         raise ValidationError(
-            "Only JPEG, PNG or WebP images are accepted. "
-            "This is a demo — do not upload real identity documents.",
+            "Only JPEG, PNG or WebP images are accepted.",
             code="UNSUPPORTED_FILE_TYPE")
 
     stored_id = secrets.token_hex(16) + _EXTENSIONS[media_type]
@@ -139,18 +134,17 @@ def assert_can_submit(db: Session, user_id: str, level: KycLevel | str) -> None:
     current = status_for(db, user_id, level)
     if current == KycStatus.PENDING.value:
         raise ValidationError(
-            "A simulated review of this level is already pending.",
+            "A review of this level is already pending.",
             code="KYC_ALREADY_PENDING")
     if current == KycStatus.APPROVED.value:
         raise ValidationError(
-            "This level has already been approved in the demo.",
+            "This level has already been approved.",
             code="KYC_ALREADY_APPROVED")
     if (str(level) == KycLevel.ADVANCED.value
             and status_for(db, user_id, KycLevel.BASIC.value)
             != KycStatus.APPROVED.value):
         raise ValidationError(
-            "Basic verification must be approved before the advanced step. "
-            "This is a simulated check on a demo platform.",
+            "Basic verification must be approved before the advanced step.",
             code="BASIC_KYC_REQUIRED")
 
 

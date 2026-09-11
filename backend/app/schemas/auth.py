@@ -13,15 +13,15 @@ from pydantic import ValidationError as PydanticValidationError
 
 from app.schemas.common import CamelModel
 
-PASSWORD_MIN_LENGTH = 10
+PASSWORD_MIN_LENGTH = 5
 PASSWORD_RULE = (
-    "Password must be at least 10 characters long and contain at least one "
+    "Password must be at least 5 characters long and contain at least one "
     "letter and one digit."
 )
 
-FUND_PASSWORD_MIN_LENGTH = 6
+FUND_PASSWORD_MIN_LENGTH = 5
 FUND_PASSWORD_MAX_LENGTH = 64
-FUND_PASSWORD_RULE = "Fund password must be between 6 and 64 characters."
+FUND_PASSWORD_RULE = "Fund password must be between 5 and 64 characters."
 
 _USERNAME_RE = re.compile(r"^[A-Za-z0-9_.-]{3,32}$")
 _EMAIL = TypeAdapter(EmailStr)

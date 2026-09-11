@@ -177,13 +177,6 @@ export default function WithdrawPage() {
               </div>
             )}
 
-            <SimulationNotice tone="emphasis">
-              <strong className="font-bold uppercase tracking-wide">
-                Simulation only — no real blockchain transfer.
-              </strong>{' '}
-              This request debits simulated demo credits and is recorded for review inside the
-              demo. No cryptocurrency leaves any wallet.
-            </SimulationNotice>
 
             <section className="py-4 text-center" aria-live="polite">
               <p className="tabular text-balance font-semibold text-fg">

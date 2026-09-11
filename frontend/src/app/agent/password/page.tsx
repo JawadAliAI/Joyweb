@@ -62,7 +62,7 @@ export default function AgentPasswordPage() {
         <PasswordInput
           label="New password"
           autoComplete="new-password"
-          hint="At least 10 characters, with a letter and a digit."
+          hint="At least 5 characters, with a letter and a digit."
           value={next}
           onChange={(event) => setNext(event.target.value)}
         />

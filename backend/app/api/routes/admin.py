@@ -276,8 +276,8 @@ def get_dashboard(days: int = Query(30, ge=7, le=90),
         "tradeVolume": admin_service.trade_volume_series(db, days),
         "deposits": admin_service.deposit_series(db, days),
         "withdrawals": admin_service.withdrawal_series(db, days),
-        "demoLabel": DEMO_LABEL,
-        "message": "All figures describe simulated activity. No real funds exist.",
+        "demoLabel": "",
+        "message": "",
     }
     return ok(payload)
 

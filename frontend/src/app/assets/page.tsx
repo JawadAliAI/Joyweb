@@ -31,11 +31,6 @@ export default function AssetsPage() {
         <TabPanel value="spot" active={tab === 'spot'} className="space-y-4">
           <BalanceCard />
 
-          <SimulationNotice>
-            All balances are simulated demo credits for paper trading. They hold no monetary
-            value and cannot be withdrawn to a real wallet.
-          </SimulationNotice>
-
           <section aria-labelledby="assets-details" className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 id="assets-details" className="text-base font-semibold text-fg">

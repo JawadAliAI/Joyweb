@@ -154,7 +154,7 @@ export default function AdminUserDetailPage() {
         reason,
       }),
     onSuccess: (result) => {
-      toast.success('Simulated balance adjusted', result.message);
+      toast.success('Balance adjusted', result.message);
       setAmount('');
       invalidate();
       closeDialog();
@@ -478,13 +478,13 @@ export default function AdminUserDetailPage() {
       <TabPanel value="wallet" active={tab === 'wallet'}>
         <Card>
           <CardHeader
-            title="Simulated wallets"
-            description="Simulated units only. No real cryptocurrency is held on this account."
+            title="Wallets"
+            description="Customer wallet balances."
           />
           <CardBody className="pt-2">
             <div className="w-full overflow-x-auto">
               <table className="w-full min-w-[480px] text-sm">
-                <caption className="sr-only">Simulated wallet balances</caption>
+                <caption className="sr-only">Wallet balances</caption>
                 <thead>
                   <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">
                     <th scope="col" className="py-2 text-left font-semibold">Asset</th>
@@ -524,7 +524,7 @@ export default function AdminUserDetailPage() {
 
       <TabPanel value="transactions" active={tab === 'transactions'}>
         <DataTable<AdminTransaction>
-          caption="Simulated ledger entries for this account"
+          caption="Ledger entries for this account"
           columns={transactionColumns}
           rows={transactions.data?.items ?? data.recentTransactions}
           rowKey={(row) => row.id}
@@ -532,17 +532,17 @@ export default function AdminUserDetailPage() {
           error={transactions.isError ? transactions.error : undefined}
           errorMessage={transactions.isError ? errorMessage(transactions.error) : undefined}
           onRetry={() => void transactions.refetch()}
-          emptyTitle="No simulated ledger entries yet"
+          emptyTitle="No ledger entries yet"
         />
       </TabPanel>
 
       <TabPanel value="trades" active={tab === 'trades'}>
         <Card>
-          <CardHeader title="Recent simulated trades" description="Most recent 20 positions" />
+          <CardHeader title="Recent trades" description="Most recent 20 positions" />
           <CardBody className="pt-2">
             <div className="w-full overflow-x-auto">
               <table className="w-full min-w-[720px] text-sm">
-                <caption className="sr-only">Recent simulated trades</caption>
+                <caption className="sr-only">Recent trades</caption>
                 <thead>
                   <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">
                     <th scope="col" className="py-2 text-left font-semibold">Market</th>
@@ -588,7 +588,7 @@ export default function AdminUserDetailPage() {
                   {data.recentTrades.length === 0 && (
                     <tr>
                       <td colSpan={7} className="py-6 text-center text-xs text-muted">
-                        No simulated trades yet.
+                        No trades yet.
                       </td>
                     </tr>
                   )}
@@ -745,8 +745,8 @@ export default function AdminUserDetailPage() {
         onSubmit={(reason) =>
           adjust.mutate({ direction: dialog === 'debit' ? 'debit' : 'credit', reason })
         }
-        title={dialog === 'debit' ? 'Debit simulated balance' : 'Credit simulated balance'}
-        description="Moves simulated units only. No real funds are involved and no blockchain transaction is created."
+        title={dialog === 'debit' ? 'Debit balance' : 'Credit balance'}
+        description="A debit that would overdraw the wallet is refused, never clamped."
         confirmLabel={dialog === 'debit' ? 'Debit balance' : 'Credit balance'}
         confirmVariant={dialog === 'debit' ? 'danger' : 'primary'}
         loading={busy}
@@ -772,7 +772,7 @@ export default function AdminUserDetailPage() {
               step="any"
               value={amount}
               onChange={(event) => setAmount(event.target.value)}
-              hint="Simulated units. A debit that would overdraw the wallet is refused, never clamped."
+              hint="A debit that would overdraw the wallet is refused, never clamped."
             />
           </div>
         }

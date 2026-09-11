@@ -454,7 +454,7 @@ export default function AdminSettlementsPage() {
           <div className="rounded-card bg-surface p-[15px] shadow-card">
             <h2 className="text-sm font-semibold text-fg">Deposit or withdraw for a member</h2>
             <p className="mt-1 text-xs text-muted">
-              Credits or debits a simulated balance immediately. A debit that would overdraw
+              Credits or debits a balance immediately. A debit that would overdraw
               the wallet is refused rather than clamped. Both write a ledger entry and an
               audit row.
             </p>
@@ -580,8 +580,8 @@ export default function AdminSettlementsPage() {
                 action.movement.kind === 'DEPOSIT' ? 'deposit' : 'withdrawal'
               }`
             : action?.direction === 'credit'
-              ? 'Credit a simulated balance'
-              : 'Debit a simulated balance'
+              ? 'Credit balance'
+              : 'Debit balance'
         }
         description={
           action?.type === 'review'
@@ -610,7 +610,7 @@ export default function AdminSettlementsPage() {
         }
         loading={review.isPending || adjust.isPending}
         error={dialogError}
-        footnote="Simulated funds only. No gateway is called and no chain transaction is created."
+        footnote=""
       />
     </div>
   );

@@ -229,13 +229,6 @@ export default function AdvancedKycPage() {
         action={<DemoBadge compact />}
       />
       <PageBody>
-        <SimulationNotice tone="emphasis">
-          <strong className="font-bold">Simulated verification.</strong> This demo platform performs
-          no real identity verification — uploaded images are not read, matched or checked against
-          anything. <strong className="font-bold">Do not upload real identity documents.</strong>{' '}
-          Use placeholder or sample images.
-        </SimulationNotice>
-
         {kyc.isLoading ? (
           <Skeleton className="h-80 w-full" />
         ) : kyc.isError || !kyc.data ? (
@@ -246,7 +239,6 @@ export default function AdvancedKycPage() {
           />
         ) : (
           <>
-            {kyc.data.demoNotice && <SimulationNotice>{kyc.data.demoNotice}</SimulationNotice>}
 
             <Card>
               <CardHeader

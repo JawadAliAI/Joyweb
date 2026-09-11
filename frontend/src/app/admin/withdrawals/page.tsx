@@ -20,8 +20,7 @@ import { DataTable, useTableState } from '@/components/admin/DataTable';
 import type { Column } from '@/components/admin/DataTable';
 import { ReasonDialog } from '@/components/admin/ReasonDialog';
 
-const NO_CHAIN =
-  'Approving settles the simulation only. No blockchain transaction was created and none will be created; no real funds move.';
+const NO_CHAIN = '';
 
 const TABS = [
   { value: 'PENDING', label: 'Pending' },
@@ -36,7 +35,7 @@ function statusTone(status: string): 'success' | 'danger' | 'warning' | 'neutral
 }
 
 export default function AdminWithdrawalsPage() {
-  useAdminPage('Withdrawals', 'Simulated withdrawal requests — no blockchain transfer is involved');
+  useAdminPage('Withdrawals', 'Withdrawal requests');
 
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -66,7 +65,7 @@ export default function AdminWithdrawalsPage() {
     mutationFn: ({ id, kind, reason }: { id: string; kind: 'approve' | 'reject'; reason: string }) =>
       api.post<ReviewResult>(`/admin/withdrawals/${id}/${kind}`, { reason }),
     onSuccess: (result) => {
-      toast.success('Simulated withdrawal reviewed', result.message);
+      toast.success('Withdrawal reviewed', result.message);
       void queryClient.invalidateQueries({ queryKey: ['admin', 'withdrawals'] });
       void queryClient.invalidateQueries({ queryKey: ['admin', 'transactions'] });
       void queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] });
@@ -147,7 +146,7 @@ export default function AdminWithdrawalsPage() {
                 setAction('approve');
                 setDialogError(null);
               }}
-              aria-label={`Approve simulated withdrawal ${row.reference}`}
+              aria-label={`Approve withdrawal ${row.reference}`}
             >
               Approve
             </Button>
@@ -159,7 +158,7 @@ export default function AdminWithdrawalsPage() {
                 setAction('reject');
                 setDialogError(null);
               }}
-              aria-label={`Reject simulated withdrawal ${row.reference}`}
+              aria-label={`Reject withdrawal ${row.reference}`}
             >
               Reject
             </Button>
@@ -172,14 +171,11 @@ export default function AdminWithdrawalsPage() {
 
   return (
     <div className="space-y-4">
-      <p className="rounded-card bg-primary/10 px-4 py-3 text-xs text-primary">
-        {query.data?.blockchainNotice ?? NO_CHAIN}
-      </p>
 
       <Tabs items={TABS} value={status} onChange={setStatus} ariaLabel="Withdrawal status" />
 
       <DataTable<AdminWithdrawal>
-        caption="Simulated withdrawal requests"
+        caption="Withdrawal requests"
         columns={columns}
         rows={query.data?.items ?? []}
         rowKey={(row) => row.id}
@@ -188,7 +184,7 @@ export default function AdminWithdrawalsPage() {
         errorMessage={query.isError ? errorMessage(query.error) : undefined}
         onRetry={() => void query.refetch()}
         emptyTitle={status === 'PENDING' ? 'No withdrawals awaiting review' : 'No withdrawals yet'}
-        emptyDescription="Simulated withdrawal requests appear here as customers submit them."
+        emptyDescription="Withdrawal requests appear here as customers submit them."
         meta={query.data?.meta ?? null}
         onPageChange={table.setPage}
       />
@@ -204,17 +200,17 @@ export default function AdminWithdrawalsPage() {
           if (!target || !action) return;
           review.mutate({ id: target.id, kind: action, reason });
         }}
-        title={action === 'reject' ? 'Reject simulated withdrawal' : 'Approve simulated withdrawal'}
+        title={action === 'reject' ? 'Reject withdrawal' : 'Approve withdrawal'}
         description={
           action === 'reject'
-            ? 'The locked simulated funds return to the customer’s available balance and they are shown this reason.'
-            : 'The locked simulated funds are retired. This settles the simulation only.'
+            ? 'The locked funds return to the customer\'s available balance and they are shown this reason.'
+            : 'The funds are retired and the withdrawal is closed.'
         }
         confirmLabel={action === 'reject' ? 'Reject withdrawal' : 'Approve withdrawal'}
         confirmVariant={action === 'reject' ? 'danger' : 'primary'}
         loading={review.isPending}
         error={dialogError}
-        footnote={NO_CHAIN}
+        footnote={''}
         details={
           target ? (
             <div className="rounded-control bg-surface px-3 py-1">

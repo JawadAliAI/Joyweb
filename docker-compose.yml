@@ -29,9 +29,9 @@ services:
       db:
         condition: service_healthy
     environment:
-      APP_NAME: ${APP_NAME:-CryptoDemo Exchange}
+      APP_NAME: ${APP_NAME:-cptcryptoiin}
       DEMO_MODE: "true"
-      DEMO_LABEL: ${DEMO_LABEL:-DEMO / PAPER TRADING}
+      DEMO_LABEL: ${DEMO_LABEL:-}
       ENVIRONMENT: ${ENVIRONMENT:-production}
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-cryptodemo}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}@db:5432/${POSTGRES_DB:-cryptodemo}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env - generate one with openssl rand -hex 32}
@@ -62,8 +62,8 @@ services:
       context: ./frontend
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api}
-        NEXT_PUBLIC_APP_NAME: ${APP_NAME:-CryptoDemo Exchange}
-        NEXT_PUBLIC_DEMO_LABEL: ${DEMO_LABEL:-DEMO / PAPER TRADING}
+        NEXT_PUBLIC_APP_NAME: ${APP_NAME:-cptcryptoiin}
+        NEXT_PUBLIC_DEMO_LABEL: ${DEMO_LABEL:-}
         BACKEND_INTERNAL_URL: ${BACKEND_INTERNAL_URL:-http://backend:8000}
     restart: unless-stopped
     depends_on:

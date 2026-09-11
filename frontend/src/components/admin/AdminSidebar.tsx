@@ -18,6 +18,7 @@ import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/format';
 import { useLogout } from '@/hooks/useSession';
 import { usePlatform } from '@/components/providers';
+import { useAdminLanguage } from './AdminLanguageContext';
 
 interface NavItem {
   href: string;
@@ -35,8 +36,8 @@ export const ADMIN_NAV: NavItem[] = [
   { href: '/admin/markets', label: 'Markets', icon: BarChart3 },
   { href: '/admin/trades', label: 'Live Positions', icon: Activity },
   { href: '/admin/settlements', label: 'Outcomes & Payments', icon: Coins },
-  { href: '/admin/trading', label: 'Demo Trading', icon: TrendingUp },
-  { href: '/admin/wallets', label: 'Demo Wallets', icon: Wallet },
+  { href: '/admin/trading', label: 'Trading Settings', icon: TrendingUp },
+  { href: '/admin/wallets', label: 'Wallets', icon: Wallet },
   { href: '/admin/withdrawals', label: 'Withdrawals', icon: Coins },
   { href: '/admin/transfers', label: 'Transfers', icon: ArrowLeftRight },
   { href: '/admin/transactions', label: 'Transactions', icon: Activity },
@@ -54,6 +55,7 @@ function isActive(pathname: string, item: NavItem): boolean {
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname() ?? '';
   const logout = useLogout();
+  const { t } = useAdminLanguage();
 
   return (
     <nav aria-label="Administration" className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -76,7 +78,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                 )}
               >
                 <Icon className="h-4 w-4 shrink-0" aria-hidden />
-                <span className="truncate">{item.label}</span>
+                <span className="truncate">{t(item.label)}</span>
               </Link>
             </li>
           );
@@ -93,7 +95,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
           )}
         >
           <UserCog className="h-4 w-4 shrink-0" aria-hidden />
-          Agent portal
+          {t('Agent portal')}
         </Link>
       </div>
 
@@ -110,7 +112,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
           )}
         >
           <LogOut className="h-4 w-4 shrink-0" aria-hidden />
-          Logout
+          {t('Logout')}
         </button>
       </div>
     </nav>

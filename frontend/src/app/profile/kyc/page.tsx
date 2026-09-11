@@ -233,14 +233,6 @@ export default function KycPage() {
     <AppShell hideBottomNav>
       <PageHeader title="Identity verification" backHref="/profile" action={<DemoBadge compact />} />
       <PageBody>
-        <SimulationNotice tone="emphasis">
-          <strong className="font-bold">Simulated verification.</strong> This is a demo
-          paper-trading platform and performs no real identity verification. Nothing you submit is
-          checked against any registry.{' '}
-          <strong className="font-bold">Do not upload real identity documents</strong> — use
-          placeholder or sample images and made-up numbers.
-        </SimulationNotice>
-
         {kyc.isLoading ? (
           <div className="space-y-4">
             <Skeleton className="h-40 w-full" />

@@ -105,8 +105,8 @@ MARKETS: list[dict] = [
 
 # seconds, label, payout percent
 DURATIONS: list[tuple[int, str, str]] = [
-    (30, "30 Second", "30"),
-    (60, "60 Second", "25"),
+    (30, "30 Second", "15"),
+    (60, "60 Second", "30"),
     (90, "90 Second", "35"),
     (120, "120 Second", "45"),
     (180, "180 Second", "60"),

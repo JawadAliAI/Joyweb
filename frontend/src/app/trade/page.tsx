@@ -245,14 +245,6 @@ function TradeScreen() {
           />
         ) : tradeConfig.data ? (
           <div className="space-y-4">
-            <SimulationNotice tone="emphasis">
-              <strong className="font-bold uppercase tracking-wide">
-                Paper trading simulation.
-              </strong>{' '}
-              Positions are staked with simulated demo credits. No order reaches a real exchange
-              and no real money can be won or lost.
-            </SimulationNotice>
-
             {placedTrade && !blockingTrade && (
               <TradeCountdown trade={placedTrade} onExpire={handleExpire} />
             )}

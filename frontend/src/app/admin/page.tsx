@@ -28,7 +28,7 @@ function sumTotals(balances: AssetTotal[]): string {
 }
 
 export default function AdminDashboardPage() {
-  useAdminPage('Dashboard', 'Simulated platform activity at a glance');
+  useAdminPage('Dashboard', 'Platform activity at a glance');
 
   const query = useQuery({
     queryKey: adminDashboardKey,
@@ -52,10 +52,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-[15px]">
-      <p className="rounded-card bg-primary/10 px-4 py-3 text-xs text-primary">
-        {data?.message ??
-          'All figures describe simulated activity. No real funds exist and no blockchain transaction is ever created.'}
-      </p>
+        {data?.message ?? ''}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
@@ -82,7 +79,7 @@ export default function AdminDashboardPage() {
         <MetricCard
           label="Total demo balances"
           value={metrics ? sumTotals(metrics.demoBalances) : '—'}
-          hint="Simulated units across every demo asset"
+          hint={metrics ? `Total across all assets` : undefined}
           icon={<Wallet className="h-4 w-4" aria-hidden />}
           loading={loading}
         />
@@ -95,7 +92,7 @@ export default function AdminDashboardPage() {
         <MetricCard
           label="Demo trade volume"
           value={formatAmount(metrics?.demoTradeVolumeToday, 2)}
-          hint="Staked today, simulated"
+          hint="Staked today"
           icon={<TrendingUp className="h-4 w-4" aria-hidden />}
           loading={loading}
         />
@@ -131,7 +128,7 @@ export default function AdminDashboardPage() {
         />
         <SimpleChart
           title="Demo trading volume"
-          description="Simulated stake placed per day"
+          description="Stake placed per day"
           data={data?.tradeVolume ?? []}
           variant="line"
           unit="amount"
@@ -139,7 +136,7 @@ export default function AdminDashboardPage() {
         />
         <SimpleChart
           title="Demo deposits"
-          description="Simulated deposits per day"
+          description="Deposits per day"
           data={data?.deposits ?? []}
           variant="bar"
           unit="amount"
@@ -147,7 +144,7 @@ export default function AdminDashboardPage() {
         />
         <SimpleChart
           title="Demo withdrawals"
-          description="Simulated withdrawals per day — no blockchain transfer is involved"
+          description="Withdrawals per day"
           data={data?.withdrawals ?? []}
           variant="bar"
           unit="amount"

@@ -116,9 +116,6 @@ export default function ProfileTradesPage() {
     <AppShell>
       <PageHeader title="Trading history" backHref="/profile" />
       <PageBody width="wide">
-        <SimulationNotice>
-          Every position below was staked with simulated demo credits. No real trade was executed.
-        </SimulationNotice>
 
         <Tabs
           items={OUTCOME_TABS}

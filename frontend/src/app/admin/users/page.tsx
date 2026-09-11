@@ -41,7 +41,7 @@ function statusTone(status: string): 'success' | 'danger' | 'warning' | 'neutral
 }
 
 export default function AdminUsersPage() {
-  useAdminPage('Users', 'Demo accounts and their simulated balances');
+  useAdminPage('Users', 'Customer accounts and balances');
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');

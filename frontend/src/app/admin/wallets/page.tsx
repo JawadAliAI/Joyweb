@@ -42,7 +42,7 @@ function WalletBreakdown({ userId }: { userId: string }) {
   return (
     <div className="w-full overflow-x-auto">
       <table className="w-full min-w-[420px] text-sm">
-        <caption className="sr-only">Simulated balances per asset</caption>
+        <caption className="sr-only">Balances per asset</caption>
         <thead>
           <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">
             <th scope="col" className="py-2 text-left font-semibold">Asset</th>
@@ -67,7 +67,7 @@ function WalletBreakdown({ userId }: { userId: string }) {
 }
 
 export default function AdminWalletsPage() {
-  useAdminPage('Demo Wallets', 'Simulated balances per customer');
+  useAdminPage('Wallets', 'Balances per customer');
 
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -115,7 +115,7 @@ export default function AdminWalletsPage() {
         reason,
       }),
     onSuccess: (result) => {
-      toast.success('Simulated balance adjusted', result.message);
+      toast.success('Balance adjusted', result.message);
       void queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
       void queryClient.invalidateQueries({ queryKey: ['admin', 'user'] });
       void queryClient.invalidateQueries({ queryKey: ['admin', 'transactions'] });
@@ -204,10 +204,7 @@ export default function AdminWalletsPage() {
 
   return (
     <div className="space-y-4">
-      <p className="rounded-card bg-primary/10 px-4 py-3 text-xs text-primary">
-        Every balance shown is a simulated unit. Adjusting one moves nothing real and creates no
-        blockchain transaction; the change is audit-logged with your reason.
-      </p>
+
 
       <SearchInput
         value={search}
@@ -242,7 +239,7 @@ export default function AdminWalletsPage() {
         }}
         onSubmit={(reason) => adjust.mutate(reason)}
         title={`Adjust ${target?.username ?? ''}'s demo balance`}
-        description="Simulated units only. A debit that would overdraw is refused, never clamped."
+        description="A debit that would overdraw is refused, never clamped."
         confirmLabel={direction === 'debit' ? 'Debit balance' : 'Credit balance'}
         confirmVariant={direction === 'debit' ? 'danger' : 'primary'}
         loading={adjust.isPending}
@@ -253,8 +250,8 @@ export default function AdminWalletsPage() {
             <Select
               label="Direction"
               options={[
-                { value: 'credit', label: 'Credit (add simulated funds)' },
-                { value: 'debit', label: 'Debit (remove simulated funds)' },
+                { value: 'credit', label: 'Credit (add funds)' },
+                { value: 'debit', label: 'Debit (remove funds)' },
               ]}
               value={direction}
               onChange={(event) => setDirection(event.target.value === 'debit' ? 'debit' : 'credit')}

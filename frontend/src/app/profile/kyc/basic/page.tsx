@@ -114,13 +114,6 @@ export default function BasicKycPage() {
     <AppShell hideBottomNav>
       <PageHeader title="Basic verification" backHref="/profile/kyc" action={<DemoBadge compact />} />
       <PageBody>
-        <SimulationNotice tone="emphasis">
-          <strong className="font-bold">Simulated verification.</strong> This demo platform performs
-          no real identity verification and checks nothing against any registry.{' '}
-          <strong className="font-bold">Do not enter a real document number</strong> — use a
-          placeholder value.
-        </SimulationNotice>
-
         {kyc.isLoading ? (
           <Skeleton className="h-72 w-full" />
         ) : kyc.isError || !kyc.data ? (
@@ -131,8 +124,6 @@ export default function BasicKycPage() {
           />
         ) : (
           <>
-            {kyc.data.demoNotice && <SimulationNotice>{kyc.data.demoNotice}</SimulationNotice>}
-
             <Card>
               <CardHeader
                 title="Your details"
