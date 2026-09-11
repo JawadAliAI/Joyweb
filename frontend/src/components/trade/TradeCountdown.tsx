@@ -149,8 +149,8 @@ export function TradeCountdown({
 
         <p className="text-xs text-muted">
           {live
-            ? 'Indicative only while the position is open. The demo settles the outcome at expiry.'
-            : 'Expired — waiting for the demo to settle this position.'}
+            ? 'Indicative only while the position is open. The outcome is settled at expiry.'
+            : 'Expired — settling this position.'}
         </p>
       </CardBody>
     </Card>

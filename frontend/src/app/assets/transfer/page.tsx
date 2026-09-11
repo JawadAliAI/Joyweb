@@ -79,7 +79,7 @@ export default function TransferPage() {
       setFundPassword('');
       setNote('');
       refreshBalances();
-      toast.success('Demo transfer sent', `Reference ${data.reference}`);
+      toast.success('Transfer sent', `Reference ${data.reference}`);
     },
     onError: (error) => {
       setConfirmOpen(false);
@@ -103,7 +103,7 @@ export default function TransferPage() {
     if (!amount.trim() || !Number.isFinite(parsedAmount) || parsedAmount <= 0) {
       next.amount = 'Enter an amount greater than zero.';
     } else if (parsedAmount > available) {
-      next.amount = 'Amount exceeds your available demo balance.';
+      next.amount = 'Amount exceeds your available balance.';
     }
     if (!fundPassword) next.fundPassword = 'Enter your fund password.';
     setErrors(next);
@@ -115,7 +115,7 @@ export default function TransferPage() {
       <PageHeader title="Transfer" backHref="/assets" />
       <PageBody>
         {!config.transfersEnabled ? (
-          <FeatureDisabledNotice message="Demo transfers are currently unavailable." />
+          <FeatureDisabledNotice message="Transfers are currently unavailable." />
         ) : portfolio.isLoading ? (
           <div className="space-y-3">
             <Skeleton className="h-20 w-full" />
@@ -152,7 +152,7 @@ export default function TransferPage() {
                   autoComplete="off"
                   value={recipient}
                   error={errors.recipient}
-                  hint="The demo account that will receive the credits."
+                  hint="The account that will receive the funds."
                   onChange={(event) => {
                     setRecipient(event.target.value);
                     if (errors.recipient) {
@@ -245,7 +245,7 @@ export default function TransferPage() {
                   Transfer
                 </Button>
                 <p className="text-center text-xs text-muted">
-                  Demo transfer only. No blockchain transaction will be created.
+                  Transfers between accounts are instant.
                 </p>
               </CardBody>
             </Card>
@@ -266,10 +266,10 @@ export default function TransferPage() {
             note: note.trim() || undefined,
           });
         }}
-        title="Confirm demo transfer"
+        title="Confirm transfer"
         confirmLabel="Confirm"
         loading={mutation.isPending}
-        footnote="Simulated credits only — nothing leaves this demo."
+        footnote="Transfers cannot be reversed once confirmed."
         details={
           <div>
             <DataRow label="Recipient" value={recipient.trim()} />

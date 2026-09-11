@@ -8,10 +8,7 @@ from app.services import settings_service
 from tests.conftest import login
 
 REGISTRATION = {
-    "email": "newuser@example.com",
-    "username": "newuser",
-    "firstName": "New",
-    "lastName": "User",
+    "identifier": "newuser@example.com",
     "password": "StrongPass123",
     "confirmPassword": "StrongPass123",
 }
@@ -46,8 +43,7 @@ class TestRegistration:
     def test_duplicate_email_is_refused(self, client):
         client.post("/api/auth/register", json=REGISTRATION)
         client.cookies.clear()
-        duplicate = {**REGISTRATION, "username": "different"}
-        response = client.post("/api/auth/register", json=duplicate)
+        response = client.post("/api/auth/register", json=REGISTRATION)
         assert response.status_code >= 400
         assert response.json()["success"] is False
 
@@ -57,6 +53,32 @@ class TestRegistration:
                                      "confirmPassword": "short"})
         assert response.status_code == 422
         assert response.json()["error"]["code"] == "VALIDATION_ERROR"
+
+    def test_a_new_account_starts_with_a_credit_score_of_100(self, client):
+        body = client.post("/api/auth/register", json=REGISTRATION).json()
+        assert body["data"]["creditScore"] == 100
+
+    def test_an_email_sign_up_gets_a_username_from_the_address(self, client):
+        body = client.post("/api/auth/register", json=REGISTRATION).json()
+        assert body["data"]["username"] == "newuser"
+
+    def test_a_username_sign_up_can_sign_in_by_username(self, client):
+        response = client.post("/api/auth/register", json={
+            **REGISTRATION, "identifier": "plainname"})
+        assert response.status_code in (200, 201), response.text
+        assert response.json()["data"]["username"] == "plainname"
+        client.cookies.clear()
+        signed_in = client.post("/api/auth/login", json={
+            "email": "plainname", "password": "StrongPass123"})
+        assert signed_in.status_code == 200, signed_in.text
+
+    def test_a_taken_username_is_refused_whatever_the_case(self, client):
+        client.post("/api/auth/register", json={**REGISTRATION, "identifier": "twice"})
+        client.cookies.clear()
+        response = client.post("/api/auth/register", json={
+            **REGISTRATION, "identifier": "TWICE"})
+        assert response.status_code == 422
+        assert response.json()["error"]["code"] == "USERNAME_TAKEN"
 
     def test_a_new_account_starts_with_demo_wallets(self, client):
         client.post("/api/auth/register", json=REGISTRATION)

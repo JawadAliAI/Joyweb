@@ -27,11 +27,14 @@ import { cn } from '@/lib/format';
 import { usePlatform } from '@/components/providers';
 import { useLogout } from '@/hooks/useSession';
 import { DemoBadge } from '@/components/layout/DemoBadge';
+import { useDepositDialog } from '@/components/wallet/DepositDialog';
 
 interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
+  /** Opens the receptionist dialog instead of navigating. */
+  opensDeposit?: boolean;
 }
 
 interface NavGroup {
@@ -43,7 +46,7 @@ interface NavGroup {
 
 /** Bottom bar: the four destinations that matter on a phone. */
 export const NAV_ITEMS: NavItem[] = [
-  { href: '/', label: 'Home', icon: Home },
+  { href: '/home', label: 'Home', icon: Home },
   { href: '/markets', label: 'Markets', icon: BarChart3 },
   { href: '/trade', label: 'Trade', icon: CandlestickChart },
   { href: '/assets', label: 'Assets', icon: Wallet },
@@ -55,7 +58,7 @@ export const NAV_GROUPS: NavGroup[] = [
     id: 'home',
     label: 'Home',
     icon: Home,
-    items: [{ href: '/', label: 'Dashboard', icon: Home }],
+    items: [{ href: '/home', label: 'Dashboard', icon: Home }],
   },
   {
     id: 'markets',
@@ -78,7 +81,7 @@ export const NAV_GROUPS: NavGroup[] = [
     icon: Wallet,
     items: [
       { href: '/assets', label: 'Overview', icon: Wallet },
-      { href: '/assets/deposit', label: 'Deposit', icon: ArrowDownToLine },
+      { href: '/assets/deposit', label: 'Deposit', icon: ArrowDownToLine, opensDeposit: true },
       { href: '/assets/withdraw', label: 'Withdraw', icon: ArrowUpFromLine },
       { href: '/assets/convert', label: 'Convert', icon: Repeat },
       { href: '/assets/transfer', label: 'Transfer', icon: ArrowLeftRight },
@@ -101,8 +104,9 @@ export const NAV_GROUPS: NavGroup[] = [
 ];
 
 function isActive(pathname: string, href: string) {
-  if (href === '/') return pathname === '/';
-  return pathname === href || pathname.startsWith(`${href}/`);
+  // "/" and "/home" are the same dashboard (see app/home/page.tsx).
+  const path = pathname === '/' ? '/home' : pathname;
+  return path === href || path.startsWith(`${href}/`);
 }
 
 /**
@@ -168,6 +172,7 @@ export function DesktopSidebar() {
   const router = useRouter();
   const logout = useLogout();
   const { config } = usePlatform();
+  const openDeposit = useDepositDialog();
   const current = activeHref(pathname, ALL_ITEMS);
 
   // The group holding the current page opens; the rest start closed.
@@ -186,7 +191,7 @@ export function DesktopSidebar() {
     <nav aria-label="Primary" className="hidden h-full w-[220px] shrink-0 lg:block">
       <div className="flex h-full flex-col overflow-hidden bg-rail">
         <Link
-          href="/"
+          href="/home"
           className="flex shrink-0 flex-col justify-center gap-1 px-[15px] py-2.5 text-white/80"
         >
           <span className="truncate text-[15px] leading-tight">{config.appName}</span>
@@ -243,6 +248,22 @@ export function DesktopSidebar() {
                   <ul>
                     {group.items.map((item) => {
                       const active = current === item.href;
+                      if (item.opensDeposit) {
+                        return (
+                          <li key={item.href}>
+                            <button
+                              type="button"
+                              onClick={openDeposit}
+                              className={cn(
+                                'flex h-10 w-full items-center pl-[45px] pr-[30px] text-left text-sm transition-colors',
+                                ROW_IDLE,
+                              )}
+                            >
+                              {item.label}
+                            </button>
+                          </li>
+                        );
+                      }
                       return (
                         <li key={item.href}>
                           <Link

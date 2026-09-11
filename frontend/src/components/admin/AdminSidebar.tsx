@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import {
-  Activity, ArrowLeftRight, BarChart3, Coins, FileClock, Gauge, LayoutDashboard,
+  Activity, ArrowLeftRight, BadgeCheck, BarChart3, Coins, FileClock, Gauge, LayoutDashboard,
   LifeBuoy, LogOut, Mail, Settings, TrendingUp, UserCog, Users, Wallet, X,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -30,6 +30,7 @@ interface NavItem {
 export const ADMIN_NAV: NavItem[] = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/admin/users', label: 'Users', icon: Users },
+  { href: '/admin/kyc', label: 'Verification (KYC)', icon: BadgeCheck },
   { href: '/admin/invites', label: 'Invites', icon: Mail },
   { href: '/admin/markets', label: 'Markets', icon: BarChart3 },
   { href: '/admin/trades', label: 'Live Positions', icon: Activity },

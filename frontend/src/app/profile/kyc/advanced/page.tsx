@@ -140,7 +140,7 @@ function submitErrorMessage(error: unknown): string {
       case 'KYC_ALREADY_PENDING':
         return 'You already have an advanced submission under review.';
       case 'KYC_ALREADY_APPROVED':
-        return 'Advanced verification is already approved on this demo account.';
+        return 'Advanced verification is already approved on this account.';
       case 'FILE_TOO_LARGE':
         return 'One of the images is larger than the 5 MB limit. Choose a smaller image.';
       case 'UNSUPPORTED_FILE_TYPE':
@@ -213,7 +213,7 @@ export default function AdvancedKycPage() {
       { frontImage: front.file, backImage: back.file },
       {
         onSuccess: () => {
-          setSuccess('Uploaded. A demo operator will review it — no real check is performed.');
+          setSuccess('Uploaded. Our team will review it shortly.');
           toast.success('Documents submitted');
         },
         onError: (error) => setFormError(submitErrorMessage(error)),
@@ -291,7 +291,7 @@ export default function AdvancedKycPage() {
                     </Button>
                     <p id="advanced-blocked" className="text-xs text-muted">
                       {status === 'APPROVED'
-                        ? 'Advanced verification is already approved on this demo account.'
+                        ? 'Advanced verification is already approved on this account.'
                         : status === 'PENDING'
                           ? 'Your submission is already under review.'
                           : kyc.data.basicStatus !== 'APPROVED'

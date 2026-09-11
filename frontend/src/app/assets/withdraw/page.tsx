@@ -87,7 +87,7 @@ export default function WithdrawPage() {
       setAddress('');
       setFundPassword('');
       refreshBalances();
-      toast.success('Demo withdrawal submitted', `Reference ${data.reference}`);
+      toast.success('Withdrawal submitted', `Reference ${data.reference}`);
     },
     onError: (error) => {
       setConfirmOpen(false);
@@ -117,7 +117,7 @@ export default function WithdrawPage() {
     if (!amount.trim() || !Number.isFinite(parsedAmount) || parsedAmount <= 0) {
       next.amount = 'Enter an amount greater than zero.';
     } else if (parsedAmount > available) {
-      next.amount = 'Amount exceeds your available demo balance.';
+      next.amount = 'Amount exceeds your available balance.';
     } else if (Number.isFinite(min) && parsedAmount < min) {
       next.amount = `Minimum withdrawal is ${formatAmount(options.data?.minAmount, 2)}.`;
     } else if (Number.isFinite(max) && max > 0 && parsedAmount > max) {
@@ -155,7 +155,7 @@ export default function WithdrawPage() {
           </div>
         ) : disabled ? (
           <FeatureDisabledNotice
-            message={options.data?.message || 'Demo withdrawals are currently unavailable.'}
+            message={options.data?.message || 'Withdrawals are currently unavailable.'}
             // The admin's own message says when to come back; only the fallback
             // needs that line added for it.
             hint={options.data?.message ? null : undefined}
@@ -250,7 +250,7 @@ export default function WithdrawPage() {
 
                 <Input
                   label="Address"
-                  placeholder="Demo destination address"
+                  placeholder="Destination address"
                   value={address}
                   error={errors.address}
                   autoComplete="off"
@@ -297,7 +297,7 @@ export default function WithdrawPage() {
                   Withdraw
                 </Button>
                 <p className="text-center text-xs text-muted">
-                  Demo withdrawal only. No blockchain transaction will be created.
+                  Withdrawals are reviewed before they are processed.
                 </p>
               </CardBody>
             </Card>
@@ -309,7 +309,7 @@ export default function WithdrawPage() {
         open={pickerOpen}
         onClose={() => setPickerOpen(false)}
         title="Select coin"
-        description="Demo networks only."
+        description="Supported networks."
         size="tall"
       >
         <ul className="divide-y divide-border/70">
@@ -353,10 +353,10 @@ export default function WithdrawPage() {
             fundPassword,
           });
         }}
-        title="Confirm demo withdrawal"
+        title="Confirm withdrawal"
         confirmLabel="Confirm"
         loading={mutation.isPending}
-        footnote="Demo withdrawal only. No blockchain transaction will be created."
+        footnote="Withdrawals are reviewed before they are processed."
         details={
           <div>
             <DataRow label="Asset" value={selected ? selected.label : '—'} />

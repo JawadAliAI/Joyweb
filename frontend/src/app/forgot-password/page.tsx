@@ -70,7 +70,7 @@ export default function ForgotPasswordPage() {
                 autoComplete="email"
                 value={email}
                 error={emailError}
-                hint="We will send a reset link if this address has a demo account."
+                hint="We will send a reset link if this address has an account."
                 onChange={(event) => {
                   setEmail(event.target.value);
                   if (emailError) setEmailError(null);
@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
               <FormSuccess
                 message={
                   sent
-                    ? 'If that address has a demo account, a reset link is on its way. Check your inbox.'
+                    ? 'If that address has an account, a reset link is on its way. Check your inbox.'
                     : null
                 }
               />

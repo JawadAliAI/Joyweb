@@ -1,7 +1,9 @@
 """Invitation-only registration.
 
-The property that matters most is that one invitation admits exactly one
-account — including when two registrations race for the same link.
+Two kinds of code open registration: the one shared code an administrator
+sets for everyone, and single-use links. For a link, the property that
+matters most is that it admits exactly one account — including when two
+registrations race for it.
 """
 from __future__ import annotations
 
@@ -15,9 +17,6 @@ from app.services import invite_service, settings_service
 from tests.conftest import login
 
 BASE_ACCOUNT = {
-    "username": "invitee",
-    "firstName": "In",
-    "lastName": "Vitee",
     "password": "StrongPass123",
     "confirmPassword": "StrongPass123",
 }
@@ -32,14 +31,14 @@ def make_invite(db, admin, **kwargs) -> Invite:
 class TestRegistrationGate:
     def test_registration_without_an_invite_is_refused_by_default(self, client):
         response = client.post("/api/auth/register", json={
-            **BASE_ACCOUNT, "email": "nobody@example.com"})
+            **BASE_ACCOUNT, "identifier": "nobody@example.com"})
         assert response.status_code == 422
         assert response.json()["error"]["code"] == "INVITE_REQUIRED"
 
     def test_a_valid_invite_lets_one_account_through(self, client, seeded, admin_user):
         invite = make_invite(seeded, admin_user)
         response = client.post("/api/auth/register", json={
-            **BASE_ACCOUNT, "email": "invitee@example.com",
+            **BASE_ACCOUNT, "identifier": "invitee@example.com",
             "inviteCode": invite.code})
         assert response.status_code in (200, 201), response.text
         assert response.json()["data"]["email"] == "invitee@example.com"
@@ -48,20 +47,67 @@ class TestRegistrationGate:
         settings_service.set_value(seeded, "registration_requires_invite", False)
         seeded.commit()
         response = client.post("/api/auth/register", json={
-            **BASE_ACCOUNT, "email": "open@example.com"})
+            **BASE_ACCOUNT, "identifier": "open@example.com"})
         assert response.status_code in (200, 201), response.text
+
+
+class TestSharedCode:
+    """The one code everyone registers with, set by an administrator."""
+
+    @pytest.fixture(autouse=True)
+    def _shared_code(self, seeded):
+        settings_service.set_value(seeded, "registration_invite_code", "JOIN-2026")
+        seeded.commit()
+
+    def test_the_shared_code_admits_more_than_one_account(self, client):
+        for name in ("alpha@example.com", "bravo@example.com"):
+            client.cookies.clear()
+            response = client.post("/api/auth/register", json={
+                **BASE_ACCOUNT, "identifier": name, "inviteCode": "JOIN-2026"})
+            assert response.status_code in (200, 201), response.text
+
+    def test_the_shared_code_ignores_case_and_surrounding_spaces(self, client):
+        response = client.post("/api/auth/register", json={
+            **BASE_ACCOUNT, "identifier": "casual@example.com",
+            "inviteCode": "  join-2026 "})
+        assert response.status_code in (200, 201), response.text
+
+    def test_a_username_can_register_with_the_shared_code(self, client):
+        response = client.post("/api/auth/register", json={
+            **BASE_ACCOUNT, "identifier": "justaname", "inviteCode": "JOIN-2026"})
+        assert response.status_code in (200, 201), response.text
+        assert response.json()["data"]["username"] == "justaname"
+
+    def test_a_wrong_code_is_refused(self, client):
+        response = client.post("/api/auth/register", json={
+            **BASE_ACCOUNT, "identifier": "wrong@example.com", "inviteCode": "JOIN-2025"})
+        assert response.status_code == 422
+        assert response.json()["error"]["code"] == "INVITE_INVALID"
+
+    def test_the_preview_accepts_the_shared_code(self, client):
+        data = client.get("/api/auth/invite/JOIN-2026").json()["data"]
+        assert data["valid"] is True
+        assert data["email"] is None
+
+    def test_a_blank_setting_turns_the_shared_code_off(self, client, seeded):
+        settings_service.set_value(seeded, "registration_invite_code", "")
+        seeded.commit()
+        response = client.post("/api/auth/register", json={
+            **BASE_ACCOUNT, "identifier": "blank@example.com", "inviteCode": "JOIN-2026"})
+        assert response.status_code == 422
+        assert response.json()["error"]["code"] == "INVITE_INVALID"
 
 
 class TestSingleUse:
     def test_an_invite_cannot_create_a_second_account(self, client, seeded, admin_user):
         invite = make_invite(seeded, admin_user)
         first = client.post("/api/auth/register", json={
-            **BASE_ACCOUNT, "email": "first@example.com", "inviteCode": invite.code})
+            **BASE_ACCOUNT, "identifier": "first@example.com", "inviteCode": invite.code})
         assert first.status_code in (200, 201), first.text
 
         client.cookies.clear()
         second = client.post("/api/auth/register", json={
-            **BASE_ACCOUNT, "username": "second", "email": "second@example.com",
+            **BASE_ACCOUNT, "identifier": "second@example.com",
             "inviteCode": invite.code})
         assert second.status_code == 422
         assert second.json()["error"]["code"] in ("INVITE_INVALID", "INVITE_ALREADY_USED")
@@ -83,7 +129,7 @@ class TestSingleUse:
     def test_using_an_invite_marks_it_used(self, client, seeded, admin_user):
         invite = make_invite(seeded, admin_user)
         client.post("/api/auth/register", json={
-            **BASE_ACCOUNT, "email": "marked@example.com", "inviteCode": invite.code})
+            **BASE_ACCOUNT, "identifier": "marked@example.com", "inviteCode": invite.code})
 
         seeded.expire_all()
         stored = seeded.get(Invite, invite.id)
@@ -99,7 +145,7 @@ class TestExpiryAndRevocation:
         seeded.commit()
 
         response = client.post("/api/auth/register", json={
-            **BASE_ACCOUNT, "email": "late@example.com", "inviteCode": invite.code})
+            **BASE_ACCOUNT, "identifier": "late@example.com", "inviteCode": invite.code})
         assert response.status_code == 422
 
     def test_a_revoked_invite_is_refused(self, client, seeded, admin_user):
@@ -108,19 +154,20 @@ class TestExpiryAndRevocation:
         seeded.commit()
 
         response = client.post("/api/auth/register", json={
-            **BASE_ACCOUNT, "email": "revoked@example.com", "inviteCode": invite.code})
+            **BASE_ACCOUNT, "identifier": "revoked@example.com", "inviteCode": invite.code})
         assert response.status_code == 422
 
     def test_an_unknown_code_is_refused(self, client):
         response = client.post("/api/auth/register", json={
-            **BASE_ACCOUNT, "email": "fake@example.com", "inviteCode": "not-a-real-code"})
+            **BASE_ACCOUNT, "identifier": "fake@example.com",
+            "inviteCode": "not-a-real-code"})
         assert response.status_code == 422
         assert response.json()["error"]["code"] == "INVITE_INVALID"
 
     def test_a_used_invite_cannot_be_revoked(self, client, seeded, admin_user):
         invite = make_invite(seeded, admin_user)
         client.post("/api/auth/register", json={
-            **BASE_ACCOUNT, "email": "done@example.com", "inviteCode": invite.code})
+            **BASE_ACCOUNT, "identifier": "done@example.com", "inviteCode": invite.code})
         seeded.expire_all()
 
         from app.core.errors import ValidationError
@@ -134,14 +181,14 @@ class TestEmailLock:
                                                           admin_user):
         invite = make_invite(seeded, admin_user, email="wanted@example.com")
         response = client.post("/api/auth/register", json={
-            **BASE_ACCOUNT, "email": "someone.else@example.com",
+            **BASE_ACCOUNT, "identifier": "someone.else@example.com",
             "inviteCode": invite.code})
         assert response.status_code == 422
 
     def test_the_matching_email_is_accepted(self, client, seeded, admin_user):
         invite = make_invite(seeded, admin_user, email="wanted@example.com")
         response = client.post("/api/auth/register", json={
-            **BASE_ACCOUNT, "email": "wanted@example.com", "inviteCode": invite.code})
+            **BASE_ACCOUNT, "identifier": "wanted@example.com", "inviteCode": invite.code})
         assert response.status_code in (200, 201), response.text
 
 

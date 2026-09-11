@@ -28,7 +28,7 @@ class User(UUIDMixin, TimestampMixin, Base):
     role: Mapped[str] = mapped_column(String(20), default=Role.USER.value, nullable=False)
     status: Mapped[str] = mapped_column(String(20), default=UserStatus.ACTIVE.value,
                                         nullable=False, index=True)
-    credit_score: Mapped[int] = mapped_column(Integer, default=70, nullable=False)
+    credit_score: Mapped[int] = mapped_column(Integer, default=100, nullable=False)
     avatar_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     # Test accounts are the ONLY accounts an admin may run scripted trade

@@ -6,25 +6,38 @@
  * Deliberately separate from the customer sign-in page: staff have their own
  * entry point, and a customer who authenticates here is signed straight back
  * out rather than being left holding a half-usable session.
+ *
+ * An administrator who is already signed in never sees the form: the admin
+ * host's web server sends its bare "/" here, so this is where a signed-in
+ * administrator lands after following any link to "/". Showing them a sign-in
+ * form there looked exactly like being logged out.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ShieldCheck } from 'lucide-react';
 import { api, errorMessage } from '@/lib/api';
 import { usePlatform } from '@/components/providers';
-import { sessionKey } from '@/hooks/useSession';
+import { sessionKey, useSession } from '@/hooks/useSession';
 import { Button, Card, CardBody } from '@/components/ui/primitives';
 import { FormError, Input, PasswordInput } from '@/components/ui/form';
 import { DemoBadge } from '@/components/layout/DemoBadge';
 import type { SessionUser } from '@/lib/types';
+
+/** An administrator with a starting password changes it inside the panel. */
+const ADMIN_PASSWORD_PATH = '/admin/password';
+
+function isAdministrator(user: SessionUser | null): user is SessionUser {
+  return Boolean(user && (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN'));
+}
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { config } = usePlatform();
+  const { user: signedIn } = useSession();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,6 +51,12 @@ export default function AdminLoginPage() {
       ? nextParam
       : '/admin';
 
+  useEffect(() => {
+    if (isAdministrator(signedIn)) {
+      router.replace(signedIn.mustChangePassword ? ADMIN_PASSWORD_PATH : next);
+    }
+  }, [signedIn, router, next]);
+
   const login = useMutation({
     mutationFn: (body: { email: string; password: string }) =>
       api.post<SessionUser>('/auth/login', body),
@@ -50,7 +69,8 @@ export default function AdminLoginPage() {
         return;
       }
       queryClient.setQueryData(sessionKey, user);
-      router.replace(user.mustChangePassword ? '/profile/security' : next);
+      // Never into the customer app: a starting password is changed in the panel.
+      router.replace(user.mustChangePassword ? ADMIN_PASSWORD_PATH : next);
     },
     onError: (error) => setFormError(errorMessage(error)),
   });

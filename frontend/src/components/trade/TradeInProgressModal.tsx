@@ -184,7 +184,7 @@ export function TradeInProgressModal({
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Demo position in progress"
+        aria-label="Position in progress"
         tabIndex={-1}
         className={cn(
           'relative flex max-h-[90vh] w-full flex-col overflow-y-auto bg-surface shadow-raised outline-none',
@@ -255,7 +255,7 @@ export function TradeInProgressModal({
           {/* Throttled announcements: the visual timer still ticks each second. */}
           <p className="sr-only" aria-live="polite" role="status">
             {settling
-              ? 'Countdown finished. Settling the demo position.'
+              ? 'Countdown finished. Settling the position.'
               : announced === null
                 ? ''
                 : `${announced} seconds remaining`}
@@ -287,10 +287,6 @@ export function TradeInProgressModal({
             }
           />
         </div>
-
-        <p className="mt-4 text-center text-xs text-muted">
-          Simulated position. No order reaches a real exchange and no real money is at risk.
-        </p>
 
         {showEscapeHatch && onForceClose && (
           <div className="mt-4">

@@ -18,6 +18,7 @@ import { usePlatform } from '@/components/providers';
 import { useDocumentScrollLock } from '@/hooks/useDocumentScrollLock';
 import { useRequireAuth } from '@/hooks/useSession';
 import { AppHeader } from '@/components/layout/AppHeader';
+import { DepositDialogProvider } from '@/components/wallet/DepositDialog';
 import { BottomNavigation, DesktopSidebar } from '@/components/layout/navigation';
 import { RestrictionNotice } from '@/components/layout/DemoBadge';
 import { Skeleton } from '@/components/ui/primitives';
@@ -67,34 +68,36 @@ export function AppShell({
   }
 
   return (
-    <div className="fixed inset-0 overflow-hidden bg-bg pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
-      {/*
-       * Pinned to the viewport, like the two back offices: the rail and the
-       * content each own a scrollbar, so scrolling a long page never drags the
-       * rail up or exposes bare background beneath it. `min-w-0` keeps a wide
-       * table scrolling inside its own container instead of pushing the layout
-       * sideways.
-       */}
-      <div className="flex h-full overflow-hidden">
-        <DesktopSidebar />
-        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <AppHeader />
-          <main
-            id="main"
-            className={cn(
-              'min-w-0 flex-1 overflow-y-auto',
-              hideBottomNav ? 'pb-6' : 'pb-[calc(var(--bottom-nav-height)+16px)] lg:pb-8',
-            )}
-          >
-            {showRestrictionNotice && user.status !== 'ACTIVE' && (
-              <RestrictionNotice reason={user.freezeReason} />
-            )}
-            {children}
-          </main>
+    <DepositDialogProvider>
+      <div className="fixed inset-0 overflow-hidden bg-bg pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
+        {/*
+         * Pinned to the viewport, like the two back offices: the rail and the
+         * content each own a scrollbar, so scrolling a long page never drags the
+         * rail up or exposes bare background beneath it. `min-w-0` keeps a wide
+         * table scrolling inside its own container instead of pushing the layout
+         * sideways.
+         */}
+        <div className="flex h-full overflow-hidden">
+          <DesktopSidebar />
+          <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+            <AppHeader />
+            <main
+              id="main"
+              className={cn(
+                'min-w-0 flex-1 overflow-y-auto',
+                hideBottomNav ? 'pb-6' : 'pb-[calc(var(--bottom-nav-height)+16px)] lg:pb-8',
+              )}
+            >
+              {showRestrictionNotice && user.status !== 'ACTIVE' && (
+                <RestrictionNotice reason={user.freezeReason} />
+              )}
+              {children}
+            </main>
+          </div>
         </div>
+        {!hideBottomNav && <BottomNavigation />}
       </div>
-      {!hideBottomNav && <BottomNavigation />}
-    </div>
+    </DepositDialogProvider>
   );
 }
 

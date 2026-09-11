@@ -6,7 +6,7 @@
  * Passwords are write-only here — nothing is ever fetched, displayed or echoed
  * back, and the fields are cleared as soon as a change succeeds.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { Check, X } from 'lucide-react';
@@ -56,11 +56,13 @@ export default function SecurityPage() {
   const toast = useToast();
   const router = useRouter();
 
-  // Staff are sent here by the forced first-login password change. Without an
-  // explanation the page looks like an ordinary settings screen and the admin
-  // has no idea why the back office will not open.
+  // An administrator's starting password is changed in the admin panel, never
+  // here: this page belongs to the customer app.
   const mustChange = session.user?.mustChangePassword ?? false;
-  const isStaff = session.user ? session.user.role !== 'USER' : false;
+  const isAdmin = session.user?.role === 'ADMIN' || session.user?.role === 'SUPER_ADMIN';
+  useEffect(() => {
+    if (mustChange && isAdmin) router.replace('/admin/password');
+  }, [mustChange, isAdmin, router]);
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -88,12 +90,6 @@ export default function SecurityPage() {
       setPasswordSuccess('Your password has been changed.');
       void session.refetch();
       toast.success('Password changed');
-      // The forced change is what was blocking the back office; now that it is
-      // done, take staff straight there instead of stranding them here.
-      if (mustChange && isStaff) {
-        toast.success('Opening the admin dashboard');
-        router.replace('/admin');
-      }
     },
     onError: (error) => setPasswordFormError(errorMessage(error)),
   });
@@ -159,11 +155,8 @@ export default function SecurityPage() {
               Set a new password to continue
             </p>
             <p className="mt-1 text-xs leading-relaxed text-warning/90">
-              This account still uses the password it was created with, so it is
-              locked to this page until you choose a new one.
-              {isStaff
-                ? ' The admin dashboard opens as soon as you have changed it.'
-                : ''}
+              This account still uses a temporary password. Choose a new one to keep
+              your account secure.
             </p>
           </div>
         )}
@@ -171,7 +164,7 @@ export default function SecurityPage() {
           <Card>
             <CardHeader
               title="Change password"
-              description="Used to sign in to your demo account."
+              description="Used to sign in to your account."
             />
             <CardBody className="space-y-4 pt-3">
               <PasswordInput
@@ -207,7 +200,7 @@ export default function SecurityPage() {
           <Card>
             <CardHeader
               title={hasFundPassword ? 'Replace fund password' : 'Set fund password'}
-              description="Required to confirm demo withdrawals and transfers."
+              description="Required to confirm withdrawals and transfers."
               action={
                 <Badge tone={hasFundPassword ? 'success' : 'warning'}>
                   {hasFundPassword ? 'Set' : 'Not set'}

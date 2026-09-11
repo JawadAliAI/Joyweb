@@ -15,15 +15,15 @@ import type { PlatformConfig } from '@/lib/types';
 import { ToastProvider } from '@/components/ui/toast';
 
 const FALLBACK_CONFIG: PlatformConfig = {
-  appName: process.env.NEXT_PUBLIC_APP_NAME || 'CryptoDemo Exchange',
+  appName: process.env.NEXT_PUBLIC_APP_NAME || 'cptcryptoiin',
   logoUrl: '/brand/logo.svg',
   faviconUrl: '/brand/favicon.svg',
   primaryColor: '#18B887',
   secondaryColor: '#F0B90B',
-  supportEmail: 'support@cryptodemo.example',
+  supportEmail: 'support@cptcryptoiin.com',
   displayCurrency: 'USD',
-  demoLabel: process.env.NEXT_PUBLIC_DEMO_LABEL || 'DEMO / PAPER TRADING',
-  demoMode: true,
+  demoLabel: process.env.NEXT_PUBLIC_DEMO_LABEL || '',
+  demoMode: false,
   maintenanceMode: false,
   maintenanceMessage: 'Platform is currently under maintenance.',
   tradingEnabled: true,

@@ -274,7 +274,7 @@ function Rail({ onNavigate }: { onNavigate?: () => void }) {
           Admin portal
         </Link>
         <Link
-          href="/"
+          href="/home"
           onClick={onNavigate}
           className="flex h-10 items-center gap-3 pl-[15px] pr-[30px] text-sm text-rail-fg transition-colors hover:bg-rail-hover"
         >
@@ -303,11 +303,17 @@ export function AgentShell({ children }: { children: ReactNode }) {
   // the document. Called before the early return so the hook order is stable.
   useDocumentScrollLock(!onLogin);
 
+  // A starting password is replaced in the admin panel before anything else opens.
+  const heldForPassword = !onLogin && Boolean(user?.mustChangePassword);
+  useEffect(() => {
+    if (heldForPassword) router.replace('/admin/password');
+  }, [heldForPassword, router]);
+
   // The sign-in page lives inside this segment but must not be wrapped by the
   // chrome it signs you in to, or the guard would redirect to itself.
   if (onLogin) return <>{children}</>;
 
-  if (isLoading || !user) {
+  if (isLoading || !user || heldForPassword) {
     return (
       <div className="theme-light fixed inset-0 overflow-y-auto bg-bg p-6">
         <Skeleton className="h-12 w-full" />

@@ -15,7 +15,7 @@ import { DemoBadge } from '@/components/layout/DemoBadge';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLogout, useSession, sessionKey } from '@/hooks/useSession';
 import { api, errorMessage } from '@/lib/api';
-import { formatDateTime } from '@/lib/format';
+import { accountContact, formatDateTime } from '@/lib/format';
 import { ConfirmModal, Modal } from '@/components/ui/overlay';
 import { FormError, Input } from '@/components/ui/form';
 import { useToast } from '@/components/ui/toast';
@@ -135,7 +135,7 @@ export default function ProfilePage() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-base font-semibold text-fg">{user.fullName}</p>
                   <p className="truncate text-xs text-muted">@{user.username}</p>
-                  <p className="truncate text-xs text-muted">{user.email}</p>
+                  <p className="truncate text-xs text-muted">{accountContact(user)}</p>
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <Badge tone={user.status === 'ACTIVE' ? 'success' : 'danger'}>
@@ -171,14 +171,13 @@ export default function ProfilePage() {
             </Card>
 
             <Card>
-              <CardHeader title="Demo credit score" />
+              <CardHeader title="Credit score" />
               <CardBody className="pt-1">
                 <DataRow label="Score" tone="strong" value={user.creditScore} />
                 <Divider />
                 <DataRow label="Band" value={user.creditScoreBand} />
                 <p className="mt-3 rounded-control bg-primary/10 px-3 py-2 text-xs leading-relaxed text-primary">
-                  This is an internal demo account score used only inside this paper-trading
-                  simulator. It is <strong className="font-bold">not</strong> a credit-bureau
+                  This score is used only inside this platform. It is <strong className="font-bold">not</strong> a credit-bureau
                   score, is not reported to any agency, and has no effect on your real-world
                   credit or finances.
                 </p>
@@ -188,7 +187,7 @@ export default function ProfilePage() {
             <Card>
               <CardHeader
                 title="Identity verification"
-                description="Simulated only — this demo performs no real identity checks."
+                description="Verify your identity to raise your account limits."
                 action={
                   <Link href="/profile/kyc" className="text-xs font-medium text-primary">
                     Manage
@@ -327,7 +326,7 @@ export default function ProfilePage() {
         onClose={() => setLogoutOpen(false)}
         onConfirm={() => logout.mutate()}
         title="Log out?"
-        description="You will need to sign in again to reach your demo account."
+        description="You will need to sign in again to reach your account."
         confirmLabel="Log out"
         confirmVariant="danger"
         loading={logout.isPending}

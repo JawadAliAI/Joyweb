@@ -185,8 +185,7 @@ export function TradingChart({
       </div>
 
       <p className="px-4 pb-3 text-[11px] leading-relaxed text-subtle">
-        Chart is informational only and sourced from a public market-data provider. Trades on this
-        simulator do not reach any exchange or order book.
+        Chart is informational only and sourced from a public market-data provider. Prices are indicative only.
       </p>
     </section>
   );

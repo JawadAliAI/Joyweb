@@ -28,7 +28,7 @@ import {
 import { useMarkets } from '@/hooks/useMarkets';
 import { useTransactions } from '@/hooks/useSession';
 import { errorMessage } from '@/lib/api';
-import { formatAmount, timeAgo, transactionLabel } from '@/lib/format';
+import { assetLabel, formatAmount, timeAgo, transactionLabel } from '@/lib/format';
 
 function RecentActivity() {
   const { data, isLoading, isError, error, refetch } = useTransactions({ pageSize: 5 });
@@ -58,7 +58,7 @@ function RecentActivity() {
         ) : !data || data.items.length === 0 ? (
           <EmptyState
             title="No transactions yet"
-            description="Your simulated deposits, trades and transfers will appear here."
+            description="Your deposits, trades and transfers will appear here."
           />
         ) : (
           <ul className="divide-y divide-border/60">
@@ -74,7 +74,7 @@ function RecentActivity() {
                 </div>
                 <p className="tabular shrink-0 text-sm text-fg">
                   {formatAmount(item.amount)}{' '}
-                  <span className="text-xs text-muted">{item.asset}</span>
+                  <span className="text-xs text-muted">{assetLabel(item.asset)}</span>
                 </p>
               </li>
             ))}

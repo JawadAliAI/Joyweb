@@ -1,58 +1,22 @@
 'use client';
 
 /**
- * Dashboard greeting strip: who is signed in, what their simulated wallet holds
- * and the primary action.
+ * Dashboard greeting strip: who is signed in, and the primary action.
  *
- * The reference design shows two wallet chips (spot and futures). This platform
- * has no futures product, so the second chip reports the balance that actually
- * matters for placing a demo position — free USDT.
+ * Balance figures live only on the Assets page, so this strip carries the
+ * account identity and the Deposit action, not wallet totals.
  */
-import Link from 'next/link';
 import { ArrowDownToLine } from 'lucide-react';
-import { DemoBadge } from '@/components/layout/DemoBadge';
+import { DepositButton } from '@/components/wallet/DepositDialog';
 import { Skeleton } from '@/components/ui/primitives';
-import { usePortfolio, useSession } from '@/hooks/useSession';
-import { cn, formatAmount } from '@/lib/format';
-
-function WalletChip({
-  label,
-  value,
-  loading,
-  tone = 'default',
-}: {
-  label: string;
-  value: string;
-  loading?: boolean;
-  tone?: 'default' | 'accent';
-}) {
-  return (
-    <div className="rounded-control border border-border bg-card px-3 py-2">
-      <p className="text-[10px] font-medium uppercase tracking-wide text-muted">{label}</p>
-      {loading ? (
-        <Skeleton className="mt-1 h-4 w-20" />
-      ) : (
-        <p
-          className={cn(
-            'tabular text-sm font-semibold',
-            tone === 'accent' ? 'text-primary' : 'text-fg',
-          )}
-        >
-          {value}
-        </p>
-      )}
-    </div>
-  );
-}
+import { useSession } from '@/hooks/useSession';
+import { accountContact, cn } from '@/lib/format';
 
 export function DashboardToolbar() {
   const { user, isLoading } = useSession();
-  const portfolio = usePortfolio();
 
   const initials =
     user ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || 'U' : '';
-  const usdt = portfolio.data?.assets.find((asset) => asset.asset === 'DEMO_USDT');
-  const pricesDown = portfolio.data?.pricesAvailable === false;
 
   return (
     <section className="flex flex-wrap items-center gap-3" aria-label="Account summary">
@@ -67,40 +31,21 @@ export function DashboardToolbar() {
           {isLoading || !user ? (
             <Skeleton className="h-4 w-36" />
           ) : (
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="truncate text-sm font-semibold text-fg">{user.fullName}</p>
-              <DemoBadge compact />
-            </div>
+            <p className="truncate text-sm font-semibold text-fg">{user.fullName}</p>
           )}
-          <p className="truncate text-xs text-muted">{user?.email ?? 'Demo account'}</p>
+          <p className="truncate text-xs text-muted">{user ? accountContact(user) : 'Account'}</p>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <WalletChip
-          label="Demo wallet"
-          loading={portfolio.isLoading}
-          value={
-            pricesDown ? 'Unavailable' : `$${formatAmount(portfolio.data?.totalEstimatedValue)}`
-          }
-        />
-        <WalletChip
-          label="Free to trade"
-          loading={portfolio.isLoading}
-          tone="accent"
-          value={usdt ? `${formatAmount(usdt.available)} USDT` : '—'}
-        />
-        <Link
-          href="/assets/deposit"
-          className={cn(
-            'inline-flex touch-target items-center gap-2 rounded-pill bg-primary px-4',
-            'text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90',
-          )}
-        >
-          Deposit
-          <ArrowDownToLine className="h-4 w-4" aria-hidden />
-        </Link>
-      </div>
+      <DepositButton
+        className={cn(
+          'inline-flex touch-target items-center gap-2 rounded-pill bg-primary px-4',
+          'text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90',
+        )}
+      >
+        Deposit
+        <ArrowDownToLine className="h-4 w-4" aria-hidden />
+      </DepositButton>
     </section>
   );
 }

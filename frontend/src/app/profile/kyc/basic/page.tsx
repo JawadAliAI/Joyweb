@@ -32,14 +32,14 @@ const DOCUMENT_OPTIONS: {
     value: 'LICENSE',
     title: 'Driving licence',
     numberLabel: 'Licence number',
-    hint: 'Any placeholder value, e.g. DEMO-1234.',
+    hint: 'As printed on your document.',
     icon: CreditCard,
   },
   {
     value: 'ID_CARD',
     title: 'ID card',
     numberLabel: 'ID card number',
-    hint: 'Any placeholder value, e.g. DEMO-5678.',
+    hint: 'As printed on your document.',
     icon: IdCard,
   },
 ];
@@ -51,7 +51,7 @@ function submitErrorMessage(error: unknown): string {
       case 'KYC_ALREADY_PENDING':
         return 'You already have a basic submission under review. Wait for it to be reviewed.';
       case 'KYC_ALREADY_APPROVED':
-        return 'Basic verification is already approved on this demo account.';
+        return 'Basic verification is already approved on this account.';
       default:
         return error.message;
     }
@@ -102,7 +102,7 @@ export default function BasicKycPage() {
       },
       {
         onSuccess: () => {
-          setSuccess('Submitted. A demo operator will review it — no real check is performed.');
+          setSuccess('Submitted. Our team will review it shortly.');
           toast.success('Basic verification submitted');
         },
         onError: (error) => setFormError(submitErrorMessage(error)),
@@ -217,7 +217,7 @@ export default function BasicKycPage() {
                     </Button>
                     <p id="basic-blocked" className="text-xs text-muted">
                       {status === 'APPROVED'
-                        ? 'Basic verification is already approved on this demo account.'
+                        ? 'Basic verification is already approved on this account.'
                         : status === 'PENDING'
                           ? 'Your submission is already under review.'
                           : 'Basic verification is not available right now.'}

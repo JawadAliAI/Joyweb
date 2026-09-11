@@ -22,7 +22,7 @@ import { Donut, MicroBars } from '@/components/home/Sparkline';
 import { ChangeChip, Skeleton } from '@/components/ui/primitives';
 import { useOpenTradeCount, usePortfolio } from '@/hooks/useSession';
 import { summarise, useMarkets } from '@/hooks/useMarkets';
-import { cn, formatAmount, formatCompact } from '@/lib/format';
+import { cn, formatCompact } from '@/lib/format';
 import type { MarketRow } from '@/lib/types';
 
 /** Ring colours for an allocation: the accent, stepping down in weight. */
@@ -137,23 +137,15 @@ export function StatCards() {
       className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
     >
       <StatCard
-        label="Portfolio value"
+        label="Portfolio"
         href="/assets"
         icon={<Wallet className="h-4 w-4" aria-hidden />}
-        loading={portfolio.isLoading}
-        value={
-          portfolio.data?.pricesAvailable === false ? (
-            <span className="text-base font-medium text-muted">Prices unavailable</span>
-          ) : (
-            <>
-              <span className="align-top text-lg text-muted">$</span>
-              {formatAmount(portfolio.data?.totalEstimatedValue)}
-            </>
-          )
-        }
+        loading={false}
+        value={<span className="text-lg font-semibold text-fg">View assets</span>}
         chip={
-          <span className="inline-flex items-center rounded-pill bg-primary/15 px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-primary">
-            Simulated
+          <span className="inline-flex items-center gap-1 rounded-pill bg-primary px-2.5 py-1 text-[11px] font-bold text-primary-foreground">
+            Open assets
+            <ChevronRight className="h-3 w-3" aria-hidden />
           </span>
         }
         visual={
@@ -246,7 +238,7 @@ export function StatCards() {
         }
         chip={
           <span className="inline-flex items-center gap-1 rounded-pill bg-primary px-2.5 py-1 text-[11px] font-bold text-primary-foreground">
-            {openTrades.data ? 'Manage trades' : 'Place a demo trade'}
+            {openTrades.data ? 'Manage trades' : 'Place a trade'}
             <ChevronRight className="h-3 w-3" aria-hidden />
           </span>
         }

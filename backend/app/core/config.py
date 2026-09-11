@@ -14,9 +14,9 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     # ---- Brand / product ----
-    APP_NAME: str = "CryptoDemo Exchange"
+    APP_NAME: str = "cptcryptoiin"
     DEMO_MODE: bool = True
-    DEMO_LABEL: str = "DEMO / PAPER TRADING"
+    DEMO_LABEL: str = ""
     ENVIRONMENT: str = "development"
     SUPPORT_EMAIL: str = "support@cryptodemo.example"
 

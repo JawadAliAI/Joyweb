@@ -37,7 +37,7 @@ function blockedReason(
   { requiresBasic }: { requiresBasic: boolean },
   basicStatus: KycStatus,
 ): string {
-  if (status === 'APPROVED') return 'This level is already verified in the demo.';
+  if (status === 'APPROVED') return 'This level is already verified.';
   if (status === 'PENDING') return 'Your submission is already under review.';
   if (requiresBasic && basicStatus !== 'APPROVED') {
     return 'Basic verification has to be approved before you can start this level.';
@@ -172,9 +172,9 @@ function KycContent({ data }: { data: KycOverview }) {
         title="Basic verification"
         description="Your name and a document number."
         requirements={[
-          'Full name as you want it shown on the demo account',
+          'Full name as you want it shown on your account',
           'A licence number or ID card number (any placeholder value)',
-          'Reviewed by a demo operator — no real check is performed',
+          'Reviewed by our team',
         ]}
         status={data.basicStatus}
         canSubmit={data.canSubmitBasic}

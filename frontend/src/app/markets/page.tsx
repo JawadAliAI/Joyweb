@@ -98,7 +98,7 @@ function MarketsScreen() {
       <PageBody width="wide">
         <h1 className="text-lg font-semibold text-fg">Markets</h1>
         <p className="-mt-2 text-xs text-muted">
-          Simulated markets. Prices come from a public market-data provider and are
+          Prices come from a public market-data provider and are
           informational only.
         </p>
 

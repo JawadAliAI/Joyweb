@@ -38,16 +38,16 @@ SUPPORTED_ASSETS: tuple[str, ...] = tuple(a.value for a in Asset)
 STABLE_ASSETS: frozenset[str] = frozenset(
     {Asset.DEMO_USDT.value, Asset.DEMO_USDC.value})
 
-# How each simulated asset is presented. Labels keep the DEMO_ prefix visible so
-# a balance can never be mistaken for a real holding.
+# How each asset is presented to customers. The internal codes keep their
+# DEMO_ prefix (it maps to the wallet rows); the display labels do not.
 ASSET_META: dict[str, dict[str, Any]] = {
-    Asset.DEMO_USDT.value: {"label": "DEMO USDT", "decimals": 2,
+    Asset.DEMO_USDT.value: {"label": "USDT", "decimals": 2,
                             "market": None, "icon": "usdt"},
-    Asset.DEMO_USDC.value: {"label": "DEMO USDC", "decimals": 2,
+    Asset.DEMO_USDC.value: {"label": "USDC", "decimals": 2,
                             "market": None, "icon": "usdc"},
-    Asset.DEMO_BTC.value: {"label": "DEMO BTC", "decimals": 8,
+    Asset.DEMO_BTC.value: {"label": "BTC", "decimals": 8,
                            "market": "BTC/USDT", "icon": "btc"},
-    Asset.DEMO_ETH.value: {"label": "DEMO ETH", "decimals": 6,
+    Asset.DEMO_ETH.value: {"label": "ETH", "decimals": 6,
                            "market": "ETH/USDT", "icon": "eth"},
 }
 

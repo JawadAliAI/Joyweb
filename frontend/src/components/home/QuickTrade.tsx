@@ -153,7 +153,7 @@ export function QuickTrade() {
       return `Maximum is ${formatAmount(selectedDuration.maxAmount, 2)}.`;
     }
     if (available !== null && parsedAmount > available) {
-      return 'Amount exceeds your available demo balance.';
+      return 'Amount exceeds your available balance.';
     }
     return null;
   };
@@ -179,7 +179,7 @@ export function QuickTrade() {
   if (!platform.tradingEnabled) {
     return (
       <Card className="p-4">
-        <FeatureDisabledNotice message="Demo trading is currently unavailable." />
+        <FeatureDisabledNotice message="Trading is currently unavailable." />
       </Card>
     );
   }
@@ -290,14 +290,6 @@ export function QuickTrade() {
               className="text-[11px] font-medium uppercase tracking-wide text-muted"
             >
               Amount
-            </p>
-            <p className="tabular text-[11px] text-muted">
-              Available{' '}
-              <span className="font-semibold text-fg">
-                {available === null
-                  ? '—'
-                  : `${formatAmount(availableBalance, 2)} ${assetLabel(stakeAsset)}`}
-              </span>
             </p>
           </div>
 

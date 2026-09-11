@@ -121,7 +121,7 @@ export default function ConvertPage() {
       setConfirmOpen(false);
       setAmount('');
       refreshBalances();
-      toast.success('Demo conversion complete', `Reference ${data.reference}`);
+      toast.success('Conversion complete', `Reference ${data.reference}`);
     },
     onError: (error) => {
       setConfirmOpen(false);
@@ -135,7 +135,7 @@ export default function ConvertPage() {
       return false;
     }
     if (parsedAmount > available) {
-      setAmountError('Amount exceeds your available demo balance.');
+      setAmountError('Amount exceeds your available balance.');
       return false;
     }
     if (fromAsset === toAsset) {
@@ -160,7 +160,7 @@ export default function ConvertPage() {
       <PageHeader title="Convert" backHref="/assets" />
       <PageBody>
         {!config.conversionsEnabled ? (
-          <FeatureDisabledNotice message="Demo conversions are currently unavailable." />
+          <FeatureDisabledNotice message="Conversions are currently unavailable." />
         ) : portfolio.isLoading ? (
           <div className="space-y-3">
             <Skeleton className="h-40 w-full" />
@@ -249,7 +249,7 @@ export default function ConvertPage() {
               <CardBody className="pt-4" aria-live="polite">
                 {!quoteReady ? (
                   <p className="text-center text-xs text-muted">
-                    Enter an amount to see the current demo rate.
+                    Enter an amount to see the current rate.
                   </p>
                 ) : quote.isFetching ? (
                   <div className="space-y-2">
@@ -277,7 +277,7 @@ export default function ConvertPage() {
                       )} ${assetLabel(quote.data.toAsset)}`}
                     />
                     <Divider />
-                    <DataRow label="Simulated spread" value={`${quote.data.feePercent}%`} />
+                    <DataRow label="Spread" value={`${quote.data.feePercent}%`} />
                     <Divider />
                     <DataRow
                       label="Estimated received"
@@ -304,7 +304,7 @@ export default function ConvertPage() {
               Convert
             </Button>
             <p className="text-center text-xs text-muted">
-              Demo conversion only. No real assets are exchanged.
+              Conversions are processed instantly at the shown rate.
             </p>
           </div>
         )}
@@ -314,10 +314,10 @@ export default function ConvertPage() {
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         onConfirm={() => mutation.mutate({ fromAsset, toAsset, amount: amount.trim() })}
-        title="Confirm demo conversion"
+        title="Confirm conversion"
         confirmLabel="Convert"
         loading={mutation.isPending}
-        footnote="Simulated balances only — nothing is traded on a real market."
+        footnote="Conversions cannot be reversed once confirmed."
         details={
           <div>
             <DataRow
@@ -338,7 +338,7 @@ export default function ConvertPage() {
             <DataRow label="Rate" value={quote.data ? formatAmount(quote.data.rate, 6) : '—'} />
             <Divider />
             <DataRow
-              label="Simulated spread"
+              label="Spread"
               value={quote.data ? `${quote.data.feePercent}%` : '—'}
             />
           </div>

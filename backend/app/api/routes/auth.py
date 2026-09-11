@@ -11,10 +11,12 @@ Security notes:
 """
 from __future__ import annotations
 
+import hmac
+import re
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends, Request, Response
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.api.deps import rate_limit, require_user
@@ -45,7 +47,14 @@ GENERIC_FORGOT_MESSAGE = (
     "If an account exists for that email address, a password reset link has "
     "been sent."
 )
-DEFAULT_CREDIT_SCORE = 700
+# New accounts start at the top of the 1-100 scale; administrators move it from there.
+DEFAULT_CREDIT_SCORE = 100
+
+# An account registered with a username only still needs a unique address in
+# the NOT NULL `email` column. `.invalid` is reserved (RFC 2606): it can never
+# be delivered to, and never collides with an address someone types, because
+# EmailStr refuses special-use domains.
+NO_EMAIL_DOMAIN = "no-email.invalid"
 
 
 def credit_score_band(score: int) -> str:
@@ -90,42 +99,77 @@ def _issue_cookies(response: Response, user: User) -> None:
     set_auth_cookies(response, access, refresh, new_csrf_token())
 
 
+def _matches_shared_code(db: Session, code: str) -> bool:
+    """True when `code` is the one invitation code everyone registers with."""
+    shared = str(settings_service.get(db, "registration_invite_code") or "").strip()
+    if not shared or not code:
+        return False
+    return hmac.compare_digest(code.strip().casefold().encode(),
+                               shared.casefold().encode())
+
+
+def _username_taken(db: Session, username: str) -> bool:
+    return db.scalar(select(User.id).where(
+        func.lower(User.username) == username.lower())) is not None
+
+
+def _username_for_email(db: Session, email: str) -> str:
+    """A unique username derived from the address, for email-only sign-ups."""
+    base = re.sub(r"[^A-Za-z0-9_.-]", "", email.split("@", 1)[0])[:28]
+    if len(base) < 3:
+        base = f"member{base}"
+    candidate, suffix = base, 1
+    while _username_taken(db, candidate):
+        candidate = f"{base}{suffix}"
+        suffix += 1
+    return candidate
+
+
 @router.post("/register", summary="Create a demo account",
              dependencies=[Depends(rate_limit(10, 60, "register"))])
 def register(payload: RegisterIn, request: Request, response: Response,
              db: Session = Depends(get_db)) -> dict:
-    """Register a paper-trading account and open its simulated wallets."""
-    email = payload.email.strip().lower()
-    username = payload.username.strip()
+    """Register a paper-trading account and open its simulated wallets.
 
-    if db.scalar(select(User).where(func.lower(User.email) == email)) is not None:
-        raise ValidationError("An account with that email already exists.",
-                              code="EMAIL_TAKEN")
-    if db.scalar(select(User).where(
-            func.lower(User.username) == username.lower())) is not None:
-        raise ValidationError("That username is already taken.",
-                              code="USERNAME_TAKEN")
+    The form asks for one sign-in name — an email address or a username — and
+    the other half is derived here, so every account still has both.
+    """
+    identifier = payload.identifier
+    if "@" in identifier:
+        email = identifier.lower()
+        if db.scalar(select(User).where(func.lower(User.email) == email)) is not None:
+            raise ValidationError("An account with that email already exists.",
+                                  code="EMAIL_TAKEN")
+        username = _username_for_email(db, email)
+    else:
+        username = identifier
+        email = f"{username.lower()}@{NO_EMAIL_DOMAIN}"
+        if _username_taken(db, username) or db.scalar(
+                select(User).where(func.lower(User.email) == email)) is not None:
+            raise ValidationError("That username is already taken.",
+                                  code="USERNAME_TAKEN")
 
-    # Registration is invitation-only unless an administrator opens it up.
+    # Registration is invitation-only unless an administrator opens it up. The
+    # code is either the one shared code everyone uses, or a single-use link.
     invite_required = settings_service.get_bool(db, "registration_requires_invite")
     invite_code = (payload.invite_code or "").strip()
     if invite_required and not invite_code:
-        raise ValidationError(
-            "Registration is by invitation only. Ask an administrator for an "
-            "invitation link.",
-            code="INVITE_REQUIRED")
-    if invite_code:
+        raise ValidationError("Enter your invitation code.", code="INVITE_REQUIRED")
+    shared_code = _matches_shared_code(db, invite_code)
+    if invite_code and not shared_code:
         # Validate before creating anything, so a bad code never leaves a user behind.
-        valid, reason, _ = invite_service.check(db, invite_code, email=email)
+        valid, reason, found = invite_service.check(db, invite_code, email=email)
         if not valid:
-            raise ValidationError(reason or "This invitation link is not valid.",
-                                  code="INVITE_INVALID")
+            raise ValidationError(
+                reason if found else "This invitation code is not valid.",
+                code="INVITE_INVALID")
 
     user = User(
         email=email,
         username=username,
-        first_name=payload.first_name,
-        last_name=payload.last_name or "",
+        # The form no longer asks for a name; the username stands in for it.
+        first_name=username,
+        last_name="",
         password_hash=hash_password(payload.password),
         credit_score=DEFAULT_CREDIT_SCORE,
         status=UserStatus.ACTIVE.value,
@@ -133,7 +177,12 @@ def register(payload: RegisterIn, request: Request, response: Response,
     db.add(user)
     db.flush()
 
-    if invite_code:
+    if shared_code:
+        audit_service.record(db, AuditAction.INVITE_USED, actor=user,
+                             target_user_id=user.id, request=request,
+                             new_value={"sharedCode": True},
+                             reason="Registered with the shared invitation code.")
+    elif invite_code:
         # Consumed in the same transaction that creates the account, so an
         # invite can never admit two users.
         invite = invite_service.claim(db, invite_code, email=email, user_id=user.id)
@@ -170,6 +219,8 @@ def check_invite(code: str, db: Session = Depends(get_db)) -> dict:
     It reveals only whether the code works and which address it is locked to —
     never who issued it or anything about other accounts.
     """
+    if _matches_shared_code(db, code):
+        return ok({"valid": True, "reason": None, "email": None, "expiresAt": None})
     valid, reason, invite = invite_service.check(db, code)
     return ok({
         "valid": valid,
@@ -184,8 +235,11 @@ def check_invite(code: str, db: Session = Depends(get_db)) -> dict:
 def login(payload: LoginIn, request: Request, response: Response,
           db: Session = Depends(get_db)) -> dict:
     """Authenticate. Frozen accounts may sign in; suspended accounts may not."""
-    email = payload.email.strip().lower()
-    user = db.scalar(select(User).where(func.lower(User.email) == email))
+    # Either half of the sign-in name works. A username can never contain "@"
+    # and an email always does, so the two can never both match.
+    identifier = payload.email.strip().lower()
+    user = db.scalar(select(User).where(or_(func.lower(User.email) == identifier,
+                                            func.lower(User.username) == identifier)))
 
     if user is None or not verify_password(payload.password, user.password_hash):
         audit_service.record(db, AuditAction.LOGIN_FAILED, actor=user,

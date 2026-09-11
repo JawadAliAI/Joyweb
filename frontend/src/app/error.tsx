@@ -40,7 +40,7 @@ export default function GlobalError({
       <div className="flex flex-wrap items-center justify-center gap-3">
         <Button onClick={() => reset()}>Try again</Button>
         <Link
-          href="/"
+          href="/home"
           className="flex touch-target items-center rounded-control px-4 text-sm font-semibold text-muted hover:text-fg"
         >
           Go home

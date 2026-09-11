@@ -10,6 +10,7 @@
  */
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 import { Menu, ShieldAlert } from 'lucide-react';
 import { Badge } from '@/components/ui/primitives';
 import { usePlatform } from '@/components/providers';
@@ -95,7 +96,13 @@ export function AdminHeader({ onOpenNav }: { onOpenNav: () => void }) {
             <p className="max-w-[160px] truncate text-sm font-medium text-fg">
               {user?.fullName || user?.username || '—'}
             </p>
-            <p className="max-w-[160px] truncate text-xs text-muted">{user?.email ?? ''}</p>
+            <Link
+              href="/admin/password"
+              className="block max-w-[160px] truncate text-xs text-muted hover:text-primary"
+              title="Change password"
+            >
+              {user?.email ?? ''} · Change password
+            </Link>
           </div>
           <Badge tone={user?.role === 'SUPER_ADMIN' ? 'success' : 'info'}>
             {roleLabel(user?.role ?? '')}

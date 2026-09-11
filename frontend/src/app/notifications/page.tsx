@@ -79,7 +79,7 @@ export default function NotificationsPage() {
           <EmptyState
             icon={<BellOff className="h-8 w-8" aria-hidden />}
             title="No notifications"
-            description="Account and simulated trading updates will appear here."
+            description="Account and trading updates will appear here."
           />
         ) : (
           <ul className="grid gap-2 md:grid-cols-2">

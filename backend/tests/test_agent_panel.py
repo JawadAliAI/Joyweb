@@ -204,8 +204,7 @@ class TestInvites:
         code = created.json()["data"]["invite"]["code"]
 
         registered = client.post("/api/auth/register", json={
-            "email": "recruit@example.com", "username": "recruit",
-            "firstName": "Re", "lastName": "Cruit",
+            "identifier": "recruit@example.com",
             "password": "StrongPass123", "confirmPassword": "StrongPass123",
             "inviteCode": code,
         })
@@ -223,8 +222,7 @@ class TestInvites:
         seeded.commit()
 
         registered = client.post("/api/auth/register", json={
-            "email": "direct@example.com", "username": "direct",
-            "firstName": "Di", "lastName": "Rect",
+            "identifier": "direct@example.com",
             "password": "StrongPass123", "confirmPassword": "StrongPass123",
             "inviteCode": invite.code,
         })

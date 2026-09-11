@@ -7,8 +7,8 @@
  * visitor is sent to sign-in and a plain customer is sent back to the app — and
  * lays out the sidebar, header and content column.
  */
-import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { ErrorState, Skeleton } from '@/components/ui/primitives';
 import { useDocumentScrollLock } from '@/hooks/useDocumentScrollLock';
@@ -33,16 +33,32 @@ function ShellSkeleton() {
 /** The admin sign-in page lives inside /admin but must not be gated by it. */
 export const ADMIN_LOGIN_PATH = '/admin/login';
 
+/** Where an administrator who must replace their starting password is held. */
+export const ADMIN_PASSWORD_PATH = '/admin/password';
+
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const session = useRequireAdmin({ enabled: pathname !== ADMIN_LOGIN_PATH });
+  const router = useRouter();
+  const onLogin = pathname === ADMIN_LOGIN_PATH;
+  const session = useRequireAdmin({ enabled: !onLogin });
   const [navOpen, setNavOpen] = useState(false);
   // Every branch below the sign-in page is a fixed shell; none of them scroll
   // the document. Called before the early return so the hook order is stable.
-  useDocumentScrollLock(pathname !== ADMIN_LOGIN_PATH);
+  useDocumentScrollLock(!onLogin);
+
+  const isAdmin = session.user?.role === 'ADMIN' || session.user?.role === 'SUPER_ADMIN';
+  // A starting password is replaced here, in the admin panel — never in the
+  // customer app. Until it is, every admin page leads to the password screen.
+  const heldForPassword =
+    !onLogin && isAdmin && Boolean(session.user?.mustChangePassword)
+    && pathname !== ADMIN_PASSWORD_PATH;
+
+  useEffect(() => {
+    if (heldForPassword) router.replace(ADMIN_PASSWORD_PATH);
+  }, [heldForPassword, router]);
 
   // Rendered bare: no sidebar, no guard, or nobody could ever sign in.
-  if (pathname === ADMIN_LOGIN_PATH) return <>{children}</>;
+  if (onLogin) return <>{children}</>;
 
   if (session.isLoading) return <ShellSkeleton />;
 
@@ -51,7 +67,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
     return <ShellSkeleton />;
   }
 
-  if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') {
+  if (!isAdmin) {
     return (
       <div className="fixed inset-0 flex items-center justify-center overflow-y-auto bg-bg p-6">
         <ErrorState
@@ -61,6 +77,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
       </div>
     );
   }
+
+  // The redirect to the password screen is in flight.
+  if (heldForPassword) return <ShellSkeleton />;
 
   return (
     <AdminTitleProvider>

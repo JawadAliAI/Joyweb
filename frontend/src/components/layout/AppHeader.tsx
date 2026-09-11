@@ -9,7 +9,8 @@
  *
  * The brand lives at the top of the sidebar, so it appears here only below
  * `lg` where there is no sidebar — exactly one mark is on screen at any width.
- * Balances are the user's own simulated wallet, read from the API.
+ * Balance figures are shown only on the Assets page, so the header carries no
+ * wallet totals.
  */
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -18,11 +19,10 @@ import {
   ArrowDownToLine, Bell, ChevronDown, History, LifeBuoy, LogOut, Receipt, Search,
   Shield, UserCog, User as UserIcon,
 } from 'lucide-react';
-import { cn, formatAmount } from '@/lib/format';
+import { accountContact, cn } from '@/lib/format';
 import { usePlatform } from '@/components/providers';
-import { useLogout, usePortfolio, useSession, useUnreadCount } from '@/hooks/useSession';
-import { DemoBadge } from '@/components/layout/DemoBadge';
-import { Skeleton } from '@/components/ui/primitives';
+import { useLogout, useSession, useUnreadCount } from '@/hooks/useSession';
+import { DepositButton } from '@/components/wallet/DepositDialog';
 
 const MENU_ITEMS = [
   { href: '/profile', label: 'My Profile', icon: UserIcon },
@@ -32,42 +32,10 @@ const MENU_ITEMS = [
   { href: '/support', label: 'Support', icon: LifeBuoy },
 ];
 
-/** One wallet figure, styled as the reference's bordered chip. */
-function WalletChip({
-  label,
-  value,
-  loading,
-  tone = 'default',
-}: {
-  label: string;
-  value: string;
-  loading?: boolean;
-  tone?: 'default' | 'accent';
-}) {
-  return (
-    <div className="rounded-control border border-border bg-card px-3 py-1.5">
-      <p className="text-[10px] font-medium uppercase tracking-wide text-muted">{label}</p>
-      {loading ? (
-        <Skeleton className="mt-1 h-3.5 w-20" />
-      ) : (
-        <p
-          className={cn(
-            'tabular text-sm font-semibold leading-tight',
-            tone === 'accent' ? 'text-primary' : 'text-fg',
-          )}
-        >
-          {value}
-        </p>
-      )}
-    </div>
-  );
-}
-
 export function AppHeader() {
   const { config } = usePlatform();
   const { user } = useSession();
   const { data: unread } = useUnreadCount();
-  const portfolio = usePortfolio();
   const logout = useLogout();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -92,8 +60,6 @@ export function AppHeader() {
 
   const initials =
     user ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || 'U' : '';
-  const usdt = portfolio.data?.assets.find((asset) => asset.asset === 'DEMO_USDT');
-  const pricesDown = portfolio.data?.pricesAvailable === false;
 
   return (
     /*
@@ -106,7 +72,7 @@ export function AppHeader() {
         {/* Brand — below `lg` only. From `lg` up the sidebar carries it, so
             exactly one mark is on screen at any width. */}
         <Link
-          href="/"
+          href="/home"
           className="flex min-w-0 max-w-[210px] shrink-0 items-center gap-2 lg:hidden"
         >
           <span
@@ -119,26 +85,8 @@ export function AppHeader() {
             <span className="block truncate text-sm font-semibold leading-tight text-fg">
               {config.appName}
             </span>
-            <DemoBadge className="mt-0.5" compact />
           </span>
         </Link>
-
-        {/* Wallet chips — the reference's spot/futures pair. This platform has
-            no futures product, so the second chip is the balance that actually
-            gates a demo trade. */}
-        <div className="hidden shrink-0 items-center gap-2 xl:flex">
-          <WalletChip
-            label="Demo wallet"
-            loading={portfolio.isLoading}
-            value={pricesDown ? 'Unavailable' : `$${formatAmount(portfolio.data?.totalEstimatedValue)}`}
-          />
-          <WalletChip
-            label="Free to trade"
-            loading={portfolio.isLoading}
-            tone="accent"
-            value={usdt ? `${formatAmount(usdt.available)} USDT` : '—'}
-          />
-        </div>
 
         {/* Market search. Submitting hands the term to the markets screen. */}
         <form
@@ -186,8 +134,7 @@ export function AppHeader() {
             )}
           </Link>
 
-          <Link
-            href="/assets/deposit"
+          <DepositButton
             className={cn(
               'hidden touch-target items-center gap-2 rounded-pill bg-primary px-4 sm:inline-flex',
               'text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90',
@@ -195,7 +142,7 @@ export function AppHeader() {
           >
             Deposit
             <ArrowDownToLine className="h-4 w-4" aria-hidden />
-          </Link>
+          </DepositButton>
 
           {/* Account + profile menu, far right. */}
           <div ref={menuRef} className="relative ml-1 shrink-0">
@@ -217,7 +164,7 @@ export function AppHeader() {
                   {user?.fullName ?? 'Account'}
                 </span>
                 <span className="block max-w-[160px] truncate text-[11px] leading-tight text-muted">
-                  {user?.email ?? ''}
+                  {user ? accountContact(user) : ''}
                 </span>
               </span>
               <ChevronDown className="h-4 w-4 shrink-0 text-muted" aria-hidden />
@@ -232,7 +179,7 @@ export function AppHeader() {
                 {user && (
                   <div className="border-b border-border px-4 py-3">
                     <p className="truncate text-sm font-semibold text-fg">{user.fullName}</p>
-                    <p className="truncate text-xs text-muted">{user.email}</p>
+                    <p className="truncate text-xs text-muted">{accountContact(user)}</p>
                   </div>
                 )}
                 <ul className="py-1">

@@ -62,12 +62,12 @@ class TestDeposit:
 
 
 class TestWithdrawal:
-    def test_options_list_the_configured_simulated_networks(self, client, demo_user):
+    def test_options_list_the_configured_networks(self, client, demo_user):
         login(client, demo_user.email)
         data = client.get("/api/withdrawals/options").json()["data"]
         assert data["enabled"] is True
         labels = {network["label"] for network in data["networks"]}
-        assert any("DEMO USDT" in label for label in labels)
+        assert any("USDT" in label for label in labels)
 
     def test_a_withdrawal_locks_funds_and_awaits_review(self, client, seeded, demo_user):
         login(client, demo_user.email)

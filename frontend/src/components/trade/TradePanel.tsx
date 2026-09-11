@@ -92,7 +92,7 @@ export function TradePanel({
       return `Maximum trade amount is ${formatAmount(selectedDuration.maxAmount, 2)}.`;
     }
     if (available !== null && parsedAmount > available) {
-      return 'Amount exceeds your available demo balance.';
+      return 'Amount exceeds your available balance.';
     }
     return null;
   };
@@ -215,8 +215,7 @@ export function TradePanel({
                 })}
               </div>
               <p className="text-xs text-muted">
-                Chooses which simulated stablecoin funds the stake. It does not
-                affect the outcome.
+                Chooses which stablecoin funds the stake. It does not affect the outcome.
               </p>
             </div>
           )}
@@ -280,7 +279,7 @@ export function TradePanel({
 
           <div>
             <DataRow
-              label="Available Demo Balance"
+              label="Available Balance"
               value={
                 available === null
                   ? '—'
@@ -299,7 +298,7 @@ export function TradePanel({
             />
             <Divider />
             <DataRow
-              label="Potential Demo Payout"
+              label="Potential Payout"
               tone="strong"
               value={validAmount ? formatAmount(potentialPayout, 2) : '—'}
             />

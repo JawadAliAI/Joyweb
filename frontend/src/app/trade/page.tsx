@@ -190,7 +190,7 @@ function TradeScreen() {
       refreshBalances();
       void openTrades.refetch();
       playSound('trade-open');
-      toast.success('Demo position opened', `${data.symbol} ${data.direction}`);
+      toast.success('Position opened', `${data.symbol} ${data.direction}`);
     },
     onError: (error) => {
       setConfirmOpen(false);
@@ -223,7 +223,7 @@ function TradeScreen() {
   if (!platform.tradingEnabled) {
     return (
       <PageBody>
-        <FeatureDisabledNotice message="Demo trading is currently unavailable." />
+        <FeatureDisabledNotice message="Trading is currently unavailable." />
       </PageBody>
     );
   }
@@ -258,7 +258,7 @@ function TradeScreen() {
             )}
 
             <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-semibold text-fg">Place a demo position</p>
+              <p className="text-sm font-semibold text-fg">Place a position</p>
               <SoundToggle />
             </div>
 
@@ -294,7 +294,7 @@ function TradeScreen() {
                     <EmptyState
                       icon={<LineChart className="h-8 w-8" aria-hidden />}
                       title="No open positions"
-                      description="Place a demo position above to see it counting down here."
+                      description="Place a position above to see it counting down here."
                     />
                   ) : (
                     <ul className="divide-y divide-border/70">
@@ -328,7 +328,7 @@ function TradeScreen() {
                     ) : !history.data || history.data.items.length === 0 ? (
                       <EmptyState
                         title="No settled trades yet"
-                        description="Settled demo positions appear here with their outcome."
+                        description="Settled positions appear here with their outcome."
                       />
                     ) : (
                       <ul className="divide-y divide-border/70">
@@ -358,10 +358,10 @@ function TradeScreen() {
             stakeAsset: ticket.stakeAsset,
           });
         }}
-        title="Confirm demo position"
-        confirmLabel="Place demo trade"
+        title="Confirm position"
+        confirmLabel="Place trade"
         loading={mutation.isPending}
-        footnote="Simulated position only. No order is sent to a real exchange."
+        footnote="The outcome is settled automatically at expiry."
         details={
           ticket && (
             <div>

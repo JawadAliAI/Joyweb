@@ -17,17 +17,23 @@ import { usePortfolio } from '@/hooks/useSession';
 import { errorMessage } from '@/lib/api';
 import { cn, formatAmount } from '@/lib/format';
 import { BalanceSkeleton, Card, ErrorState } from '@/components/ui/primitives';
+import { useDepositDialog } from '@/components/wallet/DepositDialog';
 
 const STORAGE_KEY = 'cd:balance-hidden';
+
+const ACTION_CLASS =
+  'flex w-full touch-target flex-col items-center gap-1.5 rounded-control py-1 text-[11px] font-medium text-muted transition-colors hover:text-fg';
 
 interface QuickAction {
   href: string;
   label: string;
   icon: LucideIcon;
+  /** Opens the receptionist dialog instead of navigating. */
+  opensDeposit?: boolean;
 }
 
 const ACTIONS: QuickAction[] = [
-  { href: '/assets/deposit', label: 'Deposit', icon: ArrowDownToLine },
+  { href: '/assets/deposit', label: 'Deposit', icon: ArrowDownToLine, opensDeposit: true },
   { href: '/assets/withdraw', label: 'Withdraw', icon: ArrowUpFromLine },
   { href: '/assets/convert', label: 'Convert', icon: Repeat },
   { href: '/assets/transfer', label: 'Transfer', icon: ArrowLeftRight },
@@ -36,6 +42,7 @@ const ACTIONS: QuickAction[] = [
 export function BalanceCard({ className }: { className?: string }) {
   const { data, isLoading, isError, error, refetch, isFetching } = usePortfolio();
   const [hidden, setHidden] = useState(false);
+  const openDeposit = useDepositDialog();
 
   useEffect(() => {
     try {
@@ -70,7 +77,7 @@ export function BalanceCard({ className }: { className?: string }) {
       <Card className={className}>
         <ErrorState
           title="Balance unavailable"
-          description={errorMessage(error, 'Your simulated balance could not be loaded.')}
+          description={errorMessage(error, 'Your balance could not be loaded.')}
           onRetry={() => void refetch()}
         />
       </Card>
@@ -109,7 +116,7 @@ export function BalanceCard({ className }: { className?: string }) {
         {hidden ? '••••••' : formatAmount(data.totalEstimatedValue)}
       </p>
       <p className="mt-1 text-xs text-subtle">
-        Simulated portfolio value · {data.demoLabel}
+        Portfolio value
       </p>
 
       {!data.pricesAvailable && (
@@ -120,12 +127,9 @@ export function BalanceCard({ className }: { className?: string }) {
 
       <nav aria-label="Wallet actions" className="mt-5">
         <ul className="grid grid-cols-4 gap-2">
-          {ACTIONS.map((action) => (
-            <li key={action.href}>
-              <Link
-                href={action.href}
-                className="flex touch-target flex-col items-center gap-1.5 rounded-control py-1 text-[11px] font-medium text-muted transition-colors hover:text-fg"
-              >
+          {ACTIONS.map((action) => {
+            const content = (
+              <>
                 <span
                   aria-hidden
                   className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground"
@@ -133,9 +137,22 @@ export function BalanceCard({ className }: { className?: string }) {
                   <action.icon className="h-5 w-5" />
                 </span>
                 {action.label}
-              </Link>
-            </li>
-          ))}
+              </>
+            );
+            return (
+              <li key={action.href}>
+                {action.opensDeposit ? (
+                  <button type="button" onClick={openDeposit} className={ACTION_CLASS}>
+                    {content}
+                  </button>
+                ) : (
+                  <Link href={action.href} className={ACTION_CLASS}>
+                    {content}
+                  </Link>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </nav>
     </Card>

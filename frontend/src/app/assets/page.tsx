@@ -10,6 +10,7 @@ import { Wallet } from 'lucide-react';
 import { AppShell, PageBody } from '@/components/layout/AppShell';
 import { SimulationNotice } from '@/components/layout/DemoBadge';
 import { BalanceCard } from '@/components/wallet/BalanceCard';
+import { DepositButton } from '@/components/wallet/DepositDialog';
 import { AssetCard } from '@/components/wallet/AssetCard';
 import { usePortfolio } from '@/hooks/useSession';
 import { errorMessage } from '@/lib/api';
@@ -60,14 +61,11 @@ export default function AssetsPage() {
               <EmptyState
                 icon={<Wallet className="h-8 w-8" aria-hidden />}
                 title="No assets available"
-                description="Generate a demo deposit to start paper trading."
+                description="Contact the receptionist to fund your account."
                 action={
-                  <Link
-                    href="/assets/deposit"
-                    className="touch-target inline-flex items-center rounded-pill bg-primary px-5 text-sm font-semibold text-primary-foreground"
-                  >
-                    Demo deposit
-                  </Link>
+                  <DepositButton className="touch-target inline-flex items-center rounded-pill bg-primary px-5 text-sm font-semibold text-primary-foreground">
+                    Deposit
+                  </DepositButton>
                 }
               />
             ) : (

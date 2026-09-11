@@ -39,8 +39,8 @@ export function TradeResultModal({
     <Modal
       open={open && Boolean(trade)}
       onClose={onClose}
-      title="Demo trade result"
-      description="Simulated outcome — no real money was at risk."
+      title="Trade result"
+      description="Here is how your position settled."
       footer={
         <Button fullWidth onClick={onClose}>
           Done
@@ -101,10 +101,6 @@ export function TradeResultModal({
               Settlement source: {trade.settlementSource || 'Not recorded'}
             </p>
             {trade.settlementNote && <p className="mt-1">{trade.settlementNote}</p>}
-            <p className="mt-2">
-              This is a paper-trading simulation. Balances, prices and payouts are demo values
-              only.
-            </p>
           </div>
         </div>
       )}

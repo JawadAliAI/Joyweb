@@ -42,7 +42,10 @@ function AgentLoginForm() {
         return;
       }
       queryClient.setQueryData(sessionKey, user);
-      router.replace(searchParams.get('next') || '/agent');
+      // A starting password is changed in the admin panel before anything else.
+      router.replace(
+        user.mustChangePassword ? '/admin/password' : searchParams.get('next') || '/agent',
+      );
     },
     onError: (mutationError) => setError(errorMessage(mutationError)),
   });

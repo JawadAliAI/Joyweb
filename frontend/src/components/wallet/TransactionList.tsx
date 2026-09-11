@@ -32,15 +32,15 @@ import type { Transaction, TransactionStatus } from '@/lib/types';
 
 const TYPE_OPTIONS = [
   { value: '', label: 'All types' },
-  { value: 'DEMO_DEPOSIT', label: 'Demo deposit' },
-  { value: 'DEMO_WITHDRAWAL', label: 'Demo withdrawal' },
-  { value: 'DEMO_TRANSFER_IN', label: 'Demo transfer received' },
-  { value: 'DEMO_TRANSFER_OUT', label: 'Demo transfer sent' },
-  { value: 'DEMO_CONVERSION', label: 'Demo conversion' },
-  { value: 'TRADE_STAKE', label: 'Demo trade stake' },
-  { value: 'TRADE_RETURN', label: 'Demo trade return' },
-  { value: 'ADMIN_CREDIT', label: 'Demo balance credited' },
-  { value: 'ADMIN_DEBIT', label: 'Demo balance debited' },
+  { value: 'DEMO_DEPOSIT', label: 'Deposit' },
+  { value: 'DEMO_WITHDRAWAL', label: 'Withdrawal' },
+  { value: 'DEMO_TRANSFER_IN', label: 'Transfer received' },
+  { value: 'DEMO_TRANSFER_OUT', label: 'Transfer sent' },
+  { value: 'DEMO_CONVERSION', label: 'Conversion' },
+  { value: 'TRADE_STAKE', label: 'Trade stake' },
+  { value: 'TRADE_RETURN', label: 'Trade return' },
+  { value: 'ADMIN_CREDIT', label: 'Balance credited' },
+  { value: 'ADMIN_DEBIT', label: 'Balance debited' },
 ];
 
 const STATUS_TONE: Record<TransactionStatus, 'success' | 'danger' | 'warning' | 'neutral'> = {
@@ -147,7 +147,7 @@ export function TransactionList({ pageSize = 20 }: { pageSize?: number }) {
             <EmptyState
               icon={<Receipt className="h-8 w-8" aria-hidden />}
               title="No transactions yet"
-              description="Simulated deposits, trades, transfers and conversions appear here."
+              description="Deposits, trades, transfers and conversions appear here."
             />
           ) : (
             <>

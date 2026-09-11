@@ -8,7 +8,8 @@ from __future__ import annotations
 import re
 from datetime import datetime
 
-from pydantic import EmailStr, Field, field_validator
+from pydantic import EmailStr, Field, TypeAdapter, field_validator
+from pydantic import ValidationError as PydanticValidationError
 
 from app.schemas.common import CamelModel
 
@@ -23,6 +24,7 @@ FUND_PASSWORD_MAX_LENGTH = 64
 FUND_PASSWORD_RULE = "Fund password must be between 6 and 64 characters."
 
 _USERNAME_RE = re.compile(r"^[A-Za-z0-9_.-]{3,32}$")
+_EMAIL = TypeAdapter(EmailStr)
 
 
 def validate_password_strength(value: str) -> str:
@@ -44,31 +46,34 @@ def validate_fund_password(value: str) -> str:
 
 
 class RegisterIn(CamelModel):
-    """New demo account. Creates simulated wallets only — no real funds."""
+    """New demo account. Creates simulated wallets only — no real funds.
 
-    email: EmailStr
-    username: str = Field(min_length=3, max_length=32)
-    first_name: str = Field(min_length=1, max_length=80)
-    last_name: str = Field(default="", max_length=80)
+    The form asks for one sign-in name: `identifier` is an email address or a
+    username, and the route derives the other half.
+    """
+
+    identifier: str = Field(min_length=3, max_length=255,
+                            description="Email address or username.")
     password: str
     confirm_password: str
     invite_code: str | None = Field(None, max_length=128,
-                                    description="Single-use invitation code.")
+                                    description="The shared invitation code, or the "
+                                                "code from a single-use link.")
 
-    @field_validator("username")
+    @field_validator("identifier")
     @classmethod
-    def _check_username(cls, value: str) -> str:
+    def _check_identifier(cls, value: str) -> str:
         value = value.strip()
+        if "@" in value:
+            try:
+                return _EMAIL.validate_python(value).lower()
+            except PydanticValidationError:
+                raise ValueError("Enter a valid email address.") from None
         if not _USERNAME_RE.match(value):
             raise ValueError(
                 "Username must be 3-32 characters using letters, digits, "
                 "dot, dash or underscore.")
         return value
-
-    @field_validator("first_name", "last_name")
-    @classmethod
-    def _strip_names(cls, value: str) -> str:
-        return (value or "").strip()
 
     @field_validator("password")
     @classmethod
@@ -85,7 +90,9 @@ class RegisterIn(CamelModel):
 
 
 class LoginIn(CamelModel):
-    email: EmailStr
+    # An email address or a username. The key stays `email` so existing
+    # clients keep working.
+    email: str = Field(min_length=1, max_length=255)
     password: str = Field(min_length=1)
 
 

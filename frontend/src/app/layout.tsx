@@ -3,17 +3,14 @@ import type { ReactNode } from 'react';
 import { Providers } from '@/components/providers';
 import './globals.css';
 
-const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'CryptoDemo Exchange';
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'cptcryptoiin';
 
 export const metadata: Metadata = {
   title: {
     default: APP_NAME,
     template: `%s · ${APP_NAME}`,
   },
-  description:
-    `${APP_NAME} is a paper-trading simulation. All balances, trades, deposits ` +
-    'and withdrawals are simulated — no real cryptocurrency is held, transferred ' +
-    'or withdrawn, and no blockchain transaction is ever created.',
+  description: `${APP_NAME} — trade the cryptocurrency markets.`,
   applicationName: APP_NAME,
   icons: { icon: '/brand/favicon.svg' },
   robots: { index: false, follow: false },

@@ -36,8 +36,12 @@ DEFAULTS: dict[str, tuple[Any, str, str]] = {
     # --- Registration ---
     "registration_requires_invite": (
         True, "registration",
-        "When on, a new account can only be created with an administrator's "
-        "single-use invitation link."),
+        "When on, a new account needs an invitation code: the shared code below, "
+        "or the code from a single-use invitation link."),
+    "registration_invite_code": (
+        "", "registration",
+        "The one invitation code everyone registers with. Leave blank to accept "
+        "only single-use invitation links."),
     "public_base_url": (
         "", "registration",
         "Base URL used to build invitation links, e.g. https://demo.example.com. "
@@ -87,13 +91,13 @@ DEFAULTS: dict[str, tuple[Any, str, str]] = {
     "withdrawal_networks": (
         [
             {"id": "DEMO_USDT-ERC", "asset": "DEMO_USDT", "network": "ERC",
-             "label": "DEMO USDT - ERC", "enabled": True},
+             "label": "USDT - ERC", "enabled": True},
             {"id": "DEMO_USDT-TRC", "asset": "DEMO_USDT", "network": "TRC",
-             "label": "DEMO USDT - TRC", "enabled": True},
+             "label": "USDT - TRC", "enabled": True},
             {"id": "DEMO_ETH-ERC", "asset": "DEMO_ETH", "network": "ERC",
-             "label": "DEMO ETH", "enabled": True},
+             "label": "ETH", "enabled": True},
             {"id": "DEMO_BTC-BTC", "asset": "DEMO_BTC", "network": "BTC",
-             "label": "DEMO BTC", "enabled": True},
+             "label": "BTC", "enabled": True},
         ],
         "withdrawal", "Simulated asset/network options offered on the withdraw screen."),
 

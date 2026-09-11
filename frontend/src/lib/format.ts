@@ -139,9 +139,9 @@ export function slugToSymbol(slug: string): string {
   return decodeURIComponent(slug).replace('-', '/');
 }
 
-/** "DEMO_USDT" -> "DEMO USDT". Keeps the DEMO prefix visible on purpose. */
+/** "DEMO_USDT" -> "USDT". The internal prefix is never shown to users. */
 export function assetLabel(asset: string): string {
-  return asset.replace(/_/g, ' ');
+  return asset.replace(/^(DEMO|PAPER)_/, '').replace(/_/g, ' ');
 }
 
 /** "DEMO_USDT" -> "USDT", for the ticker glyph only. */
@@ -152,15 +152,15 @@ export function assetTicker(asset: string): string {
 /** Human label for a ledger entry type. */
 export function transactionLabel(type: string): string {
   const labels: Record<string, string> = {
-    DEMO_DEPOSIT: 'Demo deposit',
-    DEMO_WITHDRAWAL: 'Demo withdrawal',
-    DEMO_TRANSFER_IN: 'Demo transfer received',
-    DEMO_TRANSFER_OUT: 'Demo transfer sent',
-    DEMO_CONVERSION: 'Demo conversion',
-    TRADE_STAKE: 'Demo trade stake',
-    TRADE_RETURN: 'Demo trade return',
-    ADMIN_CREDIT: 'Demo balance credited',
-    ADMIN_DEBIT: 'Demo balance debited',
+    DEMO_DEPOSIT: 'Deposit',
+    DEMO_WITHDRAWAL: 'Withdrawal',
+    DEMO_TRANSFER_IN: 'Transfer received',
+    DEMO_TRANSFER_OUT: 'Transfer sent',
+    DEMO_CONVERSION: 'Conversion',
+    TRADE_STAKE: 'Trade stake',
+    TRADE_RETURN: 'Trade return',
+    ADMIN_CREDIT: 'Balance credited',
+    ADMIN_DEBIT: 'Balance debited',
   };
   return labels[type] ?? type.replace(/_/g, ' ').toLowerCase();
 }
@@ -170,4 +170,13 @@ export function statusTone(status: string): 'up' | 'down' | 'flat' {
   if (['FAILED', 'CANCELLED', 'REJECTED', 'FROZEN', 'SUSPENDED', 'LOSS'].includes(status))
     return 'down';
   return 'flat';
+}
+
+/**
+ * The address to show for an account. An account registered with a username
+ * only carries a reserved placeholder address, which is never worth showing,
+ * so the username stands in for it.
+ */
+export function accountContact(user: { email: string; username: string }): string {
+  return user.email.endsWith('@no-email.invalid') ? `@${user.username}` : user.email;
 }
