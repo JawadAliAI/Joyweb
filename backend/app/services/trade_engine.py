@@ -64,7 +64,7 @@ def resolve_stake_asset(asset: str | None) -> str:
     return value
 
 VOID_NOTE = (
-    "Simulation voided: public market data was unavailable at expiry, so no "
+    "This trade was voided: public market data was unavailable at expiry, so no "
     "exit price could be recorded. Your stake was returned in full."
 )
 
@@ -533,7 +533,7 @@ async def settle_due_trades(db: Session) -> int:
 # --------------------------------------------------------------------------- #
 
 BULK_VOID_NOTE = (
-    "Simulation cancelled by an administrator before expiry, so no exit price "
+    "Cancelled by an administrator before expiry, so no exit price "
     "was recorded and no outcome was decided. Your stake was returned in "
     "full. Reason: {reason}"
 )

@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     DEMO_MODE: bool = True
     DEMO_LABEL: str = ""
     ENVIRONMENT: str = "development"
-    SUPPORT_EMAIL: str = "support@cryptodemo.example"
+    SUPPORT_EMAIL: str = "support@cptcryptoiin.com"
 
     # ---- Database ----
     DATABASE_URL: str = "postgresql+psycopg://cryptodemo:cryptodemo@localhost:5432/cryptodemo"

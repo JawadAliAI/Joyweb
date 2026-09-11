@@ -365,7 +365,7 @@ def run() -> None:
 
         demo, demo_new = _get_or_create_user(
             db, email=settings.SEED_DEMO_EMAIL, username="demo",
-            first_name="Demo", last_name="Customer",
+            first_name="Sample", last_name="Customer",
             password=demo_password, role=Role.USER.value)
 
         qa, qa_new = _get_or_create_user(
