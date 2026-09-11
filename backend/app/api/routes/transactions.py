@@ -207,14 +207,14 @@ def create_demo_deposit(
     """
     asset = wallet_service.validate_asset(payload.asset.strip().upper())
     amount = wallet_service.validate_amount(payload.amount)
-    maximum = settings_service.get_decimal(db, "demo_deposit_max")
+    maximum = settings_service.get_decimal(db, "deposit_max")
     if maximum > 0 and amount > maximum:
         raise ValidationError(
             f"The largest single deposit is {maximum}.",
             code="DEPOSIT_LIMIT_EXCEEDED")
 
     reference = wallet_service.new_reference("DEP")
-    auto_credit = settings_service.get_bool(db, "demo_deposit_auto_credit")
+    auto_credit = settings_service.get_bool(db, "deposit_auto_credit")
     deposit = Deposit(
         user_id=user.id, asset=asset, amount=amount,
         status=(TransactionStatus.COMPLETED.value if auto_credit

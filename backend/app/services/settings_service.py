@@ -106,10 +106,10 @@ DEFAULTS: dict[str, tuple[Any, str, str]] = {
     "transfers_enabled": (True, "wallet", "Master switch for internal transfers."),
     "conversions_enabled": (True, "wallet", "Master switch for conversions."),
     "conversion_fee_percent": ("0.1", "wallet", "Conversion spread, percent."),
-    "demo_deposit_auto_credit": (True, "wallet",
+    "deposit_auto_credit": (True, "wallet",
                                  "Credit deposits immediately instead of "
                                  "leaving them pending admin review."),
-    "demo_deposit_max": ("100000", "wallet", "Largest single deposit."),
+    "deposit_max": ("100000", "wallet", "Largest single deposit."),
 }
 
 
