@@ -89,11 +89,11 @@ def main():
     holder = {"client": connect_with_retry()}
 
     try:
-        log("\n[1/3] Checking Git and updating repository on server...")
-        exec_cmd(holder, f"cd {REMOTE_DIR} && git status -s 2>&1")
+        log("\n[1/3] Updating repository on server to latest git commit...")
+        exec_cmd(holder, f"cd {REMOTE_DIR} && git fetch origin && git reset --hard origin/main && git status 2>&1")
 
         log("\n[2/3] Building and updating Docker containers...")
-        exec_cmd(holder, f"cd {REMOTE_DIR} && docker compose up -d --build frontend 2>&1", timeout=600)
+        exec_cmd(holder, f"cd {REMOTE_DIR} && docker compose up -d --build 2>&1", timeout=600)
 
         log("\n[3/3] Checking container health...")
         time.sleep(5)

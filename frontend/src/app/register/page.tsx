@@ -220,6 +220,13 @@ function RegisterForm() {
               >
                 Confirm
               </Button>
+              <p className="text-center text-xs text-muted">
+                By registering, you agree to our{' '}
+                <Link href="/terms" target="_blank" className="font-semibold text-primary hover:underline">
+                  Terms and Conditions
+                </Link>
+                .
+              </p>
             </form>
           </CardBody>
         </Card>

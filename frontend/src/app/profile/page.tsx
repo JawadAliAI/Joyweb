@@ -49,6 +49,7 @@ const MENU = [
   { href: '/profile/security', label: 'Change Password' },
   { href: '/profile/kyc', label: 'Identity verification (KYC)' },
   { href: '/support', label: 'Support' },
+  { href: '/terms', label: 'Terms and Conditions' },
 ];
 
 export default function ProfilePage() {
