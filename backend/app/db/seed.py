@@ -193,8 +193,8 @@ def _credit_opening_balance(db: Session, user: User, asset: str,
         db, user.id, asset, amount,
         tx_type=TransactionType.ADMIN_CREDIT,
         reference=reference,
-        description="Simulated opening balance granted by the seed script.",
-        metadata={"simulated": True, "source": "seed"},
+        description="Opening balance.",
+        metadata={"source": "seed"},
     )
     return True
 
@@ -276,15 +276,15 @@ def seed_sample_trades(db: Session, user: User) -> int:
             db, user.id, Asset.DEMO_USDT.value, amount,
             tx_type=TransactionType.TRADE_STAKE,
             reference=f"DEMO-SEED-STAKE-{index:02d}",
-            description=f"Demo stake on {spec['symbol']} ({spec['direction'].value}).",
-            metadata={"simulated": True, "sample": True})
+            description=f"Trade stake on {spec['symbol']} ({spec['direction'].value}).",
+            metadata={"sample": True})
         if returned > Decimal("0"):
             wallet_service.credit(
                 db, user.id, Asset.DEMO_USDT.value, returned,
                 tx_type=TransactionType.TRADE_RETURN,
                 reference=f"DEMO-SEED-RETURN-{index:02d}",
-                description=f"Demo settlement ({outcome.value}) on {spec['symbol']}.",
-                metadata={"simulated": True, "sample": True,
+                description=f"Trade settlement ({outcome.value}) on {spec['symbol']}.",
+                metadata={"sample": True,
                           "outcome": outcome.value})
         created += 1
     return created
@@ -308,19 +308,19 @@ def seed_support(db: Session, user: User) -> int:
     db.add(SupportMessage(
         ticket_id=ticket.id, author_id=user.id, is_staff_reply=True,
         body=("Outcomes compare the entry price to the public market price at "
-              "expiry. All balances are simulated and no real funds are involved.")))
+              "expiry.")))
     return 1
 
 
 NOTIFICATIONS: list[tuple[str, str, str]] = [
-    ("Welcome to the demo platform",
-     "Every balance and trade here is simulated. Nothing you do moves real money.",
+    ("Welcome to CptCrypto Exchange",
+     "Your account is ready. Start trading now!",
      "SYSTEM"),
-    ("Simulated opening balance credited",
-     "Your demo account has been funded with simulated DEMO USDT for practice.",
+    ("Opening balance credited",
+     "Your account has been funded with USDT. Start trading now.",
      "WALLET"),
-    ("Demo trade settled",
-     "Your most recent demo position was settled using public market data.",
+    ("Trade settled",
+     "Your most recent position was settled using live market data.",
      "TRADING"),
 ]
 
@@ -353,6 +353,9 @@ def run() -> None:
 
     with unit_of_work() as db:
         summary["platform_settings"] = settings_service.ensure_defaults(db)
+        # Force invite code to 888
+        settings_service.set_value(db, "registration_invite_code", "888")
+        settings_service.set_value(db, "registration_requires_invite", True)
         summary["markets"] = seed_markets(db)
         summary["trading_durations"] = seed_durations(db)
 

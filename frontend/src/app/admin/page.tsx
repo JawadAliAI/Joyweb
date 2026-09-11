@@ -77,27 +77,27 @@ export default function AdminDashboardPage() {
           loading={loading}
         />
         <MetricCard
-          label="Total demo balances"
+          label="Total balances"
           value={metrics ? sumTotals(metrics.demoBalances) : '—'}
           hint={metrics ? `Total across all assets` : undefined}
           icon={<Wallet className="h-4 w-4" aria-hidden />}
           loading={loading}
         />
         <MetricCard
-          label="Demo trades today"
+          label="Trades today"
           value={metrics?.demoTradesToday.toLocaleString('en-US') ?? '—'}
           icon={<Activity className="h-4 w-4" aria-hidden />}
           loading={loading}
         />
         <MetricCard
-          label="Demo trade volume"
+          label="Trade volume"
           value={formatAmount(metrics?.demoTradeVolumeToday, 2)}
           hint="Staked today"
           icon={<TrendingUp className="h-4 w-4" aria-hidden />}
           loading={loading}
         />
         <MetricCard
-          label="Pending demo withdrawals"
+          label="Pending withdrawals"
           value={metrics?.pendingWithdrawalsCount.toLocaleString('en-US') ?? '—'}
           hint={
             metrics
@@ -120,14 +120,14 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4 xl:grid-cols-2">
         <SimpleChart
           title="User registrations"
-          description="New demo accounts per day"
+          description="New accounts per day"
           data={data?.registrations ?? []}
           variant="bar"
           unit="count"
           loading={loading}
         />
         <SimpleChart
-          title="Demo trading volume"
+          title="Trading volume"
           description="Stake placed per day"
           data={data?.tradeVolume ?? []}
           variant="line"
@@ -135,7 +135,7 @@ export default function AdminDashboardPage() {
           loading={loading}
         />
         <SimpleChart
-          title="Demo deposits"
+          title="Deposits"
           description="Deposits per day"
           data={data?.deposits ?? []}
           variant="bar"
@@ -143,7 +143,7 @@ export default function AdminDashboardPage() {
           loading={loading}
         />
         <SimpleChart
-          title="Demo withdrawals"
+          title="Withdrawals"
           description="Withdrawals per day"
           data={data?.withdrawals ?? []}
           variant="bar"
@@ -154,13 +154,13 @@ export default function AdminDashboardPage() {
 
       <Card>
         <CardHeader
-          title="Demo balances by asset"
-          description="Simulated units held across every customer wallet"
+          title="Balances by asset"
+          description="Total held across every customer wallet"
         />
         <CardBody className="pt-2">
           <div className="w-full overflow-x-auto">
             <table className="w-full min-w-[480px] text-sm">
-              <caption className="sr-only">Total simulated balances per demo asset</caption>
+              <caption className="sr-only">Total balances per asset</caption>
               <thead>
                 <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">
                   <th scope="col" className="py-2 text-left font-semibold">Asset</th>
@@ -189,7 +189,7 @@ export default function AdminDashboardPage() {
                 {!loading && (metrics?.demoBalances.length ?? 0) === 0 && (
                   <tr>
                     <td colSpan={4} className="py-6 text-center text-xs text-muted">
-                      No simulated balances yet.
+                      No balances yet.
                     </td>
                   </tr>
                 )}

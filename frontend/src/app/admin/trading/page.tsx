@@ -190,7 +190,7 @@ export default function AdminTradingPage() {
     onSuccess: () => {
       toast.success(
         'Trading master switch updated',
-        tradingEnabled ? 'Demo trading is now disabled.' : 'Demo trading is now enabled.',
+        tradingEnabled ? 'Trading is now disabled.' : 'Trading is now enabled.',
       );
       void queryClient.invalidateQueries({ queryKey: ['admin', 'settings'] });
       void queryClient.invalidateQueries({ queryKey: ['platform-config'] });
@@ -494,7 +494,7 @@ export default function AdminTradingPage() {
 
       <Card>
         <CardHeader
-          title="Demo trading master switch"
+          title="Trading master switch"
           description="Turns the trade screen on or off for every customer."
         />
         <CardBody className="flex flex-wrap items-center justify-between gap-3 pt-2">
@@ -516,7 +516,7 @@ export default function AdminTradingPage() {
               setSwitchOpen(true);
             }}
           >
-            {tradingEnabled ? 'Disable demo trading' : 'Enable demo trading'}
+            {tradingEnabled ? 'Disable trading' : 'Enable trading'}
           </Button>
         </CardBody>
       </Card>
@@ -538,7 +538,7 @@ export default function AdminTradingPage() {
         </div>
 
         <DataTable<AdminDuration>
-          caption="Duration and payout options offered on the demo trade screen"
+          caption="Duration and payout options offered on the trade screen"
           columns={durationColumns}
           rows={durations.data ?? []}
           rowKey={(row) => row.id}
@@ -744,7 +744,7 @@ export default function AdminTradingPage() {
           setSwitchError(null);
         }}
         onSubmit={(reason) => toggleTrading.mutate(reason)}
-        title={tradingEnabled ? 'Disable demo trading' : 'Enable demo trading'}
+        title={tradingEnabled ? 'Disable trading' : 'Enable trading'}}
         description={
           tradingEnabled
             ? 'Customers will no longer be able to open positions. Open positions still settle normally.'

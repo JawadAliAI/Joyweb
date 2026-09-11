@@ -66,12 +66,12 @@ def new_reference(prefix: str) -> str:
     Deliberately prefixed and short so it cannot be mistaken for a blockchain
     transaction hash.
     """
-    return f"DEMO-{prefix}-{secrets.token_hex(6).upper()}"
+    return f"TXN-{prefix}-{secrets.token_hex(6).upper()}"
 
 
 def validate_asset(asset: str) -> str:
     if asset not in SUPPORTED_ASSETS:
-        raise ValidationError(f"Unsupported demo asset: {asset}", code="UNSUPPORTED_ASSET")
+        raise ValidationError(f"Unsupported asset: {asset}", code="UNSUPPORTED_ASSET")
     return asset
 
 
