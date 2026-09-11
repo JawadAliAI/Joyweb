@@ -44,7 +44,7 @@ DEFAULTS: dict[str, tuple[Any, str, str]] = {
         "only single-use invitation links."),
     "public_base_url": (
         "", "registration",
-        "Base URL used to build invitation links, e.g. https://demo.example.com. "
+        "Base URL used to build invitation links, e.g. https://cptcryptoiin.com. "
         "Falls back to the first configured CORS origin when blank."),
 
     # --- Trading ---
