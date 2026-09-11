@@ -26,7 +26,7 @@ DEFAULTS: dict[str, tuple[Any, str, str]] = {
     "secondary_color": ("#F0B90B", "branding", "Secondary accent colour."),
     "support_email": (env.SUPPORT_EMAIL, "branding", "Support contact address."),
     "display_currency": ("USD", "branding", "Currency used for estimated values."),
-    "demo_label": (env.DEMO_LABEL, "branding", "Header banner text (leave blank to hide)."),
+    "banner_label": (env.DEMO_LABEL, "branding", "Header banner text (leave blank to hide)."),
 
     # --- System ---
     "maintenance_mode": (False, "system", "Block customer access for maintenance."),
@@ -176,7 +176,7 @@ def public_branding(db: Session) -> dict[str, Any]:
         "secondaryColor": values["secondary_color"],
         "supportEmail": values["support_email"],
         "displayCurrency": values["display_currency"],
-        "demoLabel": values["demo_label"],
+        "demoLabel": values["banner_label"],
         "demoMode": env.DEMO_MODE,
         "maintenanceMode": bool(values["maintenance_mode"]),
         "maintenanceMessage": values["maintenance_message"],

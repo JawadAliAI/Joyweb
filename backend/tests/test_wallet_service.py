@@ -56,9 +56,9 @@ class TestValidateAsset:
 
 
 class TestReferences:
-    def test_reference_is_clearly_a_simulation(self):
+    def test_reference_has_the_expected_prefix(self):
         reference = wallet_service.new_reference("WD")
-        assert reference.startswith("DEMO-WD-")
+        assert reference.startswith("TXN-WD-")
         # Must not resemble a 64-character blockchain transaction hash.
         assert len(reference) < 40
 

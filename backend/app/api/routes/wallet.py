@@ -85,7 +85,7 @@ async def get_portfolio(user: Annotated[User, Depends(require_user)],
         "displayCurrency": settings_service.get(db, "display_currency", "USD"),
         "pricesAvailable": snapshot.available,
         "assets": [_wallet_payload(w, snapshot.get(w.asset)) for w in wallets],
-        "demoLabel": settings_service.get(db, "demo_label"),
+        "demoLabel": settings_service.get(db, "banner_label"),
         "message": snapshot.message,
     })
 

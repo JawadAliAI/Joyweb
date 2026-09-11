@@ -41,6 +41,10 @@ router = APIRouter()
 RATE_SCALE = Decimal("0.000000000001")
 DEMO_NOTE = ""
 
+# A withdrawal destination address: 8-200 characters, letters/digits and a few
+# separators. Restored here — it was accidentally deleted, leaving a NameError.
+ADDRESS_PATTERN = re.compile(r"^[A-Za-z0-9:_\-]{8,200}$")
+
 
 # --------------------------------------------------------------------------- #
 # Helpers
@@ -302,7 +306,7 @@ def withdrawal_options(
         "feeFlat": str(settings_service.get_decimal(db, "withdrawal_fee_flat")),
         "feePercent": str(settings_service.get_decimal(db, "withdrawal_fee_percent")),
         "fundPasswordSet": bool(user.fund_password_hash),
-        "demoLabel": settings_service.get(db, "demo_label"),
+        "demoLabel": settings_service.get(db, "banner_label"),
         # Both strings are admin-editable in Settings -> Withdrawals.
         "message": (None if enabled else str(
             settings_service.get(db, "withdrawals_disabled_message")
@@ -575,7 +579,7 @@ async def quote_conversion(
     quote = await _quote_conversion(db, payload.from_asset, payload.to_asset,
                                     payload.amount)
     body = {key: value for key, value in quote.items() if not key.startswith("_")}
-    body["demoLabel"] = settings_service.get(db, "demo_label")
+    body["demoLabel"] = settings_service.get(db, "banner_label")
     body["message"] = "Indicative rate. No real assets are exchanged."
     return ok(body)
 

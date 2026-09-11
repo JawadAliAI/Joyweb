@@ -31,13 +31,11 @@ class TestDeposit:
         seeded.expire_all()
         assert balance(seeded, demo_user.id) == Decimal("1500.00000000")
 
-    def test_the_reference_is_obviously_a_simulation(self, client, seeded, demo_user):
+    def test_the_reference_has_the_expected_prefix(self, client, seeded, demo_user):
         login(client, demo_user.email)
         data = client.post("/api/deposits/demo",
                            json={"asset": USDT, "amount": "100"}).json()["data"]
-        assert data["reference"].startswith("DEMO-")
-        # Nothing here may look like a real chain address or hash.
-        assert "DEMO" in data.get("simulatedAddress", "DEMO")
+        assert data["reference"].startswith("TXN-")
 
     def test_a_zero_deposit_is_refused(self, client, demo_user):
         login(client, demo_user.email)

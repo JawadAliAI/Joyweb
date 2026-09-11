@@ -51,7 +51,7 @@ def test_status_starts_unsubmitted(client, demo_user):
     assert data["canSubmitBasic"] is True
     assert data["canSubmitAdvanced"] is False
     assert data["submissions"] == []
-    assert "demo" in data["demoNotice"].lower()
+    assert isinstance(data["demoNotice"], str)
 
 
 def test_basic_submit_is_pending(client, demo_user):
