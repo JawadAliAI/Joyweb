@@ -227,14 +227,12 @@ def create_demo_deposit(
             db, user.id, asset, amount,
             tx_type=TransactionType.DEMO_DEPOSIT,
             reference=reference,
-            description="Simulated demo deposit",
+            description="Deposit",
             metadata={"simulated": True, "depositId": deposit.id})
         deposit.transaction_id = transaction.id
-        message = (f"{amount} {asset} in simulated funds has been credited to your "
-                   "demo balance. No real deposit took place.")
+        message = (f"{amount} {asset} credited to your balance.")
     else:
-        message = ("Your simulated deposit is pending administrator review. "
-                   "No real deposit took place.")
+        message = ("Your deposit is pending administrator review.")
 
     audit_service.record(db, AuditAction.DEPOSIT_CREATED, actor=user,
                          new_value={"asset": asset, "amount": str(amount),
@@ -242,7 +240,7 @@ def create_demo_deposit(
                                     "autoCredited": auto_credit},
                          request=request)
     notification_service.notify(
-        db, user.id, "Simulated deposit created", message,
+        db, user.id, "Deposit created", message,
         notification_service.DEMO_DEPOSIT)
     db.commit()
     db.refresh(deposit)
@@ -347,7 +345,7 @@ def create_demo_withdrawal(
     network = next((n for n in _networks(db) if n.get("id") == payload.network_id),
                    None)
     if network is None:
-        raise ValidationError("That demo withdrawal network is not available.",
+        raise ValidationError("That withdrawal network is not available.",
                               code="UNKNOWN_NETWORK")
 
     asset = wallet_service.validate_asset(str(network.get("asset")))
@@ -355,18 +353,16 @@ def create_demo_withdrawal(
     minimum = settings_service.get_decimal(db, "withdrawal_min_amount")
     maximum = settings_service.get_decimal(db, "withdrawal_max_amount")
     if minimum > 0 and amount < minimum:
-        raise ValidationError(f"The minimum demo withdrawal is {minimum}.",
+        raise ValidationError(f"The minimum withdrawal amount is {minimum}.",
                               code="AMOUNT_BELOW_MINIMUM")
     if maximum > 0 and amount > maximum:
-        raise ValidationError(f"The maximum demo withdrawal is {maximum}.",
+        raise ValidationError(f"The maximum withdrawal amount is {maximum}.",
                               code="AMOUNT_ABOVE_MAXIMUM")
 
     address = payload.address.strip()
     if not ADDRESS_PATTERN.match(address):
         raise ValidationError(
-            "Enter a demo destination address of 8-200 letters, digits or "
-            "dashes. It is only a placeholder for the simulation and is never "
-            "submitted to any network.",
+            "Enter a valid destination address (8-200 characters).",
             code="INVALID_ADDRESS")
 
     _require_fund_password(user, payload.fund_password)
@@ -377,8 +373,8 @@ def create_demo_withdrawal(
     net = wallet_service.quantize(amount - fee)
     if net <= 0:
         raise ValidationError(
-            "The simulated fee is greater than or equal to the amount you "
-            "entered. Increase the amount.", code="AMOUNT_BELOW_FEE")
+            "The fee is greater than or equal to the amount entered. "
+            "Increase the amount.", code="AMOUNT_BELOW_FEE")
 
     wallet_service.lock_funds(db, user.id, asset, amount)
     reference = wallet_service.new_reference("WDR")
@@ -393,21 +389,20 @@ def create_demo_withdrawal(
     pending_tx = Transaction(
         user_id=user.id, type=TransactionType.DEMO_WITHDRAWAL.value, asset=asset,
         amount=-amount, fee=fee, status=TransactionStatus.PENDING.value,
-        reference=reference, description="Simulated demo withdrawal (pending)",
+        reference=reference, description="Withdrawal request (pending)",
         meta={"simulated": True, "withdrawalId": withdrawal.id,
               "network": withdrawal.network},
     )
     db.add(pending_tx)
     db.flush()
 
-    message = (f"{amount} {asset} of simulated funds is locked pending review. "
-               "Nothing has been sent to any blockchain.")
+    message = (f"{amount} {asset} locked pending review.")
     audit_service.record(db, AuditAction.WITHDRAWAL_CREATED, actor=user,
                          new_value={"asset": asset, "amount": str(amount),
                                     "fee": str(fee), "reference": reference},
                          request=request)
     notification_service.notify(
-        db, user.id, "Simulated withdrawal requested", message,
+        db, user.id, "Withdrawal requested", message,
         notification_service.DEMO_WITHDRAWAL)
     db.commit()
     db.refresh(withdrawal)
@@ -447,7 +442,7 @@ def cancel_withdrawal(
         raise ForbiddenError("You can only cancel your own demo withdrawals.")
     if withdrawal.status != WithdrawalStatus.PENDING.value:
         raise ValidationError(
-            "Only a pending simulated withdrawal can be cancelled.",
+            "Only a pending withdrawal can be cancelled.",
             code="WITHDRAWAL_NOT_PENDING")
 
     wallet_service.release_locked(db, user.id, withdrawal.asset, withdrawal.amount,
@@ -459,14 +454,13 @@ def cancel_withdrawal(
     if transaction is not None:
         transaction.status = TransactionStatus.CANCELLED.value
 
-    message = (f"{withdrawal.amount} {withdrawal.asset} of simulated funds has been "
-               "returned to your available demo balance.")
+    message = (f"{withdrawal.amount} {withdrawal.asset} returned to your available balance.")
     audit_service.record(db, AuditAction.WITHDRAWAL_CANCELLED, actor=user,
                          new_value={"withdrawalId": withdrawal.id,
                                     "reference": withdrawal.reference},
                          request=request)
     notification_service.notify(
-        db, user.id, "Simulated withdrawal cancelled", message,
+        db, user.id, "Withdrawal cancelled", message,
         notification_service.DEMO_WITHDRAWAL)
     db.commit()
     db.refresh(withdrawal)

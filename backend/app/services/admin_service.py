@@ -44,10 +44,7 @@ CREDIT_SCORE_DISCLAIMER = (
     "It is not a credit-bureau score and has no real-world meaning."
 )
 
-NO_BLOCKCHAIN_NOTICE = (
-    "This is a simulated withdrawal. No blockchain transaction was created and "
-    "none will be created; no real funds moved."
-)
+NO_BLOCKCHAIN_NOTICE = ""
 
 CREDIT = "CREDIT"
 DEBIT = "DEBIT"
@@ -276,10 +273,9 @@ def adjust_balance(db: Session, admin: User, user: User, asset: str,
 
     notification_service.notify(
         db, user.id,
-        f"Demo balance adjusted ({label})",
-        f"An administrator {verb} your simulated {label} balance: "
-        f"{money(amount)} {label}. Reason: {reason}. "
-        "This affects simulated funds only — no real money was involved.",
+        f"Balance adjusted ({label})",
+        f"An administrator {verb} your {label} balance: "
+        f"{money(amount)} {label}. Reason: {reason}.",
         notification_service.DEMO_BALANCE)
 
     return {
@@ -291,8 +287,7 @@ def adjust_balance(db: Session, admin: User, user: User, asset: str,
         "newAvailable": money(new_available),
         "reference": transaction.reference,
         "reason": reason,
-        "message": ("Simulated balance updated. No real funds were moved and no "
-                    "blockchain transaction was created."),
+        "message": "Balance updated.",
     }
 
 
@@ -326,9 +321,9 @@ def set_credit_score(db: Session, admin: User, user: User, new_score: int,
         old_value={"creditScore": old_score}, new_value={"creditScore": score},
         reason=reason, request=request)
     notification_service.notify(
-        db, user.id, "Demo account score updated",
-        f"Your internal demo account score changed from {old_score} to {score}. "
-        f"Reason: {reason}. {CREDIT_SCORE_DISCLAIMER}",
+        db, user.id, "Account score updated",
+        f"Your account score changed from {old_score} to {score}. "
+        f"Reason: {reason}.",
         notification_service.ACCOUNT)
 
     return {
@@ -363,9 +358,9 @@ def freeze_account(db: Session, admin: User, user: User, reason: str,
         old_value={"status": old_status}, new_value={"status": user.status},
         reason=reason, request=request)
     notification_service.notify(
-        db, user.id, "Demo account frozen",
-        f"Your demo account has been frozen by an administrator. Reason: {reason}. "
-        "You can still sign in and contact support, but demo trading, transfers, "
+        db, user.id, "Account frozen",
+        f"Your account has been frozen by an administrator. Reason: {reason}. "
+        "You can still sign in and contact support, but trading, transfers, "
         "withdrawals and conversions are paused.",
         notification_service.ACCOUNT)
 
@@ -395,9 +390,9 @@ def unfreeze_account(db: Session, admin: User, user: User, reason: str,
         old_value={"status": old_status}, new_value={"status": user.status},
         reason=reason, request=request)
     notification_service.notify(
-        db, user.id, "Demo account restored",
-        f"Your demo account restriction has been lifted. Reason: {reason}. "
-        "Full demo functionality is available again.",
+        db, user.id, "Account restored",
+        f"Your account restriction has been lifted. Reason: {reason}. "
+        "Full functionality is available again.",
         notification_service.ACCOUNT)
 
     return {"userId": user.id, "status": user.status, "reason": reason}

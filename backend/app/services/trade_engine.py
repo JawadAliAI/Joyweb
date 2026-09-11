@@ -308,7 +308,7 @@ async def open_trade(db: Session, user: User, symbol: str, direction: str,
         fee=ZERO,
         status=TransactionStatus.COMPLETED.value,
         reference=wallet_service.new_reference("TRD"),
-        description=f"Simulated {direction_value} trade stake on {market.symbol}",
+        description=f"{direction_value} trade stake on {market.symbol}",
         meta={"tradeId": trade.id, "symbol": market.symbol,
               "direction": direction_value, "simulation": True},
     ))
@@ -320,11 +320,11 @@ async def open_trade(db: Session, user: User, symbol: str, direction: str,
                    "direction": direction_value, "amount": str(stake),
                    "durationSeconds": trade.duration_seconds,
                    "entryPrice": str(entry_price)},
-        reason="Simulated trade opened by the account holder.",
+        reason="Trade opened by the account holder.",
         request=request,
     )
-    _notify(db, user.id, "Demo trade opened",
-            f"Simulated {direction_value} on {market.symbol} for {stake} DEMO USDT.",
+    _notify(db, user.id, "Trade opened",
+            f"{direction_value} on {market.symbol} for {stake} USDT.",
             "TRADE_OPENED")
     return trade
 
@@ -376,7 +376,7 @@ def _void(db: Session, trade: Trade, user: User, note: str,
         fee=ZERO,
         status=TransactionStatus.COMPLETED.value,
         reference=wallet_service.new_reference("TRV"),
-        description=f"Simulated trade voided on {trade.symbol} - stake returned",
+        description=f"Trade voided on {trade.symbol} - stake returned",
         meta={"tradeId": trade.id, "symbol": trade.symbol, "voided": True,
               "simulation": True},
     ))
@@ -395,7 +395,7 @@ def _void(db: Session, trade: Trade, user: User, note: str,
         new_value={"tradeId": trade.id, "status": trade.status,
                    "returnedAmount": str(trade.returned_amount)},
         reason=note)
-    _notify(db, trade.user_id, "Demo trade voided", note, "TRADE_VOIDED")
+    _notify(db, trade.user_id, "Trade voided", note, "TRADE_VOIDED")
     return trade
 
 
@@ -459,7 +459,7 @@ async def settle_trade(db: Session, trade: Trade) -> Trade:
         outcome = calculate_outcome(trade.direction, trade.entry_price, exit_price)
         settlement_source = SettlementSource.MARKET_DATA
         note = ("Settled by comparing the entry price to the public market price "
-                "at expiry. Simulated result.")
+                "at expiry.")
 
     profit_loss, returned_amount = calculate_settlement(
         trade.amount, trade.payout_percent, outcome)
@@ -472,7 +472,7 @@ async def settle_trade(db: Session, trade: Trade) -> Trade:
             db, trade.user_id, trade.asset, returned_amount,
             tx_type=TransactionType.TRADE_RETURN,
             reference=wallet_service.new_reference("TRR"),
-            description=(f"Simulated {outcome.value} on {trade.symbol} "
+            description=(f"{outcome.value} on {trade.symbol} "
                          f"({trade.direction})"),
             metadata={"tradeId": trade.id, "symbol": trade.symbol,
                       "outcome": outcome.value, "profitLoss": str(profit_loss),
@@ -498,7 +498,7 @@ async def settle_trade(db: Session, trade: Trade) -> Trade:
                    "returnedAmount": str(returned_amount),
                    "settlementSource": settlement_source.value},
         reason=note)
-    _notify(db, trade.user_id, f"Demo trade {outcome.value.lower()}",
+    _notify(db, trade.user_id, f"Trade {outcome.value.lower()}",
             f"{trade.symbol} {trade.direction}: {note}", "TRADE_SETTLED")
     return trade
 
