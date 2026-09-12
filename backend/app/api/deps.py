@@ -8,6 +8,7 @@ Route handlers state their requirements declaratively, e.g.
 """
 from __future__ import annotations
 
+import hmac
 import time
 from collections import defaultdict, deque
 from typing import Callable, Iterable
@@ -15,6 +16,7 @@ from typing import Callable, Iterable
 from fastapi import Depends, Request
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.errors import (
     AccountRestrictedError, AuthError, FeatureDisabledError, ForbiddenError,
     RateLimitError,
@@ -48,10 +50,42 @@ def verify_csrf(request: Request) -> None:
         return
     if not request.cookies.get(ACCESS_COOKIE):
         return
-    cookie_token = request.cookies.get(CSRF_COOKIE)
+
+    # 1. Check double-submit token
     header_token = request.headers.get(CSRF_HEADER)
-    if not cookie_token or not header_token or cookie_token != header_token:
-        raise ForbiddenError("CSRF token missing or invalid.", code="CSRF_FAILED")
+    cookie_token = request.cookies.get(CSRF_COOKIE)
+
+    if header_token and cookie_token and hmac.compare_digest(cookie_token, header_token):
+        return
+
+    # When cookies exist for both domain (.cptcryptoiin.com) and host (admin.cptcryptoiin.com),
+    # the browser sends multiple cd_csrf cookies in the Cookie header.
+    # Check if header_token matches ANY cd_csrf cookie in the raw Cookie header.
+    raw_cookie = request.headers.get("cookie", "")
+    if header_token and raw_cookie:
+        for part in raw_cookie.split(";"):
+            if "=" in part:
+                k, v = part.strip().split("=", 1)
+                if k.strip() == CSRF_COOKIE and hmac.compare_digest(v.strip(), header_token):
+                    return
+
+    # 2. Origin / Referer verification
+    # Browsers strictly forbid cross-origin spoofing of Origin / Referer on fetch mutations.
+    # If the request originates from our trusted platform origins, allow it.
+    origin = request.headers.get("origin")
+    if origin:
+        norm_origin = origin.rstrip("/").casefold()
+        for allowed in settings.cors_origins:
+            if norm_origin == allowed.rstrip("/").casefold():
+                return
+
+    referer = request.headers.get("referer")
+    if referer:
+        for allowed in settings.cors_origins:
+            if referer.startswith(allowed):
+                return
+
+    raise ForbiddenError("CSRF token missing or invalid.", code="CSRF_FAILED")
 
 
 def get_current_user_optional(request: Request,

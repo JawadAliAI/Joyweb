@@ -117,3 +117,5 @@ def clear_auth_cookies(response: Response) -> None:
     for name in (ACCESS_COOKIE, REFRESH_COOKIE, CSRF_COOKIE):
         response.delete_cookie(name, path="/",
                               domain=settings.COOKIE_DOMAIN or None)
+        if settings.COOKIE_DOMAIN:
+            response.delete_cookie(name, path="/", domain=None)
