@@ -125,7 +125,9 @@ export function usePortfolio() {
   return useQuery({
     queryKey: ['portfolio'],
     queryFn: () => api.get<Portfolio>('/wallet'),
-    staleTime: 10_000,
+    staleTime: 0,              // always consider data stale
+    refetchInterval: 15_000,   // auto-refresh every 15 seconds
+    refetchOnWindowFocus: true, // refresh when user switches back to tab
   });
 }
 
