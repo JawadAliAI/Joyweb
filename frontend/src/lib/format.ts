@@ -139,14 +139,14 @@ export function slugToSymbol(slug: string): string {
   return decodeURIComponent(slug).replace('-', '/');
 }
 
-/** "DEMO_USDT" -> "USDT". The internal prefix is never shown to users. */
+/** "DEMO_USDT" / "CryptoCPT_USDT" -> "USDT". Internal prefixes are never shown to users. */
 export function assetLabel(asset: string): string {
-  return asset.replace(/^(DEMO|PAPER)_/, '').replace(/_/g, ' ');
+  return asset.replace(/^(DEMO|PAPER|CryptoCPT)_/i, '').replace(/_/g, ' ');
 }
 
-/** "DEMO_USDT" -> "USDT", for the ticker glyph only. */
+/** "DEMO_USDT" / "CryptoCPT_USDT" -> "USDT", for the ticker glyph only. */
 export function assetTicker(asset: string): string {
-  return asset.replace(/^DEMO_/, '').replace(/^PAPER_/, '');
+  return asset.replace(/^(DEMO|PAPER|CryptoCPT)_/i, '');
 }
 
 /** Human label for a ledger entry type. */
