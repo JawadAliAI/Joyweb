@@ -390,22 +390,22 @@ def run() -> None:
 
         credited = 0
         credited += _credit_opening_balance(db, demo, Asset.DEMO_USDT.value,
-                                            Decimal("6276.00"), "DEMO-USDT")
+                                            Decimal("0"), "DEMO-USDT")
         credited += _credit_opening_balance(db, demo, Asset.DEMO_USDC.value,
-                                            Decimal("2500.00"), "DEMO-USDC")
+                                            Decimal("0"), "DEMO-USDC")
         credited += _credit_opening_balance(db, demo, Asset.DEMO_BTC.value,
                                             Decimal("0"), "DEMO-BTC")
         credited += _credit_opening_balance(db, demo, Asset.DEMO_ETH.value,
                                             Decimal("0"), "DEMO-ETH")
         credited += _credit_opening_balance(db, qa, Asset.DEMO_USDT.value,
-                                            Decimal("10000"), "QA-USDT")
+                                            Decimal("0"), "QA-USDT")
         credited += _credit_opening_balance(db, qa, Asset.DEMO_USDC.value,
-                                            Decimal("10000"), "QA-USDC")
+                                            Decimal("0"), "QA-USDC")
         wallet_service.ensure_wallets(db, qa.id)
         wallet_service.ensure_wallets(db, admin.id)
         summary["opening_balances"] = credited
 
-        summary["sample_trades"] = seed_sample_trades(db, demo)
+        summary["sample_trades"] = 0
         summary["support_tickets"] = seed_support(db, demo)
         summary["notifications"] = seed_notifications(db, demo)
 
