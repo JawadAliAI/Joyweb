@@ -250,7 +250,9 @@ export default function AdminUserDetailPage() {
     setTestAccount.isPending || forceNextTrade.isPending;
 
   const openAdjust = (kind: 'credit' | 'debit') => {
-    setAsset(defaultAsset);
+    // Default to DEMO_USDT so the amount entered is directly in USDT
+    const usdtAsset = orderedWallets.find((w) => w.asset === 'DEMO_USDT')?.asset ?? defaultAsset;
+    setAsset(usdtAsset);
     setAmount('');
     setDialogError(null);
     setDialog(kind);
@@ -726,14 +728,16 @@ export default function AdminUserDetailPage() {
               onChange={(event) => setAsset(event.target.value)}
             />
             <Input
-              label="Amount"
+              label={`Amount (${asset ? asset.replace(/^DEMO_/, '') : 'USDT'})`}
               inputMode="decimal"
               type="number"
               min="0"
               step="any"
               value={amount}
               onChange={(event) => setAmount(event.target.value)}
-              hint="A debit that would overdraw the wallet is refused, never clamped."
+              hint={asset === 'DEMO_USDT' || asset === 'DEMO_USDC'
+                ? `This amount will be added directly as ${asset.replace(/^DEMO_/, '')} (1:1 value).`
+                : `⚠️ Non-stablecoin selected. ${amount ? Number(amount).toFixed(8) : '0'} ${asset.replace(/^DEMO_/, '')} will be credited — its USDT value depends on live market price.`}
             />
           </div>
         }
