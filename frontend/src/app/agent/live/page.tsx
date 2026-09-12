@@ -227,8 +227,7 @@ export default function AgentLivePositionsPage() {
         tiles={[
           { label: 'Open on this page', value: open.length },
           { label: 'Matching rows', value: total },
-          { label: 'Staked (open)', value: formatAmount(stake) },
-          { label: 'Test accounts', value: rows.filter((row) => row.isTestAccount).length },
+          { label: 'Staked (USDT)', value: formatAmount(stake) },
         ]}
       />
 

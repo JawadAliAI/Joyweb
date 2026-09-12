@@ -259,8 +259,7 @@ export default function AdminTradesPage() {
         tiles={[
           { label: 'Open positions', value: query.data?.openCount ?? open.length },
           { label: 'Matching rows', value: total },
-          { label: 'Staked', value: formatAmount(stake) },
-          { label: 'Test accounts', value: rows.filter((row) => row.isTestAccount).length },
+          { label: 'Staked (USDT)', value: formatAmount(stake) },
         ]}
       />
 

@@ -88,11 +88,11 @@ export default function AdminUsersPage() {
     },
     {
       key: 'balance',
-      header: 'Balance',
+      header: 'Balance (USDT)',
       sortable: true,
       align: 'right',
       render: (row) => (
-        <span className="tabular font-medium">{formatAmount(row.totalDemoValue, 2)}</span>
+        <span className="tabular font-medium">{formatAmount(row.totalDemoValue, 2)} USDT</span>
       ),
     },
     {
@@ -102,7 +102,6 @@ export default function AdminUsersPage() {
         <div className="flex flex-wrap items-center gap-1.5">
           <Badge tone={statusTone(row.status)}>{row.status}</Badge>
           {row.role !== 'USER' && <Badge tone="info">{row.role}</Badge>}
-          {row.isTestAccount && <Badge tone="warning">Test</Badge>}
         </div>
       ),
     },

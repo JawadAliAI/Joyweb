@@ -84,7 +84,7 @@ export function BalanceCard({ className }: { className?: string }) {
     );
   }
 
-  const label = `Balance(${data.displayCurrency})`;
+  const label = 'Total Balance (USDT)';
 
   return (
     <Card className={cn('p-4', className)}>
@@ -113,10 +113,10 @@ export function BalanceCard({ className }: { className?: string }) {
         className="tabular mt-1 text-[2.25rem] font-semibold leading-[1.15] tracking-[-0.02em] text-fg"
         aria-live="polite"
       >
-        {hidden ? '••••••' : formatAmount(data.totalEstimatedValue)}
+        {hidden ? '••••••' : `${formatAmount(data.totalEstimatedValue)} USDT`}
       </p>
       <p className="mt-1 text-xs text-subtle">
-        Portfolio value
+        Total USDT balance
       </p>
 
       {!data.pricesAvailable && (

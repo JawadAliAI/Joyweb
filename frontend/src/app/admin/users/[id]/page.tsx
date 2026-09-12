@@ -349,21 +349,6 @@ export default function AdminUserDetailPage() {
             ))}
           </span>
 
-          {profile.isTestAccount ? (
-            <Button
-              variant="outline"
-              onClick={() => { setDialogError(null); setDialog('unflagTest'); }}
-            >
-              Remove QA test flag
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              onClick={() => { setDialogError(null); setDialog('flagTest'); }}
-            >
-              Mark as QA test account
-            </Button>
-          )}
           <Button variant="outline" onClick={() => openAdjust('credit')}>
             Credit balance
           </Button>
@@ -427,11 +412,9 @@ export default function AdminUserDetailPage() {
               }
             />
             <Divider />
-            <DataRow label="Test account" value={profile.isTestAccount ? 'Yes' : 'No'} />
-            <Divider />
             <DataRow
-              label="Total value"
-              value={formatAmount(profile.totalDemoValue, 2)}
+              label="Total balance (USDT)"
+              value={`${formatAmount(profile.totalDemoValue, 2)} USDT`}
               tone="strong"
             />
             <Divider />
@@ -615,8 +598,6 @@ export default function AdminUserDetailPage() {
               value={data.security.mustChangePassword ? 'Yes' : 'No'}
             />
             <Divider />
-            <DataRow label="Test account" value={data.security.isTestAccount ? 'Yes' : 'No'} />
-            <Divider />
             <DataRow label="Last login" value={formatDateTime(data.security.lastLoginAt)} />
             <p className="mt-4 rounded-control bg-warning/10 px-3 py-2 text-xs text-warning">
               {data.security.note}
@@ -706,27 +687,7 @@ export default function AdminUserDetailPage() {
         );
       })}
 
-      <ReasonDialog
-        open={dialog === 'flagTest'}
-        onClose={closeDialog}
-        onSubmit={(reason) => setTestAccount.mutate({ isTestAccount: true, reason })}
-        title="Mark as QA test account"
-        description="Only a flagged account can have a trade outcome scripted. The customer is notified, the flag is shown on their profile, and every scripted trade is labelled as a test result rather than a market one."
-        confirmLabel="Mark as test account"
-        loading={busy}
-        error={dialogError}
-      />
 
-      <ReasonDialog
-        open={dialog === 'unflagTest'}
-        onClose={closeDialog}
-        onSubmit={(reason) => setTestAccount.mutate({ isTestAccount: false, reason })}
-        title="Remove QA test flag"
-        description="Trades on this account will settle only against public market prices."
-        confirmLabel="Remove test flag"
-        loading={busy}
-        error={dialogError}
-      />
 
       <ReasonDialog
         open={dialog === 'unfreeze'}

@@ -59,11 +59,11 @@ export function AssetCard({ asset, balance: balanceProp, href, className }: Asse
         <Column label="Available" value={formatAmount(balance.available, decimals)} align="left" />
         <Column label="In Use" value={formatAmount(balance.locked, decimals)} />
         <Column
-          label="Est. Value"
+          label="Est. Value (USDT)"
           value={
             balance.estimatedValue === null
               ? 'No live price'
-              : formatAmount(balance.estimatedValue, 2)
+              : `${formatAmount(balance.estimatedValue, 2)} USDT`
           }
         />
       </div>
