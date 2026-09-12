@@ -92,6 +92,10 @@ def main():
         log("\n[1/3] Updating repository on server to latest git commit...")
         exec_cmd(holder, f"cd {REMOTE_DIR} && git fetch origin && git reset --hard origin/main && git status 2>&1")
 
+        log("\n[1.5/3] Ensuring COOKIE_DOMAIN=.cptcryptoiin.com in .env...")
+        exec_cmd(holder, f"sed -i 's/^COOKIE_DOMAIN=.*/COOKIE_DOMAIN=.cptcryptoiin.com/' {REMOTE_DIR}/.env")
+        exec_cmd(holder, f"grep -E 'COOKIE_DOMAIN' {REMOTE_DIR}/.env")
+
         log("\n[2/3] Building and updating Docker containers...")
         exec_cmd(holder, f"cd {REMOTE_DIR} && docker compose up -d --build 2>&1", timeout=600)
 

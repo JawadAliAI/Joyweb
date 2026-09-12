@@ -22,7 +22,6 @@ import { usePlatform } from '@/components/providers';
 import { sessionKey, useSession } from '@/hooks/useSession';
 import { Button, Card, CardBody } from '@/components/ui/primitives';
 import { FormError, Input, PasswordInput } from '@/components/ui/form';
-import { DemoBadge } from '@/components/layout/DemoBadge';
 import type { SessionUser } from '@/lib/types';
 
 /** An administrator with a starting password changes it inside the panel. */
@@ -53,9 +52,9 @@ export default function AdminLoginPage() {
 
   useEffect(() => {
     if (isAdministrator(signedIn)) {
-      router.replace(signedIn.mustChangePassword ? ADMIN_PASSWORD_PATH : next);
+      window.location.href = signedIn.mustChangePassword ? ADMIN_PASSWORD_PATH : next;
     }
-  }, [signedIn, router, next]);
+  }, [signedIn, next]);
 
   const login = useMutation({
     mutationFn: (body: { email: string; password: string }) =>
@@ -70,7 +69,7 @@ export default function AdminLoginPage() {
       }
       queryClient.setQueryData(sessionKey, user);
       // Never into the customer app: a starting password is changed in the panel.
-      router.replace(user.mustChangePassword ? ADMIN_PASSWORD_PATH : next);
+      window.location.href = user.mustChangePassword ? ADMIN_PASSWORD_PATH : next;
     },
     onError: (error) => setFormError(errorMessage(error)),
   });
@@ -97,7 +96,6 @@ export default function AdminLoginPage() {
           </span>
           <h1 className="text-lg font-semibold text-fg">Administration</h1>
           <p className="mt-1 text-xs text-muted">{config.appName}</p>
-          <DemoBadge className="mt-2" />
         </div>
 
         <Card>

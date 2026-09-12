@@ -15,7 +15,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Check, X } from 'lucide-react';
 import { usePlatform } from '@/components/providers';
-import { DemoBadge } from '@/components/layout/DemoBadge';
 import { ApiError, api, errorMessage } from '@/lib/api';
 import { cn } from '@/lib/format';
 import { FormError, Input, PasswordInput } from '@/components/ui/form';
@@ -79,7 +78,7 @@ function RegisterForm() {
     mutationFn: (body: RegisterBody) => api.post<SessionUser>('/auth/register', { ...body }),
     onSuccess: (user) => {
       queryClient.setQueryData(['session'], user);
-      router.replace('/');
+      window.location.href = '/';
     },
     onError: (error) => {
       if (error instanceof ApiError && isInviteErrorCode(error.code)) {
@@ -138,7 +137,6 @@ function RegisterForm() {
             unoptimized
           />
           <h1 className="text-lg font-semibold text-fg">Create an account</h1>
-          <DemoBadge />
           <p className="text-xs text-muted">
             Create your {config.appName} account to start trading the cryptocurrency markets.
           </p>

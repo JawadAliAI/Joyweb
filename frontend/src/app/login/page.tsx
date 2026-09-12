@@ -7,7 +7,6 @@ import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { usePlatform } from '@/components/providers';
-import { DemoBadge } from '@/components/layout/DemoBadge';
 import { api, errorMessage } from '@/lib/api';
 import { FormError, Input, PasswordInput } from '@/components/ui/form';
 import { Button, Card, CardBody, Skeleton } from '@/components/ui/primitives';
@@ -33,22 +32,21 @@ function LoginForm() {
       api.post<SessionUser>('/auth/login', body),
     onSuccess: (user) => {
       queryClient.setQueryData(['session'], user);
+      const isAdmin = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN';
+      const adminBase =
+        typeof window !== 'undefined' && window.location.hostname.includes('cptcryptoiin') && !window.location.hostname.startsWith('admin.')
+          ? 'https://admin.cptcryptoiin.com'
+          : '';
+
       if (user.mustChangePassword) {
-        // An administrator changes a starting password inside the admin panel,
-        // never in the customer app.
-        const isAdmin = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN';
-        router.replace(isAdmin ? '/admin/password' : '/profile/security');
+        window.location.href = isAdmin ? `${adminBase}/admin/password` : '/profile/security';
         return;
       }
-      // Staff land in the back office, not the customer app. An explicit
-      // ?next= is still honoured so a deep link keeps working.
-      // Only administrators have a back office to land in. An AGENT is a
-      // customer account that happens to own a downline, so it stays here.
-      if ((user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') && !nextParam) {
-        router.replace('/admin');
+      if (isAdmin && !nextParam) {
+        window.location.href = `${adminBase}/admin`;
         return;
       }
-      router.replace(next);
+      window.location.href = next;
     },
     onError: (error) => setFormError(errorMessage(error)),
   });
@@ -76,7 +74,6 @@ function LoginForm() {
             unoptimized
           />
           <h1 className="text-lg font-semibold text-fg">{config.appName}</h1>
-          <DemoBadge />
           <p className="text-xs text-muted">
             Sign in to continue to your account.
           </p>
