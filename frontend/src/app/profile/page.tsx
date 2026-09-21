@@ -175,13 +175,6 @@ export default function ProfilePage() {
               <CardHeader title="Credit score" />
               <CardBody className="pt-1">
                 <DataRow label="Score" tone="strong" value={user.creditScore} />
-                <Divider />
-                <DataRow label="Band" value={user.creditScoreBand} />
-                <p className="mt-3 rounded-control bg-primary/10 px-3 py-2 text-xs leading-relaxed text-primary">
-                  This score is used only inside this platform. It is <strong className="font-bold">not</strong> a credit-bureau
-                  score, is not reported to any agency, and has no effect on your real-world
-                  credit or finances.
-                </p>
               </CardBody>
             </Card>
 
