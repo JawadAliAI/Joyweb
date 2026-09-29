@@ -56,7 +56,7 @@ const EMPTY_DURATION: DurationForm = {
   label: '60s',
   payoutPercent: '85',
   minAmount: '10',
-  maxAmount: '10000',
+  maxAmount: '100000',
   isEnabled: true,
   sortOrder: '100',
 };

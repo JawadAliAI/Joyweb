@@ -51,7 +51,7 @@ DEFAULTS: dict[str, tuple[Any, str, str]] = {
     "trading_enabled": (True, "trading", "Master switch for trading."),
     "default_duration_seconds": (60, "trading", "Pre-selected trade duration."),
     "trade_min_amount": ("10", "trading", "Minimum stake."),
-    "trade_max_amount": ("10000", "trading", "Maximum stake."),
+    "trade_max_amount": ("100000", "trading", "Maximum stake."),
     "trade_quick_amounts": ([10, 50, 100, 500, 1000], "trading",
                             "Quick-pick stake buttons."),
     "simulation_disclosure": (

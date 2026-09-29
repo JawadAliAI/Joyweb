@@ -115,7 +115,7 @@ DURATIONS: list[tuple[int, str, str]] = [
 ]
 
 DURATION_MIN = Decimal("10")
-DURATION_MAX = Decimal("10000")
+DURATION_MAX = Decimal("100000")
 
 
 def seed_markets(db: Session) -> int:
@@ -354,8 +354,16 @@ def run() -> None:
         # Force invite code to 888
         settings_service.set_value(db, "registration_invite_code", "888")
         settings_service.set_value(db, "registration_requires_invite", True)
+        # Force the platform-wide maximum stake, so an already-seeded
+        # database is raised too instead of keeping the older, lower value.
+        settings_service.set_value(db, "trade_max_amount", str(DURATION_MAX))
         summary["markets"] = seed_markets(db)
         summary["trading_durations"] = seed_durations(db)
+        # The effective cap is the tighter of the global and per-duration
+        # limits, so lift any duration still sitting below the new maximum.
+        for duration in db.scalars(select(TradingDuration)):
+            if Decimal(duration.max_amount) < DURATION_MAX:
+                duration.max_amount = DURATION_MAX
 
         admin, admin_new = _get_or_create_user(
             db, email=settings.SEED_ADMIN_EMAIL, username="admin",
