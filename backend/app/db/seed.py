@@ -357,6 +357,11 @@ def run() -> None:
         # Force the platform-wide maximum stake, so an already-seeded
         # database is raised too instead of keeping the older, lower value.
         settings_service.set_value(db, "trade_max_amount", str(DURATION_MAX))
+        # Force the withdraw-screen network labels, so a database seeded
+        # before the rename stops showing the old "DEMO ..." coin names.
+        settings_service.set_value(
+            db, "withdrawal_networks",
+            settings_service.DEFAULTS["withdrawal_networks"][0])
         summary["markets"] = seed_markets(db)
         summary["trading_durations"] = seed_durations(db)
         # The effective cap is the tighter of the global and per-duration
