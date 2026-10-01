@@ -405,7 +405,10 @@ def create_demo_withdrawal(
                                     "fee": str(fee), "reference": reference},
                          request=request)
     notification_service.notify(
-        db, user.id, "Withdrawal requested", message,
+        db, user.id, "Withdrawal requested",
+        "Your withdrawal is pending review. The funds are locked until it is "
+        "approved or rejected.\n"
+        f"{notification_service.withdrawal_details(withdrawal)}",
         notification_service.DEMO_WITHDRAWAL)
     db.commit()
     db.refresh(withdrawal)
@@ -463,7 +466,10 @@ def cancel_withdrawal(
                                     "reference": withdrawal.reference},
                          request=request)
     notification_service.notify(
-        db, user.id, "Withdrawal cancelled", message,
+        db, user.id, "Withdrawal cancelled",
+        "You cancelled this withdrawal. The funds are back in your available "
+        "balance.\n"
+        f"{notification_service.withdrawal_details(withdrawal)}",
         notification_service.DEMO_WITHDRAWAL)
     db.commit()
     db.refresh(withdrawal)

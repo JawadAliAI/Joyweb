@@ -7,10 +7,13 @@ simulated — nothing on this platform touches real funds.
 """
 from __future__ import annotations
 
+from decimal import Decimal
+
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.db.models import Notification
+from app.db.models import Notification, Withdrawal
+from app.services import wallet_service
 
 # --- Categories -------------------------------------------------------------
 GENERAL = "GENERAL"
@@ -36,6 +39,25 @@ def notify(db: Session, user_id: str, title: str, body: str,
                          category=category, read=False)
     db.add(entry)
     return entry
+
+
+def withdrawal_details(withdrawal: Withdrawal) -> str:
+    """Identify one withdrawal in a notification body, one fact per line.
+
+    Customers can hold several requests at once, so every withdrawal message
+    names the amount, network, reference and destination it is about. The
+    notifications page renders each line separately.
+    """
+    meta = wallet_service.ASSET_META.get(withdrawal.asset, {})
+    label = meta.get("label", withdrawal.asset)
+    places = int(meta.get("decimals", 8))
+    amount = f"{Decimal(str(withdrawal.amount)):,.{places}f}"
+    address = withdrawal.destination_address or ""
+    if len(address) > 16:
+        address = f"{address[:8]}…{address[-6:]}"
+    return (f"Amount: {amount} {label} ({withdrawal.network})\n"
+            f"Reference: {withdrawal.reference}\n"
+            f"Address: {address}")
 
 
 def list_for_user(db: Session, user_id: str, *, unread_only: bool = False,

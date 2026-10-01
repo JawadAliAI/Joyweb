@@ -730,9 +730,8 @@ def approve_withdrawal(withdrawal_id: str, body: schemas.ReasonIn, request: Requ
         reason=reason, request=request)
     notification_service.notify(
         db, withdrawal.user_id, "Withdrawal approved",
-        f"Your withdrawal of {_money(withdrawal.amount)} "
-        f"{_asset_label(withdrawal.asset)} was approved. "
-        f"{admin_service.NO_BLOCKCHAIN_NOTICE}",
+        "Your withdrawal was approved.\n"
+        f"{notification_service.withdrawal_details(withdrawal)}",
         notification_service.DEMO_WITHDRAWAL)
     db.commit()
 
@@ -781,10 +780,10 @@ def reject_withdrawal(withdrawal_id: str, body: schemas.ReasonIn, request: Reque
         reason=reason, request=request)
     notification_service.notify(
         db, withdrawal.user_id, "Withdrawal rejected",
-        f"Your withdrawal of {_money(withdrawal.amount)} "
-        f"{_asset_label(withdrawal.asset)} was rejected and the funds "
-        f"returned to your available balance. Reason: {reason}. "
-        f"{admin_service.NO_BLOCKCHAIN_NOTICE}",
+        "Your withdrawal was rejected and the funds were returned to your "
+        "available balance.\n"
+        f"{notification_service.withdrawal_details(withdrawal)}\n"
+        f"Reason: {reason}",
         notification_service.DEMO_WITHDRAWAL)
     db.commit()
 

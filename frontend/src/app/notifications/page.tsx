@@ -18,6 +18,55 @@ import { useNotifications } from '@/hooks/useSession';
 import { api, errorMessage } from '@/lib/api';
 import { cn, timeAgo } from '@/lib/format';
 
+const CATEGORY_LABELS: Record<string, string> = {
+  GENERAL: 'General',
+  DEMO_DEPOSIT: 'Deposit',
+  DEMO_WITHDRAWAL: 'Withdrawal',
+  DEMO_TRADE: 'Trade',
+  DEMO_BALANCE: 'Balance',
+  ACCOUNT: 'Account',
+  SECURITY: 'Security',
+};
+
+function categoryLabel(category: string): string {
+  return CATEGORY_LABELS[category] ?? category;
+}
+
+/**
+ * Bodies are written one fact per line ("Amount: …", "Reference: …"). A
+ * "Reason:" line is a rejection the customer needs to see, so it stands out.
+ */
+function NotificationBody({ body }: { body: string }) {
+  const lines = body.split('\n').filter((line) => line.trim() !== '');
+  const [summary, ...details] = lines;
+  return (
+    <div className="mt-1 space-y-1 text-xs leading-relaxed text-muted">
+      <p>{summary}</p>
+      {details.map((line, index) => {
+        const separator = line.indexOf(': ');
+        const label = separator > 0 ? line.slice(0, separator) : null;
+        const value = separator > 0 ? line.slice(separator + 2) : line;
+        if (label === 'Reason') {
+          return (
+            <p
+              key={index}
+              className="rounded-control border border-danger/30 bg-danger/10 px-2.5 py-1.5 text-danger"
+            >
+              <span className="font-semibold">Reason:</span> {value}
+            </p>
+          );
+        }
+        return (
+          <p key={index} className="break-all">
+            {label && <span className="text-subtle">{label}: </span>}
+            <span className="text-fg">{value}</span>
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function NotificationsPage() {
   const query = useNotifications();
   const queryClient = useQueryClient();
@@ -98,9 +147,9 @@ export default function NotificationsPage() {
                     <h2 className="text-sm font-semibold text-fg">{item.title}</h2>
                     {!item.read && <Badge tone="success">New</Badge>}
                   </div>
-                  <p className="mt-1 text-xs leading-relaxed text-muted">{item.body}</p>
+                  <NotificationBody body={item.body} />
                   <p className="mt-1.5 text-[11px] text-subtle">
-                    {item.category} · {timeAgo(item.createdAt)}
+                    {categoryLabel(item.category)} · {timeAgo(item.createdAt)}
                   </p>
                 </div>
 
