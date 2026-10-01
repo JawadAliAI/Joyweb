@@ -21,12 +21,13 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import rate_limit, require_user
 from app.core.config import settings
-from app.core.errors import AuthError, ValidationError
+from app.core.errors import AuthError, ForbiddenError, ValidationError
 from app.core.logging import logger
 from app.core.security import (
-    REFRESH_COOKIE, clear_auth_cookies, create_token, decode_token,
-    hash_password, hash_reset_token, needs_rehash, new_csrf_token,
-    new_reset_token, set_auth_cookies, verify_password,
+    CUSTOMER_REALM, STAFF_REALM, Realm, clear_auth_cookies, cookie_names,
+    create_token, decode_token, hash_password, hash_reset_token, needs_rehash,
+    new_csrf_token, new_reset_token, request_realm, set_auth_cookies,
+    verify_password,
 )
 from app.db.base import utcnow
 from app.db.models import AuditAction, PasswordResetToken, Role, User, UserStatus
@@ -93,10 +94,11 @@ def me_payload(db: Session, user: User) -> dict:
     ).model_dump(by_alias=True)
 
 
-def _issue_cookies(response: Response, user: User) -> None:
+def _issue_cookies(response: Response, user: User,
+                   realm: Realm = CUSTOMER_REALM) -> None:
     access = create_token(user.id, "access", role=user.role)
     refresh = create_token(user.id, "refresh", role=user.role)
-    set_auth_cookies(response, access, refresh, new_csrf_token())
+    set_auth_cookies(response, access, refresh, new_csrf_token(), realm)
 
 
 def _matches_shared_code(db: Session, code: str) -> bool:
@@ -255,6 +257,16 @@ def login(payload: LoginIn, request: Request, response: Response,
         raise AuthError("This account has been suspended.",
                         code="ACCOUNT_SUSPENDED", status_code=403)
 
+    # The back office signs in administrators only; a customer account is
+    # turned away before any back-office session exists.
+    realm = request_realm(request)
+    if realm == STAFF_REALM and not user.is_admin:
+        audit_service.record(db, AuditAction.LOGIN_FAILED, actor=user,
+                             request=request, reason="Not an administrator.")
+        db.commit()
+        raise ForbiddenError("This account does not have administrator access.",
+                             code="NOT_STAFF")
+
     if needs_rehash(user.password_hash):
         user.password_hash = hash_password(payload.password)
     user.last_login_at = utcnow()
@@ -262,7 +274,7 @@ def login(payload: LoginIn, request: Request, response: Response,
     db.commit()
     db.refresh(user)
 
-    _issue_cookies(response, user)
+    _issue_cookies(response, user, realm)
     return ok(me_payload(db, user))
 
 
@@ -276,7 +288,8 @@ def logout(request: Request, response: Response,
     if user is not None:
         audit_service.record(db, AuditAction.LOGOUT, actor=user, request=request)
         db.commit()
-    clear_auth_cookies(response)
+    # Only this side signs out; a session on the other side is left alone.
+    clear_auth_cookies(response, request_realm(request))
     return ok({"loggedOut": True})
 
 
@@ -284,21 +297,26 @@ def logout(request: Request, response: Response,
 def refresh(request: Request, response: Response,
             db: Session = Depends(get_db)) -> dict:
     """Reissue the access, refresh and CSRF cookies from a valid refresh token."""
-    token = request.cookies.get(REFRESH_COOKIE)
+    realm = request_realm(request)
+    _, refresh_cookie, _ = cookie_names(realm)
+    token = request.cookies.get(refresh_cookie)
     if not token:
         raise AuthError("Your session has expired. Please sign in again.",
                         code="REFRESH_REQUIRED")
     payload = decode_token(token, "refresh")
     if not payload:
-        clear_auth_cookies(response)
+        clear_auth_cookies(response, realm)
         raise AuthError("Your session has expired. Please sign in again.",
                         code="REFRESH_INVALID")
     user = db.get(User, payload.get("sub"))
     if user is None or user.status == UserStatus.SUSPENDED.value:
-        clear_auth_cookies(response)
+        clear_auth_cookies(response, realm)
+        raise AuthError("Your session is no longer valid.", code="REFRESH_INVALID")
+    if realm == STAFF_REALM and not user.is_admin:
+        clear_auth_cookies(response, realm)
         raise AuthError("Your session is no longer valid.", code="REFRESH_INVALID")
 
-    _issue_cookies(response, user)
+    _issue_cookies(response, user, realm)
     return ok(me_payload(db, user))
 
 

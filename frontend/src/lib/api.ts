@@ -39,6 +39,28 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * The customer app and the back office (`/admin`, `/agent`) keep separate
+ * sessions on the same origin, so signing in on one side never signs the other
+ * out. Every request names its side; the back office's cookies carry a
+ * `cd_staff_` prefix.
+ */
+export type AuthRealm = 'customer' | 'staff';
+
+export function realmForPath(pathname: string | null | undefined): AuthRealm {
+  const path = pathname ?? '';
+  return /^\/(admin|agent)(\/|$)/.test(path) ? 'staff' : 'customer';
+}
+
+export function currentRealm(): AuthRealm {
+  return typeof window === 'undefined' ? 'customer' : realmForPath(window.location.pathname);
+}
+
+/** The readable CSRF cookie of the side this page belongs to. */
+export function readCsrfToken(): string | null {
+  return readCookie(currentRealm() === 'staff' ? 'cd_staff_csrf' : 'cd_csrf');
+}
+
 function readCookie(name: string): string | null {
   if (typeof document === 'undefined') return null;
   const match = document.cookie.match(new RegExp(`(^|;\\s*)${name}=([^;]*)`));
@@ -72,12 +94,13 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 
   const finalHeaders: Record<string, string> = {
     Accept: 'application/json',
+    'x-auth-realm': currentRealm(),
     ...(headers as Record<string, string> | undefined),
   };
   if (body !== undefined) finalHeaders['Content-Type'] = 'application/json';
 
   if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
-    const csrf = readCookie('cd_csrf');
+    const csrf = readCsrfToken();
     if (csrf) finalHeaders['x-csrf-token'] = csrf;
   }
 

@@ -10,7 +10,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { ApiError, api } from '@/lib/api';
+import { ApiError, api, currentRealm } from '@/lib/api';
 import type {
   Notification, Paged, Portfolio, SessionUser, Trade, Transaction,
 } from '@/lib/types';
@@ -70,12 +70,11 @@ export function useRequireAdmin({ enabled = true }: { enabled?: boolean } = {}) 
       router.replace(`/admin/login?next=${encodeURIComponent(next)}`);
       return;
     }
-    // Anything that is not an administrator goes back to the customer app.
-    // Checking only for USER let an AGENT through the guard and into a shell
-    // whose every request would then 403.
+    // The panel has its own session, so a non-administrator here (a demoted
+    // account) signs in again rather than landing in the customer app.
     if (session.user && session.user.role !== 'ADMIN'
         && session.user.role !== 'SUPER_ADMIN') {
-      router.replace('/');
+      router.replace('/admin/login');
     }
   }, [enabled, session.isLoading, session.unauthenticated, session.user, router]);
 
@@ -101,7 +100,7 @@ export function useRequireAgent({ enabled = true }: { enabled?: boolean } = {}) 
     }
     if (session.user && session.user.role !== 'ADMIN'
         && session.user.role !== 'SUPER_ADMIN') {
-      router.replace('/');
+      router.replace('/agent/login');
     }
   }, [enabled, session.isLoading, session.unauthenticated, session.user, router]);
 
@@ -116,7 +115,11 @@ export function useLogout() {
     mutationFn: () => api.post<Record<string, never>>('/auth/logout'),
     onSettled: () => {
       queryClient.clear();
-      router.replace('/login');
+      // Back to the sign-in page of the side being left; the other side's
+      // session is untouched.
+      const path = typeof window === 'undefined' ? '' : window.location.pathname;
+      if (currentRealm() === 'customer') router.replace('/login');
+      else router.replace(path.startsWith('/agent') ? '/agent/login' : '/admin/login');
     },
   });
 }

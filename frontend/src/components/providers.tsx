@@ -8,9 +8,10 @@
  * whole product without a rebuild.
  */
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { usePathname } from 'next/navigation';
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { ApiError, api } from '@/lib/api';
+import { ApiError, api, realmForPath } from '@/lib/api';
 import type { PlatformConfig } from '@/lib/types';
 import { ToastProvider } from '@/components/ui/toast';
 
@@ -79,25 +80,33 @@ function PlatformProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function Providers({ children }: { children: ReactNode }) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 15_000,
-            refetchOnWindowFocus: false,
-            retry: (failureCount, error) => {
-              // Never retry an auth failure — the app redirects to sign-in instead.
-              if (error instanceof ApiError && (error.isAuthError || error.status === 403)) {
-                return false;
-              }
-              return failureCount < 2;
-            },
-          },
+function createQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 15_000,
+        refetchOnWindowFocus: false,
+        retry: (failureCount, error) => {
+          // Never retry an auth failure — the app redirects to sign-in instead.
+          if (error instanceof ApiError && (error.isAuthError || error.status === 403)) {
+            return false;
+          }
+          return failureCount < 2;
         },
-      }),
-  );
+      },
+    },
+  });
+}
+
+export function Providers({ children }: { children: ReactNode }) {
+  // The customer app and the back office are signed in separately, so each
+  // keeps its own cache: crossing from one to the other never shows the
+  // previous side's account, balances or permissions, not even for a frame.
+  const [clients] = useState(() => ({
+    customer: createQueryClient(),
+    staff: createQueryClient(),
+  }));
+  const queryClient = clients[realmForPath(usePathname())];
 
   return (
     <QueryClientProvider client={queryClient}>

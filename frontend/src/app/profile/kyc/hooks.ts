@@ -7,7 +7,7 @@
  * the hub, the basic form and the advanced form always agree on status.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { API_BASE, ApiError, api } from '@/lib/api';
+import { API_BASE, ApiError, api, readCsrfToken } from '@/lib/api';
 import type { AdvancedKycPayload, BasicKycPayload, KycOverview } from '@/lib/kyc-types';
 
 export const kycKey = ['kyc'] as const;
@@ -30,13 +30,6 @@ export function useSubmitBasicKyc() {
   });
 }
 
-/** Same cookie the JSON client echoes back for the double-submit CSRF check. */
-function readCsrfCookie(): string | null {
-  if (typeof document === 'undefined') return null;
-  const match = document.cookie.match(/(^|;\s*)cd_csrf=([^;]*)/);
-  return match ? decodeURIComponent(match[2]) : null;
-}
-
 interface KycEnvelope {
   success?: boolean;
   data?: KycOverview;
@@ -55,7 +48,7 @@ async function uploadAdvancedKyc(payload: AdvancedKycPayload): Promise<KycOvervi
   formData.append('backImage', payload.backImage);
 
   const headers: Record<string, string> = { Accept: 'application/json' };
-  const csrf = readCsrfCookie();
+  const csrf = readCsrfToken();
   if (csrf) headers['x-csrf-token'] = csrf;
 
   let response: Response;

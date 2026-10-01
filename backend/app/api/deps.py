@@ -21,7 +21,7 @@ from app.core.errors import (
     AccountRestrictedError, AuthError, FeatureDisabledError, ForbiddenError,
     RateLimitError,
 )
-from app.core.security import ACCESS_COOKIE, CSRF_COOKIE, CSRF_HEADER, decode_token
+from app.core.security import CSRF_HEADER, cookie_names, decode_token, request_realm
 from app.db.models import Role, User, UserStatus
 from app.db.session import get_db
 from app.services import settings_service
@@ -30,8 +30,13 @@ SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
 
 
 def _token_from_request(request: Request) -> str | None:
-    """Cookie first (browser clients); bearer header second (docs and tooling)."""
-    cookie = request.cookies.get(ACCESS_COOKIE)
+    """Cookie first (browser clients); bearer header second (docs and tooling).
+
+    Only the cookie of the side the request names is read, so a customer
+    session is never mistaken for a back-office one or the other way round.
+    """
+    access_cookie, _, _ = cookie_names(request_realm(request))
+    cookie = request.cookies.get(access_cookie)
     if cookie:
         return cookie
     header = request.headers.get("authorization", "")
@@ -48,12 +53,13 @@ def verify_csrf(request: Request) -> None:
     """
     if request.method in SAFE_METHODS:
         return
-    if not request.cookies.get(ACCESS_COOKIE):
+    access_cookie, _, csrf_cookie = cookie_names(request_realm(request))
+    if not request.cookies.get(access_cookie):
         return
 
     # 1. Check double-submit token
     header_token = request.headers.get(CSRF_HEADER)
-    cookie_token = request.cookies.get(CSRF_COOKIE)
+    cookie_token = request.cookies.get(csrf_cookie)
 
     if header_token and cookie_token and hmac.compare_digest(cookie_token, header_token):
         return
@@ -66,7 +72,7 @@ def verify_csrf(request: Request) -> None:
         for part in raw_cookie.split(";"):
             if "=" in part:
                 k, v = part.strip().split("=", 1)
-                if k.strip() == CSRF_COOKIE and hmac.compare_digest(v.strip(), header_token):
+                if k.strip() == csrf_cookie and hmac.compare_digest(v.strip(), header_token):
                     return
 
     # 2. Origin / Referer verification
