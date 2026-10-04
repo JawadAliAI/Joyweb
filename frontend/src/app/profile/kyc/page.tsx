@@ -190,7 +190,7 @@ function KycContent({ data }: { data: KycOverview }) {
         requirements={[
           'Basic verification approved first',
           'A front image and a back image (JPEG, PNG or WebP, up to 5 MB each)',
-          'Use placeholder or sample images — never a real document',
+          'Use a real document',
         ]}
         status={data.advancedStatus}
         canSubmit={data.canSubmitAdvanced}

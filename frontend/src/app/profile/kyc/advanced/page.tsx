@@ -1,14 +1,6 @@
 'use client';
 
-/**
- * Advanced identity verification (simulated).
- *
- * Two images go up as multipart/form-data. Nothing is read from them, nothing
- * is matched against a person, and no real verification happens — so the
- * screen repeatedly asks for placeholder or sample images rather than real
- * identity documents. Client-side type/size checks are a convenience; the
- * server checks again.
- */
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Upload, X } from 'lucide-react';
@@ -78,8 +70,7 @@ function FilePicker({
         {label}
       </label>
       <p id={hintId} className="text-xs text-muted">
-        {description} JPEG, PNG or WebP, up to 5 MB. Use a placeholder or sample image — never a
-        real document.
+        {description} JPEG, PNG or WebP, up to 5 MB. Use a real document.
       </p>
       <input
         ref={inputRef}
